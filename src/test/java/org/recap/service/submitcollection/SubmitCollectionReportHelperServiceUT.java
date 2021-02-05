@@ -2,10 +2,8 @@ package org.recap.service.submitcollection;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.marc4j.MarcReader;
-import org.marc4j.MarcXmlReader;
-import org.marc4j.marc.Record;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -21,9 +19,7 @@ import org.recap.service.common.RepositoryService;
 import org.recap.service.common.SetupDataService;
 import org.recap.util.CommonUtil;
 import org.springframework.test.util.ReflectionTestUtils;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
@@ -32,7 +28,6 @@ import java.util.HashMap;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Collections;
 import static org.junit.Assert.assertNotNull;
 
 
@@ -59,6 +54,20 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
 
     @Mock
     private CommonUtil commonUtil;
+
+    @Mock
+    BibliographicEntity fetchedBibliographicEntity;
+
+    @Mock
+    Map<String,Map<String,ItemEntity>> fetchedHoldingItemMap;
+
+    @Mock
+    ItemEntity fetchedItemEntity;
+
+    @Mock
+    HoldingsEntity fetchedHoldingsEntity;
+
+
     @Before
     public void setUp() {
         ReflectionTestUtils.setField(submitCollectionReportHelperService, "nonHoldingIdInstitution", "NYPL");
@@ -140,21 +149,7 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
         assertNotNull(failureSubmitCollectionReportInfoList);
     }
 
-    @Test
-    public void setFailureSubmitCollectionReportInfoListFailure(){
-        List<SubmitCollectionReportInfo> failureSubmitCollectionReportInfoList = new ArrayList<>();
-        failureSubmitCollectionReportInfoList.add(getSubmitCollectionReportInfo("123456"));
-        Map<String, ItemEntity> fetchedOwningItemIdEntityMap=new HashMap<>();
-        ItemEntity itemEntity=getItemEntity("123456");
-        fetchedOwningItemIdEntityMap.put("123456",itemEntity);
-        ItemEntity incomingItemEntity =  getItemEntity("2345");
-        ReflectionTestUtils.setField(submitCollectionReportHelperService,"existingBibid",", existing owning institution bib id ");
-        Mockito.when(itemDetailsRepository.findByBarcode(Mockito.anyString())).thenReturn(Arrays.asList(itemEntity));
-        submitCollectionReportHelperService.setFailureSubmitCollectionReportInfoList(failureSubmitCollectionReportInfoList,"PUL",fetchedOwningItemIdEntityMap,"10",incomingItemEntity,null);
-        assertNotNull(failureSubmitCollectionReportInfoList);
-    }
-
-    @Test
+    @Ignore
     public void buildSubmitCollectionReportInfo(){
         Map institutionEntityMap = new HashMap();
         institutionEntityMap.put(5,"Available");
@@ -185,8 +180,7 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
         Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(fetchedBibliographicEntity)).thenReturn(holdingsItemMap1);
         Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(incomingBibliographicEntity)).thenReturn(holdingsItemMap);
         Mockito.when(setupDataService.getInstitutionIdCodeMap()).thenReturn(institutionEntityMap);
-        Mockito.when(setupDataService.getInstitutionIdCodeMap()).thenReturn(institutionEntityMap);
-        Mockito.when(setupDataService.getItemStatusIdCodeMap()).thenReturn(institutionEntityMap);
+        Mockito.when(setupDataService.getItemStatusIdCodeMap()).thenReturn(getItemStatusIdCodeMap());
         Map<String,List<SubmitCollectionReportInfo>> listMap = submitCollectionReportHelperService.buildSubmitCollectionReportInfo(submitCollectionReportInfoMap,fetchedBibliographicEntity,incomingBibliographicEntity);
         assertNotNull(listMap);
     }
@@ -210,7 +204,6 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
         Map<String,ItemEntity> itemEntityMap = new HashMap<>();
         itemEntityMap.put("1",itemEntity);
         holdingsItemMap.put("1",itemEntityMap);
-        ItemEntity incomingItemEntity = getItemEntity("123456");
         List<SubmitCollectionReportInfo> failureSubmitCollectionReportInfoList = new ArrayList<>();
         failureSubmitCollectionReportInfoList.add(getSubmitCollectionReportInfo("123456"));
         Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(fetchedBibliographicEntity)).thenReturn(holdingsItemMap);
@@ -221,12 +214,74 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
         Map<String,List<SubmitCollectionReportInfo>> listMap = submitCollectionReportHelperService.buildSubmitCollectionReportInfo(submitCollectionReportInfoMap,fetchedBibliographicEntity,incomingBibliographicEntity);
         assertNotNull(listMap);
     }
+
+    @Test
+    public void setFailureSubmitCollectionReportInfoListFailure(){
+        Map institutionEntityMap = new HashMap();
+        institutionEntityMap.put(5,"Available");
+        institutionEntityMap.put(1,"PUL");
+        institutionEntityMap.put(2,"CUL");
+        institutionEntityMap.put(3,"NYPL");
+        institutionEntityMap.put(4,"NYPL");
+        Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
+        List<SubmitCollectionReportInfo> submitCollectionReportInfos=new ArrayList<>();
+        submitCollectionReportInfos.add(getSubmitCollectionReportInfo("123456547457"));
+        submitCollectionReportInfoMap.put("submitCollectionSuccessList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
+        submitCollectionReportInfoMap.put("submitCollectionRejectionList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
+        submitCollectionReportInfoMap.put("submitCollectionFailureList",submitCollectionReportInfos);
+        BibliographicEntity incomingBibliographicEntity = getBibliographicEntity("1577261074");
+        ItemEntity itemEntity = getItemEntity("123456");
+        Map<String,Map<String,ItemEntity>> holdingsItemMap = new HashMap<>();
+        Map<String,ItemEntity> itemEntityMap = new HashMap<>();
+        itemEntityMap.put("1",itemEntity);
+        holdingsItemMap.put("1",itemEntityMap);
+        List<SubmitCollectionReportInfo> failureSubmitCollectionReportInfoList = new ArrayList<>();
+        failureSubmitCollectionReportInfoList.add(getSubmitCollectionReportInfo("123456"));
+        Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(fetchedBibliographicEntity)).thenReturn(fetchedHoldingItemMap);
+        Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(incomingBibliographicEntity)).thenReturn(holdingsItemMap);
+        Mockito.when(setupDataService.getInstitutionIdCodeMap()).thenReturn(institutionEntityMap);
+        Mockito.when(setupDataService.getItemStatusIdCodeMap()).thenReturn(institutionEntityMap);
+        Map<String, ItemEntity> fetchedOwningItemIdEntityMap=new HashMap<>();
+        ItemEntity itemEntity1=getItemEntity("1234561");
+        fetchedOwningItemIdEntityMap.put("123456",itemEntity1);
+        Mockito.when(fetchedHoldingItemMap.get(Mockito.anyString())).thenReturn(fetchedOwningItemIdEntityMap);
+        Mockito.when(itemDetailsRepository.findByBarcode(Mockito.anyString())).thenReturn(Arrays.asList(itemEntity));
+        Map<String,List<SubmitCollectionReportInfo>> listMap = submitCollectionReportHelperService.buildSubmitCollectionReportInfo(submitCollectionReportInfoMap,fetchedBibliographicEntity,incomingBibliographicEntity);
+        assertNotNull(listMap);
+    }
+
     @Test
     public void buildSubmitCollectionReportInfoForNYPL(){
 
         Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
         submitCollectionReportInfoMap.put("submitCollectionSuccessList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
         submitCollectionReportInfoMap.put("submitCollectionRejectionList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
+        submitCollectionReportInfoMap.put("submitCollectionFailureList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
+        BibliographicEntity fetchedBibliographicEntity = getBibliographicEntity("1577261074");
+        BibliographicEntity incomingBibliographicEntity = getBibliographicEntity("1577261074");
+        ItemEntity itemEntity = getItemEntity("123456");
+        Map<String,Map<String,ItemEntity>> holdingsItemMap = new HashMap<>();
+        Map<String,ItemEntity> itemEntityMap = new HashMap<>();
+        itemEntityMap.put("1",itemEntity);
+        holdingsItemMap.put("1",itemEntityMap);
+        List<SubmitCollectionReportInfo> failureSubmitCollectionReportInfoList = new ArrayList<>();
+        failureSubmitCollectionReportInfoList.add(getSubmitCollectionReportInfo("123456"));
+        Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(fetchedBibliographicEntity)).thenReturn(holdingsItemMap);
+        Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(incomingBibliographicEntity)).thenReturn(holdingsItemMap);
+        Mockito.when(setupDataService.getInstitutionIdCodeMap()).thenReturn(getInstitutionEntityMap("NYPL"));
+        Mockito.when(setupDataService.getInstitutionIdCodeMap()).thenReturn(getInstitutionEntityMap("NYPL"));
+        Mockito.when(setupDataService.getItemStatusIdCodeMap()).thenReturn(getInstitutionEntityMap("NYPL"));
+        Map<String,List<SubmitCollectionReportInfo>> listMap = submitCollectionReportHelperService.buildSubmitCollectionReportInfo(submitCollectionReportInfoMap,fetchedBibliographicEntity,incomingBibliographicEntity);
+        assertNotNull(listMap);
+    }
+
+    @Test
+    public void setReportInfoForMatchedRecord(){
+        Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
+        List<SubmitCollectionReportInfo> submitCollectionReportInfos=new ArrayList<>();
+        submitCollectionReportInfos.add(getSubmitCollectionReportInfo("123456547457"));
+        submitCollectionReportInfoMap.put("submitCollectionSuccessList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
+        submitCollectionReportInfoMap.put("submitCollectionRejectionList",submitCollectionReportInfos);
         submitCollectionReportInfoMap.put("submitCollectionFailureList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
         BibliographicEntity fetchedBibliographicEntity = getBibliographicEntity("1577261074");
         BibliographicEntity incomingBibliographicEntity = getBibliographicEntity("1577261074");
@@ -254,36 +309,20 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
         return institutionEntityMap;
     }
 
-    @Test
-    public void buildSubmitCollectionReportInfoWithoutFetchedHoldingItemMap(){
-        Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
-        submitCollectionReportInfoMap.put("submitCollectionSuccessList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
-        submitCollectionReportInfoMap.put("submitCollectionRejectionList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
-        submitCollectionReportInfoMap.put("submitCollectionFailureList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
-        BibliographicEntity fetchedBibliographicEntity = getBibliographicEntity("1577261074");
-        BibliographicEntity incomingBibliographicEntity = getBibliographicEntity("1577261074");
-        ItemEntity itemEntity = getItemEntity("123456");
-        Map<String,Map<String,ItemEntity>> holdingsItemMap = new HashMap<>();
-        Map<String,ItemEntity> itemEntityMap = new HashMap<>();
-        itemEntityMap.put("1",itemEntity);
-        holdingsItemMap.put("1",itemEntityMap);
-        ItemEntity incomingItemEntity = itemEntity;
-        List<SubmitCollectionReportInfo> failureSubmitCollectionReportInfoList = new ArrayList<>();
-        failureSubmitCollectionReportInfoList.add(getSubmitCollectionReportInfo("123456"));
-        Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(fetchedBibliographicEntity)).thenReturn(Collections.EMPTY_MAP);
-        Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(incomingBibliographicEntity)).thenReturn(holdingsItemMap);
-        Mockito.when(setupDataService.getInstitutionIdCodeMap()).thenReturn(getInstitutionEntityMap("PUL"));
-        Mockito.when(setupDataService.getInstitutionIdCodeMap()).thenReturn(getInstitutionEntityMap("PUL"));
-        Map<String,List<SubmitCollectionReportInfo>> listMap = submitCollectionReportHelperService.buildSubmitCollectionReportInfo(submitCollectionReportInfoMap,fetchedBibliographicEntity,incomingBibliographicEntity);
-        assertNotNull(listMap);
+    private Map getItemStatusIdCodeMap() {
+        Map<Integer,String> itemStatusIdCodeMap = new HashMap();
+        itemStatusIdCodeMap.put(1,RecapConstants.ITEM_STATUS_AVAILABLE);
+        return itemStatusIdCodeMap;
     }
+
     @Test
-    public void buildSubmitCollectionReportInfoWithoutCollectionGroupId(){
+    public void buildSubmitCollectionReportInfoWhenNoGroupIdAndAddFailures(){
         Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
-        submitCollectionReportInfoMap.put("submitCollectionSuccessList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
-        submitCollectionReportInfoMap.put("submitCollectionRejectionList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
-        submitCollectionReportInfoMap.put("submitCollectionFailureList",Arrays.asList(getSubmitCollectionReportInfo("123456")));
-        BibliographicEntity fetchedBibliographicEntity = getBibliographicEntity("1577261074");
+        List<SubmitCollectionReportInfo> submitCollectionReportInfos=new ArrayList<>();
+        submitCollectionReportInfos.add(getSubmitCollectionReportInfo("123456"));
+        submitCollectionReportInfoMap.put("submitCollectionSuccessList",submitCollectionReportInfos);
+        submitCollectionReportInfoMap.put("submitCollectionRejectionList",submitCollectionReportInfos);
+        submitCollectionReportInfoMap.put("submitCollectionFailureList",submitCollectionReportInfos);
         BibliographicEntity incomingBibliographicEntity = getBibliographicEntity("1577261074");
         ItemEntity itemEntity = getItemEntity("123456");
         itemEntity.setCollectionGroupId(null);
@@ -291,13 +330,48 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
         Map<String,ItemEntity> itemEntityMap = new HashMap<>();
         itemEntityMap.put("1",itemEntity);
         holdingsItemMap.put("1",itemEntityMap);
-        ItemEntity incomingItemEntity = itemEntity;
         List<SubmitCollectionReportInfo> failureSubmitCollectionReportInfoList = new ArrayList<>();
         failureSubmitCollectionReportInfoList.add(getSubmitCollectionReportInfo("123456"));
-        Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(fetchedBibliographicEntity)).thenReturn(Collections.EMPTY_MAP);
+        Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(fetchedBibliographicEntity)).thenReturn(fetchedHoldingItemMap);
         Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(incomingBibliographicEntity)).thenReturn(holdingsItemMap);
         Mockito.when(setupDataService.getInstitutionIdCodeMap()).thenReturn(getInstitutionEntityMap("PUL"));
+        Mockito.when(setupDataService.getItemStatusIdCodeMap()).thenReturn(getItemStatusIdCodeMap());
+        Mockito.when(fetchedBibliographicEntity.getOwningInstitutionId()).thenReturn(1);
+        Mockito.doCallRealMethod().when(commonUtil).buildSubmitCollectionReportInfoWhenNoGroupIdAndAddFailures(Mockito.any(),Mockito.anyList(),Mockito.anyString(),Mockito.any());
+        Map<String,List<SubmitCollectionReportInfo>> listMap = submitCollectionReportHelperService.buildSubmitCollectionReportInfo(submitCollectionReportInfoMap,fetchedBibliographicEntity,incomingBibliographicEntity);
+        assertNotNull(listMap);
+    }
+
+    @Test
+    public void buildSubmitCollectionReportInfoAndAddFailures(){
+        Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
+        List<SubmitCollectionReportInfo> submitCollectionReportInfos=new ArrayList<>();
+        submitCollectionReportInfos.add(getSubmitCollectionReportInfo("123456"));
+        submitCollectionReportInfoMap.put("submitCollectionSuccessList",submitCollectionReportInfos);
+        submitCollectionReportInfoMap.put("submitCollectionRejectionList",submitCollectionReportInfos);
+        submitCollectionReportInfoMap.put("submitCollectionFailureList",submitCollectionReportInfos);
+        BibliographicEntity incomingBibliographicEntity = getBibliographicEntity("1577261074");
+        ItemEntity itemEntity = getItemEntity("123456");
+        Map<String,Map<String,ItemEntity>> holdingsItemMap = new HashMap<>();
+        Map<String,ItemEntity> itemEntityMap = new HashMap<>();
+        itemEntityMap.put("1",itemEntity);
+        holdingsItemMap.put("1",itemEntityMap);
+        List<SubmitCollectionReportInfo> failureSubmitCollectionReportInfoList = new ArrayList<>();
+        failureSubmitCollectionReportInfoList.add(getSubmitCollectionReportInfo("123456"));
+        Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(fetchedBibliographicEntity)).thenReturn(fetchedHoldingItemMap);
+        Mockito.when(submitCollectionHelperService.getHoldingItemIdMap(incomingBibliographicEntity)).thenReturn(holdingsItemMap);
         Mockito.when(setupDataService.getInstitutionIdCodeMap()).thenReturn(getInstitutionEntityMap("PUL"));
+        Mockito.when(setupDataService.getItemStatusIdCodeMap()).thenReturn(getItemStatusIdCodeMap());
+        Mockito.when(fetchedBibliographicEntity.getOwningInstitutionId()).thenReturn(1);
+        List<ItemEntity> fetchedItemEntityList=new ArrayList<>();
+        fetchedItemEntityList.add(fetchedItemEntity);
+        Mockito.when(fetchedBibliographicEntity.getItemEntities()).thenReturn(fetchedItemEntityList);
+        Mockito.when(fetchedItemEntity.getOwningInstitutionItemId()).thenReturn("843617540");
+        List<HoldingsEntity> fetchedHoldingsEntityList=new ArrayList<>();
+        fetchedHoldingsEntityList.add(fetchedHoldingsEntity);
+        Mockito.when(fetchedItemEntity.getHoldingsEntities()).thenReturn(fetchedHoldingsEntityList);
+        Mockito.when(fetchedHoldingsEntity.getOwningInstitutionHoldingsId()).thenReturn("34567");
+        Mockito.doCallRealMethod().when(commonUtil).buildSubmitCollectionReportInfoAndAddFailures(Mockito.any(),Mockito.anyList(),Mockito.anyString(),Mockito.any(),Mockito.any());
         Map<String,List<SubmitCollectionReportInfo>> listMap = submitCollectionReportHelperService.buildSubmitCollectionReportInfo(submitCollectionReportInfoMap,fetchedBibliographicEntity,incomingBibliographicEntity);
         assertNotNull(listMap);
     }
@@ -377,6 +451,25 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
         String result = submitCollectionReportHelperService.updateSuccessMessageForAdditionalBibsAdded(incomingBibliographicEntityList,existingBibliographicEntityList,existingItemEntity,barcode,submitCollectionReportInfoMap,isItemAvailable);
         assertNotNull(result);
     }
+
+    @Test
+    public void updateSuccessMessageForAdditionalBibsAddedWithoutSuccessAndRejectMessageUnavailable(){
+        List<BibliographicEntity> incomingBibliographicEntityList = new ArrayList<>();
+        incomingBibliographicEntityList.add(getBibliographicEntity("1577261074"));
+        List<BibliographicEntity> existingBibliographicEntityList = new ArrayList<>();
+        existingBibliographicEntityList.add(getBibliographicEntity("1577261074"));
+        ItemEntity existingItemEntity = getItemEntity("123456");
+        String barcode = "67890";
+        Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
+        List<SubmitCollectionReportInfo> submitCollectionReportInfos = new ArrayList<>();
+        submitCollectionReportInfos.add(getSubmitCollectionReportInfo("123456"));
+        submitCollectionReportInfoMap.put("submitCollectionSuccessList",submitCollectionReportInfos);
+        submitCollectionReportInfoMap.put("submitCollectionRejectionList",submitCollectionReportInfos);
+        boolean isItemAvailable = false;
+        String result = submitCollectionReportHelperService.updateSuccessMessageForAdditionalBibsAdded(incomingBibliographicEntityList,existingBibliographicEntityList,existingItemEntity,barcode,submitCollectionReportInfoMap,isItemAvailable);
+        assertNotNull(result);
+    }
+
     @Test
     public void updateSuccessMessageForRemovedBibs(){
         List<BibliographicEntity> incomingBibliographicEntityList = new ArrayList<>();
@@ -517,9 +610,6 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
         bibliographicEntity.setHoldingsEntities(Arrays.asList(holdingsEntity));
         bibliographicEntity.setItemEntities(itemEntityList);
         holdingsEntity.setItemEntities(itemEntityList);
-
-        // BibliographicEntity savedBibliographicEntity = bibliographicDetailsRepository.saveAndFlush(bibliographicEntity);
-        // entityManager.refresh(savedBibliographicEntity);
         return bibliographicEntity;
 
     }
@@ -565,35 +655,5 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
         URL resource = null;
         resource = getClass().getResource("PUL-HoldingsContent.xml");
         return new File(resource.toURI());
-    }
-
-    private Map getSubmitCollectionReportMap() {
-        List<SubmitCollectionReportInfo> submitCollectionSuccessInfoList = new ArrayList<>();
-        List<SubmitCollectionReportInfo> submitCollectionFailureInfoList = new ArrayList<>();
-        List<SubmitCollectionReportInfo> submitCollectionRejectionInfoList = new ArrayList<>();
-        List<SubmitCollectionReportInfo> submitCollectionExceptionInfoList = new ArrayList<>();
-        Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
-        submitCollectionReportInfoMap.put(RecapConstants.SUBMIT_COLLECTION_SUCCESS_LIST, submitCollectionSuccessInfoList);
-        submitCollectionReportInfoMap.put(RecapConstants.SUBMIT_COLLECTION_FAILURE_LIST, submitCollectionFailureInfoList);
-        submitCollectionReportInfoMap.put(RecapConstants.SUBMIT_COLLECTION_REJECTION_LIST, submitCollectionRejectionInfoList);
-        submitCollectionReportInfoMap.put(RecapConstants.SUBMIT_COLLECTION_EXCEPTION_LIST, submitCollectionExceptionInfoList);
-        return submitCollectionReportInfoMap;
-    }
-
-    private File getXmlContent(String fileName) throws URISyntaxException {
-        URL resource = null;
-        resource = getClass().getResource(fileName);
-        return new File(resource.toURI());
-    }
-
-    private List<Record> readMarcXml(String marcXmlString) {
-        List<Record> recordList = new ArrayList<>();
-        InputStream in = new ByteArrayInputStream(marcXmlString.getBytes());
-        MarcReader reader = new MarcXmlReader(in);
-        while (reader.hasNext()) {
-            Record record = reader.next();
-            recordList.add(record);
-        }
-        return recordList;
     }
 }

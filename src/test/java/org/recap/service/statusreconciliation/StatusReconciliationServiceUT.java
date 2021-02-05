@@ -5,6 +5,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
+import org.recap.TestUtil;
 import org.recap.model.csv.StatusReconciliationCSVRecord;
 import org.recap.model.csv.StatusReconciliationErrorCSVRecord;
 import org.recap.model.jpa.ItemEntity;
@@ -12,7 +13,6 @@ import org.recap.model.jpa.ItemStatusEntity;
 import org.recap.repository.jpa.ItemChangeLogDetailsRepository;
 import org.recap.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,8 +40,13 @@ public class StatusReconciliationServiceUT extends BaseTestCaseUT {
     public void itemStatusComparison() throws Exception {
         List<List<ItemEntity>> itemEntityChunkList=new ArrayList<>();
         ItemEntity itemEntity=new ItemEntity();
-        itemEntityChunkList.add(Arrays.asList(itemEntity));
+        itemEntity.setBarcode("123456");
+        itemEntity.setImsLocationEntity(TestUtil.getImsLocationEntity(3,"RECAP","RECAP_LAS"));
+        List<ItemEntity> itemEntityList=new ArrayList<>();
+        itemEntityList.add(itemEntity);
+        itemEntityChunkList.add(itemEntityList);
         List<StatusReconciliationErrorCSVRecord> statusReconciliationErrorCSVRecordList=new ArrayList<>();
+        Mockito.when(commonUtil.getScsbItemStatusModelListByItemEntities(Mockito.anyList())).thenCallRealMethod();
         Mockito.when(commonUtil.getBarcodesList(Mockito.anyList())).thenThrow(NullPointerException.class);
         List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList=statusReconciliationService.itemStatusComparison(itemEntityChunkList,statusReconciliationErrorCSVRecordList);
         assertNotNull(statusReconciliationCSVRecordList);

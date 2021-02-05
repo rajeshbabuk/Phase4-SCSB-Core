@@ -1,7 +1,7 @@
 package org.recap.model;
 
 import org.junit.Test;
-import org.recap.BaseTestCase;
+import org.recap.BaseTestCaseUT;
 import org.recap.model.jpa.DeletedRecordsEntity;
 
 import java.util.Date;
@@ -11,7 +11,8 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by hemalathas on 13/7/17.
  */
-public class DeletedRecordsEntityUT extends BaseTestCase{
+
+public class DeletedRecordsEntityUT extends BaseTestCaseUT {
 
     @Test
     public void testDeletedRecordsEntity(){

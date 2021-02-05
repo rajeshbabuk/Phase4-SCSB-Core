@@ -1,7 +1,7 @@
 package org.recap.model;
 
 import org.junit.Test;
-import org.recap.BaseTestCase;
+import org.recap.BaseTestCaseUT;
 import org.recap.model.jpa.CustomerCodeEntity;
 import org.recap.model.jpa.DeliveryRestrictionEntity;
 import org.recap.model.jpa.InstitutionEntity;
@@ -13,7 +13,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by hemalathas on 13/7/17.
  */
-public class DeliveryRestrictionEntityUT extends BaseTestCase{
+public class DeliveryRestrictionEntityUT extends BaseTestCaseUT {
 
     @Test
     public void testDeliveryRestrictionEntity(){

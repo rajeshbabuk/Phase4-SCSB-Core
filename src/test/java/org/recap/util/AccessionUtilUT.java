@@ -10,8 +10,10 @@ import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
 import org.recap.RecapCommonConstants;
 import org.recap.RecapConstants;
+import org.recap.TestUtil;
 import org.recap.converter.AccessionXmlToBibEntityConverterInterface;
 import org.recap.converter.XmlToBibEntityConverterFactory;
+import org.recap.model.ILSConfigProperties;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.jpa.*;
 import org.recap.repository.jpa.BibliographicDetailsRepository;
@@ -92,6 +94,9 @@ public class AccessionUtilUT extends BaseTestCaseUT{
     @Mock
     CustomerCodeDetailsRepository customerCodeDetailsRepository;
 
+    @Mock
+    PropertyUtil propertyUtil;
+
     @Test
     public void processAndValidateBibliographicEntitysuccessBibCount(){
         StringBuilder errorMessage=new StringBuilder();
@@ -163,8 +168,7 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         customerCodeEntity.hashCode();
         customerCodeEntity.compareTo(new CustomerCodeEntity());
         customerCodeEntity.equals(new CustomerCodeEntity());
-        InstitutionEntity institutionEntity=new InstitutionEntity();
-        institutionEntity.setInstitutionCode("PUL");
+        InstitutionEntity institutionEntity=TestUtil.getInstitutionEntity(1,"PUL","princeton");
         customerCodeEntity.setInstitutionEntity(institutionEntity);
         return customerCodeEntity;
     }
@@ -177,7 +181,6 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         ReportDataEntity reportDataEntity=new ReportDataEntity();
         reportDataEntities.add(reportDataEntity);
         accessionUtil.saveReportEntity("",reportDataEntities);
-       // accessionUtil.saveItemChangeLogEntity("","",itemEntityList);
         String message=accessionUtil.reAccessionItem(itemEntityList);
         String messageIndexed=accessionUtil.indexReaccessionedItem(itemEntityList);
         assertEquals( RecapCommonConstants.SUCCESS,message);
@@ -212,7 +215,6 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         bibliographicEntity.setId(1);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         Mockito.when(dummyDataService.createDummyDataAsIncomplete(Mockito.anyInt(),Mockito.anyString(),Mockito.anyString(),Mockito.any())).thenReturn(bibliographicEntity);
-
         Mockito.when(restTemplate.postForEntity(Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK));
         String message=accessionUtil.createDummyRecordIfAny(RecapConstants.INVALID_MARC_XML_ERROR_MSG,"PUL",reportDataEntityList,accessionRequest,imsLocationEntity);
         assertNotNull(RecapConstants.ACCESSION_DUMMY_RECORD,message);
@@ -263,6 +265,9 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         AccessionRequest accessionRequest=new AccessionRequest();
         Mockito.when(xmlToBibEntityConverterFactory.getConverter(Mockito.anyString())).thenReturn(converter);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
+        ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
+        ilsConfigProperties.setBibDataFormat("test");
+        Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties);
         String response=accessionUtil.updateData(bibRecord,"",responseMapList,accessionRequest,true,true,imsLocationEntity);
         assertEquals(RecapConstants.FAILED,response);
     }
@@ -282,6 +287,9 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
         Mockito.when(restTemplate.postForEntity(Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK));
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
+        ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
+        ilsConfigProperties.setBibDataFormat("test");
+        Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties);
         String response=accessionUtil.updateData(bibRecord,"",responseMapList,accessionRequest,true,true,imsLocationEntity);
         assertEquals(RecapCommonConstants.SUCCESS,response);
     }
@@ -301,6 +309,9 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenThrow(NullPointerException.class);
         Mockito.when(restTemplate.postForEntity(Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK));
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
+        ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
+        ilsConfigProperties.setBibDataFormat("test");
+        Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties);
         String response=accessionUtil.updateData(bibRecord,"",responseMapList,accessionRequest,true,true,imsLocationEntity);
         assertNull(response);
     }
@@ -320,6 +331,9 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
         Mockito.when(restTemplate.postForEntity(Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK));
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
+        ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
+        ilsConfigProperties.setBibDataFormat("test");
+        Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties);
         String response=accessionUtil.updateData(bibRecord,"",responseMapList,accessionRequest,true,true,imsLocationEntity);
         assertEquals(RecapCommonConstants.SUCCESS,response);
     }
@@ -340,6 +354,9 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
         Mockito.when(restTemplate.postForEntity(Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK));
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
+        ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
+        ilsConfigProperties.setBibDataFormat("test");
+        Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties);
         String response=accessionUtil.updateData(bibRecord,"",responseMapList,accessionRequest,true,true,imsLocationEntity);
         assertEquals(RecapConstants.SUCCESS_INCOMPLETE_RECORD,response);
     }
@@ -356,6 +373,9 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         Mockito.when(converter.convert(Mockito.any(),Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(responseMap);
         Mockito.when(accessionValidationService.validateItemAndHolding(Mockito.any(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any())).thenReturn(false);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
+        ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
+        ilsConfigProperties.setBibDataFormat("test");
+        Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties);
         String response=accessionUtil.updateData(bibRecord,"",responseMapList,accessionRequest,true,true,imsLocationEntity);
         assertEquals("",response);
     }
@@ -374,6 +394,9 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
         Mockito.when(restTemplate.postForEntity(Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK));
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
+        ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
+        ilsConfigProperties.setBibDataFormat("test");
+        Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties);
         String response=accessionUtil.updateData(bibRecord,"",responseMapList,accessionRequest,true,true,imsLocationEntity);
         assertEquals(RecapCommonConstants.SUCCESS,response);
     }
@@ -390,6 +413,9 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         responseMap.put(RecapCommonConstants.BIBLIOGRAPHICENTITY,getBibliographicEntity());
         Mockito.when(converter.convert(Mockito.any(),Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
+        ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
+        ilsConfigProperties.setBibDataFormat("test");
+        Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties);
         String response=accessionUtil.updateData(bibRecord,"",responseMapList,accessionRequest,true,true,imsLocationEntity);
         assertEquals(RecapConstants.FAILED + RecapCommonConstants.HYPHEN + stringBuilder.toString(),response);
     }
@@ -504,10 +530,7 @@ public class AccessionUtilUT extends BaseTestCaseUT{
 
     private List<InstitutionEntity> getInstitutionEntities() {
         List<InstitutionEntity> institutionEntities = new ArrayList<>();
-        InstitutionEntity institutionEntity=new InstitutionEntity();
-        institutionEntity.setInstitutionCode("PUL");
-        institutionEntity.setInstitutionName("Princeton");
-        institutionEntity.setId(1);
+        InstitutionEntity institutionEntity= TestUtil.getInstitutionEntity(1,"PUL","Princeton");
         institutionEntities.add(institutionEntity);
         return institutionEntities;
     }

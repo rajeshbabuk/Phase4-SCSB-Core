@@ -1,8 +1,7 @@
 package org.recap.model.csv;
 
-import org.apache.camel.dataformat.bindy.annotation.DataField;
 import org.junit.Test;
-import org.recap.BaseTestCase;
+import org.recap.BaseTestCaseUT;
 
 import java.util.Date;
 
@@ -11,7 +10,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by hemalathas on 13/7/17.
  */
-public class DailyReconcilationRecordUT extends BaseTestCase{
+public class DailyReconcilationRecordUT extends BaseTestCaseUT {
 
     @Test
     public void testDailyReconciliationRecord(){

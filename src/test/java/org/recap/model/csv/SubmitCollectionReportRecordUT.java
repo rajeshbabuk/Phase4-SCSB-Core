@@ -1,14 +1,14 @@
 package org.recap.model.csv;
 
 import org.junit.Test;
-import org.recap.BaseTestCase;
+import org.recap.BaseTestCaseUT;
 
 import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by hemalathas on 13/7/17.
  */
-public class SubmitCollectionReportRecordUT extends BaseTestCase{
+public class SubmitCollectionReportRecordUT extends BaseTestCaseUT {
 
     @Test
     public void testSubmitCollectionReportRecord(){

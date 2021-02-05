@@ -1,19 +1,24 @@
 package org.recap.util;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.marc4j.marc.Record;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
 import org.recap.BaseTestCaseUT;
 import org.recap.RecapCommonConstants;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
 import org.recap.model.jaxb.marc.BibRecords;
-import org.recap.model.jpa.*;
+import org.recap.model.jpa.BibliographicEntity;
+import org.recap.model.jpa.CollectionGroupEntity;
+import org.recap.model.jpa.HoldingsEntity;
+import org.recap.model.jpa.ImsLocationEntity;
+import org.recap.model.jpa.InstitutionEntity;
+import org.recap.model.jpa.ItemEntity;
+import org.recap.model.jpa.ItemStatusEntity;
+import org.recap.model.jpa.ReportDataEntity;
+import org.recap.model.jpa.ReportEntity;
 import org.recap.model.report.SubmitCollectionReportInfo;
 import org.recap.repository.jpa.CollectionGroupDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
@@ -33,7 +38,6 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class CommonUtilUT extends BaseTestCaseUT {
 
@@ -262,7 +266,7 @@ public class CommonUtilUT extends BaseTestCaseUT {
     @Test
     public void getBibRecordsForSCSBFormat(){
         BibRecords bibRecords=commonUtil.getBibRecordsForSCSBFormat(scsbXmlContent);
-        assertNull(bibRecords);
+        assertNotNull(bibRecords);
     }
 
     @Test
@@ -330,27 +334,16 @@ public class CommonUtilUT extends BaseTestCaseUT {
     }
 
     @Test
-    public void buildSubmitCollectionReportInfoAndAddFailures(){
+    public void buildSubmitCollectionReportInfoAndAddFailuresForUnmatchedOwningInstitutionItemId(){
         BibliographicEntity fetchedBibliographicEntity = getBibliographicEntity();
         List<SubmitCollectionReportInfo > failureSubmitCollectionReportInfoList = new ArrayList<>();
         failureSubmitCollectionReportInfoList.add(getSubmitCollectionReportInfo());
         String owningInstitution = "PUL";
         Map<String, ItemEntity > itemEntityMap = new HashMap<>();
         itemEntityMap.put("1",getBibliographicEntity().getItemEntities().get(0));
-        Map.Entry<String, Map<String, ItemEntity >> incomingHoldingItemMapEntry = new AbstractMap.SimpleEntry<String, Map<String, ItemEntity>>("1", itemEntityMap);;
-        ItemEntity incomingItemEntity = getBibliographicEntity().getItemEntities().get(0);
+        Map.Entry<String, Map<String, ItemEntity >> incomingHoldingItemMapEntry = new AbstractMap.SimpleEntry<String, Map<String, ItemEntity>>("1", itemEntityMap);
+        ItemEntity incomingItemEntity = new ItemEntity();
         commonUtil.buildSubmitCollectionReportInfoAndAddFailures(fetchedBibliographicEntity,failureSubmitCollectionReportInfoList,owningInstitution,incomingHoldingItemMapEntry,incomingItemEntity);
-        assertNotNull(incomingItemEntity);
-    }
-
-    @Test
-    public void buildSubmitCollectionReportInfoWhenNoGroupIdAndAddFailures(){
-        BibliographicEntity incomingBibliographicEntity = getBibliographicEntity();
-        List<SubmitCollectionReportInfo> failureSubmitCollectionReportInfoList = new ArrayList<>();
-        failureSubmitCollectionReportInfoList.add(getSubmitCollectionReportInfo());
-        String owningInstitution = "PUL";
-        ItemEntity incomingItemEntity = getBibliographicEntity().getItemEntities().get(0);
-        commonUtil.buildSubmitCollectionReportInfoWhenNoGroupIdAndAddFailures(incomingBibliographicEntity,failureSubmitCollectionReportInfoList,owningInstitution,incomingItemEntity);
         assertNotNull(incomingItemEntity);
     }
 

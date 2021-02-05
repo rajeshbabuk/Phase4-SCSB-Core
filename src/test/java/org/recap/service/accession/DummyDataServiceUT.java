@@ -1,6 +1,5 @@
 package org.recap.service.accession;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -60,9 +59,7 @@ public class DummyDataServiceUT extends BaseTestCaseUT {
         itemStatusEntities.add(itemStatusEntity);
         Mockito.when(itemStatusDetailsRepository.findAll()).thenReturn(itemStatusEntities);
         Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
-        StringBuilder file=new StringBuilder();
-        file.append("test");
-        Mockito.when(commonUtil.getContentByFileName(Mockito.anyString())).thenReturn(file);
+        Mockito.when(commonUtil.getContentByFileName(Mockito.anyString())).thenCallRealMethod();
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         BibliographicEntity bibliographicEntity = dummyDataService.createDummyDataAsIncomplete(1,"3245678232","PA",imsLocationEntity);
         assertNotNull(bibliographicEntity);

@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
+import org.recap.util.PropertyUtil;
 import org.springframework.test.util.ReflectionTestUtils;
 
 
@@ -31,12 +32,13 @@ public class DailyReconciliationEmailServiceUT extends BaseTestCaseUT {
     @Mock
     Header dataheader;
 
-
-    String emailAddress = "test@mail.com";
+    @Mock
+    PropertyUtil propertyUtil;
 
     @Before
     public  void setup(){
-        ReflectionTestUtils.setField(dailyReconciliationEmailService,"emailTo",emailAddress);
+        ReflectionTestUtils.setField(dailyReconciliationEmailService,"fileLocation","fileLocation");
+        ReflectionTestUtils.setField(dailyReconciliationEmailService,"imsLocationCode","RECAP");
     }
 
     @Test

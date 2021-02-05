@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
 import org.recap.RecapCommonConstants;
+import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 
 import java.util.ArrayList;
@@ -27,20 +28,31 @@ public class AccessionReconcilationJobControllerUT extends BaseTestCaseUT {
     CamelContext camelContext;
 
     @Mock
+    ImsLocationDetailsRepository imsLocationDetailsRepository;
+
+    @Mock
     RouteController routeController;
 
     @Test
     public void startAccessionReconcilation() throws Exception{
-        List<String> allInstitutionCodeExceptHTC=new ArrayList<>();
-        allInstitutionCodeExceptHTC.add("PUL");
-        allInstitutionCodeExceptHTC.add("CUL");
-        allInstitutionCodeExceptHTC.add("NYPL");
-        allInstitutionCodeExceptHTC.add("HUL");
-        Mockito.when(institutionDetailsRepository.findAllInstitutionCodeExceptHTC()).thenReturn(allInstitutionCodeExceptHTC);
+        List<String> allImsLocationCodeExceptUN=new ArrayList<>();
+        allImsLocationCodeExceptUN.add("RECAP");
+        allImsLocationCodeExceptUN.add("HD");
+        Mockito.when(imsLocationDetailsRepository.findAllImsLocationCodeExceptUN()).thenReturn(allImsLocationCodeExceptUN);
+        Mockito.when(institutionDetailsRepository.findAllInstitutionCodeExceptHTC()).thenReturn(getInstitutionCodeExceptHTC());
         Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
         Mockito.doNothing().when(routeController).startRoute(Mockito.anyString());
         String result = accessionReconcilationJobController.startAccessionReconciliation();
         assertNotNull(result);
         assertEquals(RecapCommonConstants.SUCCESS,result);
+    }
+
+    private List<String> getInstitutionCodeExceptHTC() {
+        List<String> allInstitutionCodeExceptHTC=new ArrayList<>();
+        allInstitutionCodeExceptHTC.add("PUL");
+        allInstitutionCodeExceptHTC.add("CUL");
+        allInstitutionCodeExceptHTC.add("NYPL");
+        allInstitutionCodeExceptHTC.add("HUL");
+        return allInstitutionCodeExceptHTC;
     }
 }

@@ -2,12 +2,14 @@ package org.recap.util;
 
 import org.junit.Test;
 import org.marc4j.marc.Record;
-import org.recap.BaseTestCase;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.recap.BaseTestCaseUT;
 import org.recap.model.jpa.BibliographicEntity;
 import org.recap.model.jpa.HoldingsEntity;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.model.jpa.ReportDataEntity;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -19,12 +21,12 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by hemalathas on 23/3/17.
  */
-public class DBReportUtilUT extends BaseTestCase {
+public class DBReportUtilUT extends BaseTestCaseUT {
 
-    @Autowired
+    @InjectMocks
     DBReportUtil dbReportUtil;
 
-    @Autowired
+    @Mock
     private MarcUtil marcUtil;
 
     private final String marcXmlContent = "<collection xmlns=\"http://www.loc.gov/MARC21/slim\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.loc.gov/MARC21/slim http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd\">\n" +
@@ -141,6 +143,7 @@ public class DBReportUtilUT extends BaseTestCase {
 
     @Test
     public void testDBReportUtil() {
+        Mockito.when(marcUtil.convertMarcXmlToRecord(marcXmlContent)).thenCallRealMethod();
         List<Record> recordList = marcUtil.convertMarcXmlToRecord(marcXmlContent);
         Map<String, Integer> institutionEntitiesMap = new HashMap<>();
         institutionEntitiesMap.put("owningInstitutionId", 1);
