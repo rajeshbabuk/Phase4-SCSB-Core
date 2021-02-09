@@ -1,7 +1,7 @@
 package org.recap.camel.statusreconciliation;
 
 import org.junit.Test;
-import org.recap.BaseTestCase;
+import org.recap.BaseTestCaseUT;
 import org.recap.model.csv.StatusReconciliationCSVRecord;
 import org.recap.model.csv.StatusReconciliationErrorCSVRecord;
 
@@ -12,7 +12,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by hemalathas on 13/7/17.
  */
-public class StatusReconciliationCSVRecordUT extends BaseTestCase {
+public class StatusReconciliationCSVRecordUT extends BaseTestCaseUT {
 
     @Test
     public void testStatusReconciliationCSVRecord(){

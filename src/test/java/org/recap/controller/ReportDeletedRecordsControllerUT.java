@@ -3,7 +3,7 @@ package org.recap.controller;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.recap.BaseTestCase;
+import org.recap.BaseTestCaseUT;
 import org.recap.RecapConstants;
 import org.recap.service.deletedrecords.DeletedRecordsService;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by hemalathas on 13/7/17.
  */
-public class ReportDeletedRecordsControllerUT extends BaseTestCase{
+public class ReportDeletedRecordsControllerUT extends BaseTestCaseUT {
 
     @Mock
     ReportDeletedRecordsController reportDeletedRecordsController;

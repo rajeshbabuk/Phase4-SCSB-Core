@@ -11,7 +11,11 @@ import org.recap.model.jpa.ItemEntity;
 import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.service.common.RepositoryService;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -87,13 +91,6 @@ public class SubmitCollectionHelperServiceUT extends BaseTestCaseUT {
         assertNotNull(holdingItemMap);
     }
 
-    @Test
-    public void getBibliographicIdsInString(){
-        List<BibliographicEntity> bibliographicEntities = new ArrayList<>();
-        bibliographicEntities.add(getBibliographicEntity());
-        String result = submitCollectionHelperService.getBibliographicIdsInString(bibliographicEntities);
-        assertNotNull(result);
-    }
     private BibliographicEntity getBibliographicEntity(){
         BibliographicEntity bibliographicEntity = new BibliographicEntity();
         bibliographicEntity.setId(123456);

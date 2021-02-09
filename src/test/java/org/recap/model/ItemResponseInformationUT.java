@@ -1,7 +1,7 @@
 package org.recap.model;
 
 import org.junit.Test;
-import org.recap.BaseTestCase;
+import org.recap.BaseTestCaseUT;
 import org.recap.model.jpa.ItemResponseInformation;
 
 import java.util.Date;
@@ -11,7 +11,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by hemalathas on 20/3/17.
  */
-public class ItemResponseInformationUT extends BaseTestCase{
+public class ItemResponseInformationUT extends BaseTestCaseUT {
 
 
     @Test

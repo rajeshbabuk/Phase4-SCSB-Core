@@ -1,7 +1,7 @@
 package org.recap.model.jaxb;
 
 import org.junit.Test;
-import org.recap.BaseTestCase;
+import org.recap.BaseTestCaseUT;
 import org.recap.model.jaxb.marc.CollectionType;
 import org.recap.model.jaxb.marc.ContentType;
 import org.recap.model.jaxb.marc.ControlFieldType;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by hemalathas on 23/3/17.
  */
-public class BibRecordUT extends BaseTestCase {
+public class BibRecordUT extends BaseTestCaseUT {
     @Test
     public void testBib(){
         Bib bib = new Bib();
