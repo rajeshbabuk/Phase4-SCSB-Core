@@ -61,15 +61,6 @@ public class StatusReconciliationControllerUT extends BaseTestCaseUT {
     @Mock
     StatusReconciliationService statusReconciliationService;
 
-    @Value("${status.reconciliation.las.barcode.limit}")
-    private Integer statusReconciliationLasBarcodeLimit;
-
-    @Value("${status.reconciliation.batch.size}")
-    private Integer batchSize;
-
-    @Value("${status.reconciliation.day.limit}")
-    private Integer statusReconciliationDayLimit;
-
     @Test
     public void testStatusReconciliation(){
         Mockito.when(itemStatusDetailsRepository.findByStatusCode(Mockito.anyString())).thenReturn(getItemStatusEntity());

@@ -116,10 +116,6 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
     RestTemplate restTemplate;
 
 
-    @Value("${submit.collection.input.limit}")
-    private Integer inputLimit;
-
-
     @Value("${scsb.solr.client.url}")
     private String scsbSolrClientUrl;
 

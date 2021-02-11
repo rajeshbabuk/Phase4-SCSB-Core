@@ -37,9 +37,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class AccessionUtilUT extends BaseTestCaseUT{
 
@@ -166,8 +164,14 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         customerCodeEntity.setDescription("Princeton");
         customerCodeEntity.setCustomerCode("PUL");
         customerCodeEntity.hashCode();
+        new CustomerCodeEntity().hashCode();
         customerCodeEntity.compareTo(new CustomerCodeEntity());
+        customerCodeEntity.compareTo(customerCodeEntity);
         customerCodeEntity.equals(new CustomerCodeEntity());
+        customerCodeEntity.equals(customerCodeEntity);
+        boolean code= customerCodeEntity.equals(null);
+        customerCodeEntity.equals(CustomerCodeEntity.class);
+        assertFalse(code);
         InstitutionEntity institutionEntity=TestUtil.getInstitutionEntity(1,"PUL","princeton");
         customerCodeEntity.setInstitutionEntity(institutionEntity);
         return customerCodeEntity;
@@ -457,7 +461,8 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         itemEntity.setCreatedDate(new Date());
         itemEntity.setCreatedBy("tst");
         itemEntity.setLastUpdatedBy("tst");
-        itemEntity.setCatalogingStatus("Complete");
+        itemEntity.setCatalogingStatus( RecapCommonConstants.COMPLETE_STATUS);
+        assertTrue(itemEntity.isComplete());
         itemEntity.setItemAvailabilityStatusId(1);
         itemEntity.setDeleted(false);
         List<ItemEntity> itemEntitylist = new LinkedList(Arrays.asList(itemEntity));
@@ -498,6 +503,7 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         holdingsEntity.setId(1);
         holdingsEntity.hashCode();
         holdingsEntity.equals(new HoldingsEntity());
+        holdingsEntity.equals(null);
         List<HoldingsEntity> holdingsEntitylist = new LinkedList(Arrays.asList(holdingsEntity));
 
 
@@ -515,6 +521,7 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         itemEntity.setLastUpdatedBy("tst");
         itemEntity.setItemAvailabilityStatusId(1);
         itemEntity.setId(1);
+        assertFalse(itemEntity.isComplete());
         List<ItemEntity> itemEntitylist = new LinkedList(Arrays.asList(itemEntity));
 
         holdingsEntity.setBibliographicEntities(bibliographicEntitylist);

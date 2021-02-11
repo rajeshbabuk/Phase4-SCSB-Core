@@ -67,35 +67,6 @@ public class AccessionSummaryRecordGenerator {
         }
         accessionSummaryRecordList.add(accessionSummaryRecord);
 
-        if(itemFailureReasonCountMap.size() != 0 && bibFailureReasonCountMap.size() <= itemFailureReasonCountMap.size()){
-            int count =0;
-            while (count < bibFailureReasonCountMap.size()){
-                buildAccessionSummaryRecordList(accessionSummaryRecordList, bibFailureReasonCountMap, itemFailureReasonCountMap);
-                count+=1;
-            }
-            if(itemFailureReasonCountMap.size() != 0){
-                for(Map.Entry<String,Integer> entry : itemFailureReasonCountMap.entrySet()) {
-                    AccessionSummaryRecord accessionSummaryRec = new AccessionSummaryRecord();
-                    accessionSummaryRec.setReasonForFailureItem(entry.getKey());
-                    accessionSummaryRec.setFailedItemCount(itemFailureReasonCountMap.get(entry.getKey()).toString());
-                    accessionSummaryRecordList.add(accessionSummaryRec);
-                }
-            }
-        }else if(bibFailureReasonCountMap.size() != 0 && bibFailureReasonCountMap.size() > itemFailureReasonCountMap.size()){
-            int count =0;
-            while (count < itemFailureReasonCountMap.size()){
-                buildAccessionSummaryRecordList(accessionSummaryRecordList, bibFailureReasonCountMap, itemFailureReasonCountMap);
-                count+=1;
-            }
-            if(bibFailureReasonCountMap.size() != 0){
-                for(Map.Entry<String,Integer> entry : bibFailureReasonCountMap.entrySet()) {
-                    AccessionSummaryRecord accessionSummaryRec = new AccessionSummaryRecord();
-                    accessionSummaryRec.setReasonForFailureBib(entry.getKey());
-                    accessionSummaryRec.setFailedBibCount(bibFailureReasonCountMap.get(entry.getKey()).toString());
-                    accessionSummaryRecordList.add(accessionSummaryRec);
-                }
-            }
-        }
         return accessionSummaryRecordList;
     }
 
@@ -108,13 +79,6 @@ public class AccessionSummaryRecordGenerator {
                 failureReasonCountMap.put(reportDataEntity.getHeaderValue(), bibFailureCount);
             }
         }
-    }
-
-    private void buildAccessionSummaryRecordList(List<AccessionSummaryRecord> accessionSummaryRecordList, Map<String, Integer> bibFailureReasonCountMap, Map<String, Integer> itemFailureReasonCountMap) {
-        AccessionSummaryRecord accessionSummaryRec = new AccessionSummaryRecord();
-        removeFromBibFailureReasonCountMap(bibFailureReasonCountMap, accessionSummaryRec);
-        removeFromItemFailureReasonCountMap(itemFailureReasonCountMap, accessionSummaryRec);
-        accessionSummaryRecordList.add(accessionSummaryRec);
     }
 
     private void removeFromBibFailureReasonCountMap(Map<String, Integer> bibFailureReasonCountMap, AccessionSummaryRecord accessionSummaryRecord) {
