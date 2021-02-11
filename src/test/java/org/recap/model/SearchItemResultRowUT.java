@@ -2,8 +2,13 @@ package org.recap.model;
 
 import org.junit.Test;
 import org.recap.BaseTestCaseUT;
-import org.recap.ils.model.RecordTypeType;
-import org.recap.model.jpa.*;
+import org.recap.model.jpa.BulkRequestItem;
+import org.recap.model.jpa.BulkRequestItemEntity;
+import org.recap.model.jpa.BulkRequestResponse;
+import org.recap.model.jpa.ItemRefileResponse;
+import org.recap.model.jpa.PendingRequestEntity;
+import org.recap.model.jpa.ReplaceRequest;
+import org.recap.model.jpa.SearchItemResultRow;
 
 import static org.junit.Assert.assertNotNull;
 

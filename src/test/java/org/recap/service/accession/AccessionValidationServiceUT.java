@@ -1,6 +1,5 @@
 package org.recap.service.accession;
 
-import org.apache.camel.component.mock.AssertionTask;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.marc4j.MarcReader;
@@ -22,14 +21,17 @@ import org.recap.model.jpa.CustomerCodeEntity;
 import org.recap.model.jpa.HoldingsEntity;
 import org.recap.model.jpa.InstitutionEntity;
 import org.recap.model.jpa.ItemEntity;
-import org.recap.repository.jpa.*;
+import org.recap.repository.jpa.CustomerCodeDetailsRepository;
+import org.recap.repository.jpa.HoldingsDetailsRepository;
+import org.recap.repository.jpa.ImsLocationDetailsRepository;
+import org.recap.repository.jpa.InstitutionDetailsRepository;
+import org.recap.repository.jpa.ItemDetailsRepository;
 import org.recap.util.AccessionUtil;
 import org.recap.util.MarcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import javax.validation.constraints.AssertFalse;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -44,7 +46,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by premkb on 3/6/17.
