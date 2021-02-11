@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * Created by sheiks on 26/05/17.
@@ -126,6 +127,9 @@ public class BulkAccessionService extends AccessionService{
         trimmedAccessionRequests = accessionProcessService.removeDuplicateRecord(trimmedAccessionRequests);
         int requestedCount = accessionModelRequest.getAccessionRequests().size();
         int duplicateCount = requestedCount - trimmedAccessionRequests.size();
+        if(duplicateCount>0){
+            saveReportForDuplicateBarcodes(accessionSummary, accessionModelRequest.getAccessionRequests());
+        }
         accessionSummary.setDuplicateRecords(duplicateCount);
 
         ExecutorService executorService = Executors.newFixedThreadPool(batchAccessionThreadSize);
@@ -232,4 +236,22 @@ public class BulkAccessionService extends AccessionService{
         }
         return strJson;
     }
+
+    private void saveReportForDuplicateBarcodes(AccessionSummary accessionSummary, List<AccessionRequest> accessionRequestList) {
+        accessionRequestList.stream()
+                .collect(Collectors.groupingBy(AccessionRequest::getItemBarcode))
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue().size() > 1)
+                .flatMap(e -> e.getValue().stream())
+                .collect(Collectors.toSet())
+                .forEach(accessionRequest -> {
+                    String owningInstitution = accessionUtil.getOwningInstitution(accessionRequest.getCustomerCode());
+                    List<ReportDataEntity> reportDataEntityList = accessionUtil.createReportDataEntityList(accessionRequest, RecapConstants.DUPLICATE_BARCODE_ENTRY);
+                    accessionUtil.saveReportEntity(owningInstitution, reportDataEntityList);
+                });
+    }
+
+
+
 }

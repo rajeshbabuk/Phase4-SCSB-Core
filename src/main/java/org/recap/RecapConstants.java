@@ -62,6 +62,9 @@ public final class RecapConstants {
     public static final String ACCESSION_RECONCILIATION_DIRECT_ROUTE = "accessionReconciliationDirectRoute";
     public static final String CGD_PROTECTED_ROUTE_ID = "CgdProtectedRouteId";
     public static final String CGD_NOT_PROTECTED_ROUTE_ID = "CgdNotProtectedRouteId";
+    public static final String DUPLICATE_BARCODE_ENTRY = "Duplicate entry in the same accession request";
+    public static final String ACCESSION_REPORT_Q = "scsbactivemq:queue:accesionReportQ";
+    public static final String ACCESSION_REPORT_ROUTE_ID = "accessionReportQRoute";
 
     protected static final List<String> GFA_STATUS_AVAILABLE_LIST = Arrays.asList(GFA_STATUS_INCOMING_ON_WORK_ORDER, GFA_STATUS_REACC_ON_WORK_ORDER, GFA_STATUS_VER_ON_REFILE_WORK_ORDER, GFA_STATUS_IN);
     protected static final List<String> GFA_STATUS_NOT_AVAILABLE_LIST = Arrays.asList(GFA_STATUS_SCH_ON_REFILE_WORK_ORDER, GFA_STATUS_NOT_ON_FILE, GFA_STATUS_OUT_ON_RETRIVAL_WORK_ORDER, GFA_STATUS_PW_INDIRECT_WORK_ORDER, GFA_STATUS_PW_DIRECT_WORK_ORDER,
