@@ -54,11 +54,13 @@ public class AccessionSummaryRecordGeneratorUT extends BaseTestCaseUT {
         ReportEntity reportEntity=new ReportEntity();
         List<ReportDataEntity> reportDataEntityList=new ArrayList<>();
         reportDataEntityList.add(getReportDataEntity(RecapCommonConstants.BIB_FAILURE_COUNT));
+        reportDataEntityList.add(getReportDataEntity(RecapCommonConstants.BIB_FAILURE_COUNT));
+        reportDataEntityList.add(getReportDataEntity(RecapConstants.FAILURE_BIB_REASON));
         reportDataEntityList.add(getReportDataEntity(RecapConstants.FAILURE_BIB_REASON));
         reportEntity.setReportDataEntities(reportDataEntityList);
         reportEntityList.add(reportEntity);
         List<AccessionSummaryRecord> accessionSummaryRecordList=accessionSummaryRecordGenerator.prepareAccessionSummaryReportRecord(reportEntityList);
-        assertEquals("1",accessionSummaryRecordList.get(0).getFailedBibCount());
+        assertEquals("2",accessionSummaryRecordList.get(0).getFailedBibCount());
     }
     @Test
     public void failedItemCount()throws Exception {

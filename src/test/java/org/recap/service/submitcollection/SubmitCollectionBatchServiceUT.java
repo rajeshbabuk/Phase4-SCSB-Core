@@ -79,12 +79,6 @@ public class SubmitCollectionBatchServiceUT extends BaseTestCaseUT {
     @Mock
     SubmitCollectionDAOService submitCollectionDAOService;
 
-    @Value("${submit.collection.input.limit}")
-    Integer inputLimit;
-
-    @Value("${submit.collection.partition.size}")
-    Integer partitionSize;
-
 
     private String inputRecords =  "<collection xmlns=\"http://www.loc.gov/MARC21/slim\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.loc.gov/MARC21/slim http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd\">\n" +
             "<record>\n" +
@@ -225,7 +219,7 @@ public class SubmitCollectionBatchServiceUT extends BaseTestCaseUT {
         List<Record> recordList = new ArrayList<>();
         recordList.add(record);
         ReflectionTestUtils.setField(marcUtil,"inputLimit",2);
-        ReflectionTestUtils.setField(submitCollectionBatchService,"partitionSize",partitionSize);
+        ReflectionTestUtils.setField(submitCollectionBatchService,"partitionSize",5000);
         Mockito.when(marcUtil.convertAndValidateXml(Mockito.anyString(),Mockito.anyBoolean(),Mockito.anyList())).thenCallRealMethod();
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenCallRealMethod();
         Map responseMap=new HashMap();
@@ -299,7 +293,7 @@ public class SubmitCollectionBatchServiceUT extends BaseTestCaseUT {
         bibRecordList.add(bibRecord);
         bibRecords.setBibRecordList(bibRecordList);
         ReflectionTestUtils.setField(submitCollectionBatchService,"inputLimit",1);
-        ReflectionTestUtils.setField(submitCollectionBatchService,"partitionSize",partitionSize);
+        ReflectionTestUtils.setField(submitCollectionBatchService,"partitionSize",5000);
         Mockito.when(commonUtil.extractBibRecords(Mockito.anyString())).thenReturn(bibRecords);
         Map responseMap=new HashMap();
         StringBuilder errorMessage = new StringBuilder();
@@ -328,7 +322,7 @@ public class SubmitCollectionBatchServiceUT extends BaseTestCaseUT {
         bibRecordList.add(bibRecord);
         bibRecords.setBibRecordList(bibRecordList);
         ReflectionTestUtils.setField(submitCollectionBatchService,"inputLimit",1);
-        ReflectionTestUtils.setField(submitCollectionBatchService,"partitionSize",partitionSize);
+        ReflectionTestUtils.setField(submitCollectionBatchService,"partitionSize",5000);
         Mockito.when(commonUtil.extractBibRecords(Mockito.anyString())).thenReturn(bibRecords);
         Map responseMap=new HashMap();
         StringBuilder errorMessage = new StringBuilder();
@@ -358,7 +352,7 @@ public class SubmitCollectionBatchServiceUT extends BaseTestCaseUT {
         bibRecordList.add(bibRecord);
         bibRecords.setBibRecordList(bibRecordList);
         ReflectionTestUtils.setField(submitCollectionBatchService,"inputLimit",1);
-        ReflectionTestUtils.setField(submitCollectionBatchService,"partitionSize",partitionSize);
+        ReflectionTestUtils.setField(submitCollectionBatchService,"partitionSize",5000);
         Mockito.when(commonUtil.extractBibRecords(Mockito.anyString())).thenReturn(bibRecords);
         Map responseMap=new HashMap();
         StringBuilder errorMessage = new StringBuilder();
@@ -389,7 +383,7 @@ public class SubmitCollectionBatchServiceUT extends BaseTestCaseUT {
         bibRecordList.add(bibRecord);
         bibRecords.setBibRecordList(bibRecordList);
         ReflectionTestUtils.setField(submitCollectionBatchService,"inputLimit",1);
-        ReflectionTestUtils.setField(submitCollectionBatchService,"partitionSize",partitionSize);
+        ReflectionTestUtils.setField(submitCollectionBatchService,"partitionSize",5000);
         Mockito.when(commonUtil.extractBibRecords(Mockito.anyString())).thenReturn(bibRecords);
         Map responseMap=new HashMap();
         responseMap.put("errorMessage",null);

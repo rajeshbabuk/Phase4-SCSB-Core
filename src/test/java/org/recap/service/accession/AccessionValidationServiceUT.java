@@ -1,6 +1,5 @@
 package org.recap.service.accession;
 
-import org.apache.camel.component.mock.AssertionTask;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.marc4j.MarcReader;
@@ -12,6 +11,7 @@ import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
 import org.recap.RecapCommonConstants;
 import org.recap.RecapConstants;
+import org.recap.TestUtil;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.jaxb.BibRecord;
 import org.recap.model.jaxb.JAXBHandler;
@@ -23,6 +23,7 @@ import org.recap.model.jpa.InstitutionEntity;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.repository.jpa.CustomerCodeDetailsRepository;
 import org.recap.repository.jpa.HoldingsDetailsRepository;
+import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
 import org.recap.util.AccessionUtil;
@@ -31,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import javax.validation.constraints.AssertFalse;
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -48,6 +48,7 @@ import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -79,6 +80,9 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
 
     @Mock
     AccessionUtil accessionUtil;
+
+    @Mock
+    ImsLocationDetailsRepository imsLocationDetailsRepository;
 
     @Test
     public void validateBarcodeOrCustomerCode(){
@@ -221,6 +225,26 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
         StringBuilder errorMessage = new StringBuilder();
         boolean isValid = accessionValidationService.validateItem(bibliographicEntity,false,false,errorMessage);
         assertTrue(isValid);
+    }
+
+    @Test
+    public void validateImsLocationCode() throws Exception {
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode("RECAP")).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
+        AccessionValidationService.AccessionValidationResponse accessionValidationResponse= accessionValidationService.validateImsLocationCode("RECAP");
+        assertNotNull(accessionValidationResponse.getImsLocationEntity());
+        assertEquals("RECAP",accessionValidationResponse.getImsLocationEntity().getImsLocationCode());
+    }
+
+    @Test
+    public void validateInvalidImsLocationCode() throws Exception {
+        AccessionValidationService.AccessionValidationResponse accessionValidationResponse= accessionValidationService.validateImsLocationCode("test");
+        assertEquals(RecapConstants.INVALID_IMS_LOCACTION_CODE,accessionValidationResponse.getMessage());
+    }
+
+    @Test
+    public void validateBlankImsLocationCode() throws Exception {
+        AccessionValidationService.AccessionValidationResponse accessionValidationResponse= accessionValidationService.validateImsLocationCode("");
+        assertEquals(RecapConstants.IMS_LOCACTION_CODE_IS_BLANK,accessionValidationResponse.getMessage());
     }
 
     private CustomerCodeEntity getCustomerCodeEntity() {

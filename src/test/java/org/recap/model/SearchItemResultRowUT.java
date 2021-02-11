@@ -2,6 +2,12 @@ package org.recap.model;
 
 import org.junit.Test;
 import org.recap.BaseTestCaseUT;
+import org.recap.model.jpa.BulkRequestItem;
+import org.recap.model.jpa.BulkRequestItemEntity;
+import org.recap.model.jpa.BulkRequestResponse;
+import org.recap.model.jpa.ItemRefileResponse;
+import org.recap.model.jpa.PendingRequestEntity;
+import org.recap.model.jpa.ReplaceRequest;
 import org.recap.model.jpa.SearchItemResultRow;
 
 import static org.junit.Assert.assertNotNull;
@@ -25,8 +31,13 @@ public class SearchItemResultRowUT extends BaseTestCaseUT {
         searchItemResultRow.setSelectedItem(false);
         searchItemResultRow.setItemId(1);
         searchItemResultRow.hashCode();
+        new SearchItemResultRow().hashCode();
+        searchItemResultRow.compareTo(searchItemResultRow);
         searchItemResultRow.compareTo(new SearchItemResultRow());
         searchItemResultRow.equals(new SearchItemResultRow());
+        searchItemResultRow.equals(searchItemResultRow);
+        searchItemResultRow.equals(SearchItemResultRow.class);
+        searchItemResultRow.equals(null);
         assertNotNull(searchItemResultRow.getCallNumber());
         assertNotNull(searchItemResultRow.getChronologyAndEnum());
         assertNotNull(searchItemResultRow.getCustomerCode());
@@ -37,6 +48,22 @@ public class SearchItemResultRowUT extends BaseTestCaseUT {
         assertNotNull(searchItemResultRow.isSelectedItem());
         assertNotNull(searchItemResultRow.getItemId());
 
+    }
+
+    @Test
+    public void testResponseClass(){
+        ItemRefileResponse itemRefileResponse=new ItemRefileResponse();
+        assertNotNull(itemRefileResponse);
+        BulkRequestResponse bulkRequestResponse=new BulkRequestResponse();
+        assertNotNull(bulkRequestResponse);
+        BulkRequestItemEntity bulkRequestItemEntity=new BulkRequestItemEntity();
+        assertNotNull(bulkRequestItemEntity);
+        BulkRequestItem bulkRequestItem=new BulkRequestItem();
+        assertNotNull(bulkRequestItem);
+        ReplaceRequest replaceRequest=new ReplaceRequest();
+        assertNotNull(replaceRequest);
+        PendingRequestEntity pendingRequestEntity=new PendingRequestEntity();
+        assertNotNull(pendingRequestEntity);
     }
 
 
