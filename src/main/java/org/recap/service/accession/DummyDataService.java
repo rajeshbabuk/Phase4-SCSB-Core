@@ -95,7 +95,7 @@ public class DummyDataService {
             itemEntity.setDeleted(false);
             itemEntity.setHoldingsEntities(Collections.singletonList(holdingsEntity));
             itemEntity.setCatalogingStatus(RecapCommonConstants.INCOMPLETE_STATUS);
-            itemEntity.setImsLocationId(imsLocationEntity.getImsLocationId());
+            itemEntity.setImsLocationId(imsLocationEntity.getId());
             itemEntity.setImsLocationEntity(imsLocationEntity);
             List<ItemEntity> itemEntityList = new ArrayList<>();
             itemEntityList.add(itemEntity);

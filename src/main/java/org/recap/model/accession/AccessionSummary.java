@@ -77,4 +77,9 @@ public class AccessionSummary {
     public void addRequestedRecords(int requestedRecords) {
         this.requestedRecords += requestedRecords;
     }
+
+    public void addDuplicateRecords(int duplicateRecords) {
+        this.duplicateRecords += duplicateRecords;
+    }
+
 }

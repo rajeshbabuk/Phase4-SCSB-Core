@@ -130,7 +130,7 @@ public class BulkAccessionService extends AccessionService{
         if(duplicateCount>0){
             saveReportForDuplicateBarcodes(accessionSummary, accessionModelRequest.getAccessionRequests());
         }
-        accessionSummary.setDuplicateRecords(duplicateCount);
+        accessionSummary.addDuplicateRecords(duplicateCount);
 
         ExecutorService executorService = Executors.newFixedThreadPool(batchAccessionThreadSize);
         List<List<AccessionRequest>> partitions = Lists.partition(trimmedAccessionRequests, batchAccessionThreadSize);
