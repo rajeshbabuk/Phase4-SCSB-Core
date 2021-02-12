@@ -24,18 +24,22 @@ public class StatusReconciliationCSVRecordUT extends BaseTestCaseUT {
         statusReconciliationCSVRecord.setStatusInScsb("OUT");
         statusReconciliationCSVRecord.setStatusInLas("IN");
         statusReconciliationCSVRecord.setDateTime(new Date().toString());
+        statusReconciliationCSVRecord.setImsLocation("RECAP");
         statusReconciliationErrorCSVRecord.setBarcode("33245645454584");
         statusReconciliationErrorCSVRecord.setReasonForFailure("Barcode not found in LAS");
         statusReconciliationErrorCSVRecord.setInstitution("PUL");
+        statusReconciliationErrorCSVRecord.setImsLocation("RECAP");
         assertNotNull(statusReconciliationCSVRecord.getBarcode());
         assertNotNull(statusReconciliationCSVRecord.getRequestAvailability());
         assertNotNull(statusReconciliationCSVRecord.getRequestId());
         assertNotNull(statusReconciliationCSVRecord.getStatusInLas());
         assertNotNull(statusReconciliationCSVRecord.getStatusInScsb());
         assertNotNull(statusReconciliationCSVRecord.getDateTime());
+        assertNotNull(statusReconciliationCSVRecord.getImsLocation());
         assertNotNull(statusReconciliationErrorCSVRecord.getBarcode());
         assertNotNull(statusReconciliationErrorCSVRecord.getInstitution());
         assertNotNull(statusReconciliationErrorCSVRecord.getReasonForFailure());
+        assertNotNull(statusReconciliationErrorCSVRecord.getImsLocation());
     }
 
 }

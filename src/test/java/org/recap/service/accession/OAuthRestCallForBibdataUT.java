@@ -16,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class OAuthRestCallForBibdataUT extends BaseTestCaseUT {
 
@@ -39,21 +41,22 @@ public class OAuthRestCallForBibdataUT extends BaseTestCaseUT {
     @Mock
     OauthTokenApiService oauthTokenApiService;
 
+    @Mock
+    SimpleClientHttpRequestFactory factory;
 
-    @Value("${bibdata.api.connection.timeout}")
-    Integer connectionTimeout;
-
-    @Value("${bibdata.api.read.timeout}")
-    Integer readTimeout;
 
     @Test
     public void getBibData() throws Exception {
         ReflectionTestUtils.setField(OAuthRestCallForBibdata,"propertyUtil",propertyUtil);
-        ReflectionTestUtils.setField(OAuthRestCallForBibdata,"connectionTimeout",connectionTimeout);
-        ReflectionTestUtils.setField(OAuthRestCallForBibdata,"readTimeout",readTimeout);
+        ReflectionTestUtils.setField(OAuthRestCallForBibdata,"connectionTimeout",20000);
+        ReflectionTestUtils.setField(OAuthRestCallForBibdata,"readTimeout",20000);
         ReflectionTestUtils.setField(OAuthRestCallForBibdata,"oauthTokenApiService",oauthTokenApiService);
         Mockito.when(OAuthRestCallForBibdata.getParamsMap(Mockito.anyString(),Mockito.anyString())).thenCallRealMethod();
-        Mockito.when(OAuthRestCallForBibdata.getRestTmp()).thenReturn(restTemplate);
+        Mockito.when(OAuthRestCallForBibdata.getRestTmp()).thenCallRealMethod();
+        Mockito.when(OAuthRestCallForBibdata.getRestTemplate()).thenReturn(restTemplate);
+        Mockito.when(restTemplate.getRequestFactory()).thenReturn(factory);
+        Mockito.doNothing().when(factory).setConnectTimeout(Mockito.anyInt());
+        Mockito.doNothing().when(factory).setReadTimeout(Mockito.anyInt());
         Mockito.when(oauthTokenApiService.generateAccessToken(Mockito.anyString(),Mockito.anyString(),Mockito.anyString())).thenReturn("test");
         ResponseEntity<String> responseEntity=new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK);
         HttpEntity requestEntity = new HttpEntity(getHttpHeaders("test","1","fdhfujfdjfsd"));
@@ -63,6 +66,13 @@ public class OAuthRestCallForBibdataUT extends BaseTestCaseUT {
         Mockito.when(OAuthRestCallForBibdata.getBibData("123456","PA","PUL","url")).thenCallRealMethod();
         String bibDataResponse=OAuthRestCallForBibdata.getBibData("123456","PA","PUL","url");
         assertEquals(RecapCommonConstants.SUCCESS,bibDataResponse);
+    }
+
+    @Test
+    public void testgetRestTemplate() {
+        Mockito.when(OAuthRestCallForBibdata.getRestTemplate()).thenCallRealMethod();
+        OAuthRestCallForBibdata.getRestTemplate();
+        assertTrue(true);
     }
 
     public HttpHeaders getHttpHeaders(String oauthTokenApiUrl, String operatorUserId, String operatorPassword) throws Exception {

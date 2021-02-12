@@ -17,7 +17,11 @@ public class RequestInstitutionBibPKUT extends BaseTestCaseUT {
         requestInstitutionBibPK.setItemId(1);
         requestInstitutionBibPK.setOwningInstitutionId(1);
         requestInstitutionBibPK.equals(new RequestInstitutionBibPK());
+        requestInstitutionBibPK.equals(requestInstitutionBibPK);
+        requestInstitutionBibPK.equals(null);
+        requestInstitutionBibPK.equals(RequestInstitutionBibPK.class);
         requestInstitutionBibPK.hashCode();
+        new RequestInstitutionBibPK().hashCode();
         RequestInstitutionBibPK requestInstitutionBibPK1 = new RequestInstitutionBibPK(1,1);
         assertNotNull(requestInstitutionBibPK1.getOwningInstitutionId());
         assertNotNull(requestInstitutionBibPK1.getItemId());

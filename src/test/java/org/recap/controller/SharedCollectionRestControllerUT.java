@@ -92,13 +92,6 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
     @Mock
     SubmitCollectionService submitCollectionService;
 
-    @Value("${ongoing.accession.input.limit}")
-    private Integer inputLimit;
-
-
-    @Value("${submit.collection.partition.size}")
-    Integer partitionSize;
-
     String updatedMarcXml = "<collection xmlns=\"http://www.loc.gov/MARC21/slim\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.loc.gov/MARC21/slim http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd\">\n" +
             "<record>\n" +
             "<leader>01011cam a2200289 a 4500</leader>\n" +
@@ -243,7 +236,7 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
         Mockito.when(marcUtil.convertAndValidateXml(Mockito.anyString(),Mockito.anyBoolean(),Mockito.anyList())).thenCallRealMethod();
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenCallRealMethod();
         ReflectionTestUtils.setField(marcUtil,"inputLimit",2);
-        ReflectionTestUtils.setField(submitCollectionBatchService,"partitionSize",partitionSize);
+        ReflectionTestUtils.setField(submitCollectionBatchService,"partitionSize",5000);
         Map responseMap=new HashMap();
         StringBuilder stringBuilder=new StringBuilder();
         responseMap.put("errorMessage",stringBuilder);
@@ -303,7 +296,7 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
     public void accession() throws Exception{
         AccessionModelRequest accessionModelRequest=new AccessionModelRequest();
         accessionModelRequest.setAccessionRequests(getAccessionRequests());
-        ReflectionTestUtils.setField(sharedCollectionRestController,"inputLimit",inputLimit);
+        ReflectionTestUtils.setField(sharedCollectionRestController,"inputLimit",10);
         ResponseEntity response = sharedCollectionRestController.accession(accessionModelRequest,exchange);
         assertEquals(HttpStatus.OK,response.getStatusCode());
     }

@@ -86,6 +86,21 @@ public class EncryptEmailAddressUT {
         assertNotNull(encryptEmailAddress);
 
     }
+    @Test
+    public void encryptEmailAddressException(){
+        Mockito.when(mockedRequestItemDetailsRepository.count()).thenReturn(10L);
+        List<RequestItemEntity> requestItemEntityListToSave = new ArrayList<>();
+        RequestItemEntity requestItemEntity = createRequestItem();
+        requestItemEntityListToSave.add(requestItemEntity);
+        Pageable pageable = PageRequest.of(0,1000, Sort.Direction.ASC,REQUEST_ID);
+        Page<RequestItemEntity> page = new PageImpl<>(requestItemEntityListToSave);
+        Mockito.when(mockedRequestItemDetailsRepository.findAll(pageable)).thenReturn(page);
+        Mockito.when(mockedSecurityUtil.getEncryptedValue(requestItemEntity.getEmailId())).thenReturn("test@gmail.com");
+        Mockito.when(mockedRequestItemDetailsRepository.saveAll(requestItemEntityListToSave)).thenThrow(NullPointerException.class);
+        String encryptEmailAddress = mockedEncryptEmailAddressService.encryptEmailAddress();
+        assertNotNull(encryptEmailAddress);
+    }
+
 
     private RequestItemEntity createRequestItem(){
         InstitutionEntity institutionEntity = new InstitutionEntity();
