@@ -277,7 +277,6 @@ public class AccessionUtil {
             } else {
                 message = RecapConstants.ITEM_BARCODE_ALREADY_ACCESSIONED_MSG;
             }
-            reportDataEntityList.addAll(createReportDataEntityList(accessionRequest, message));
         }
         return message;
     }
@@ -606,7 +605,7 @@ public class AccessionUtil {
         ReportEntity reportEntity;
         reportEntity = getReportEntity(owningInstitution!=null ? owningInstitution : RecapConstants.UNKNOWN_INSTITUTION);
         reportEntity.setReportDataEntities(reportDataEntityList);
-        producerTemplate.sendBody(RecapCommonConstants.REPORT_Q, reportEntity);
+        producerTemplate.sendBody(RecapConstants.ACCESSION_REPORT_Q, reportEntity);
     }
 
     private ReportEntity getReportEntity(String owningInstitution){

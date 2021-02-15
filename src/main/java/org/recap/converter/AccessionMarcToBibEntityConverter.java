@@ -302,7 +302,7 @@ public class AccessionMarcToBibEntityConverter extends AccessionXmlConverterAbst
         itemEntity.setLastUpdatedBy(RecapCommonConstants.ACCESSION);
 
         itemEntity.setImsLocationEntity(imsLocationEntity);
-        itemEntity.setImsLocationId(imsLocationEntity.getImsLocationId());
+        itemEntity.setImsLocationId(imsLocationEntity.getId());
 
         String useRestrictions = marcUtil.getDataFieldValue(itemRecord, "876", 'h');
         if (StringUtils.isNotBlank(useRestrictions) && ("In Library Use".equalsIgnoreCase(useRestrictions) || "Supervised Use".equalsIgnoreCase(useRestrictions))) {

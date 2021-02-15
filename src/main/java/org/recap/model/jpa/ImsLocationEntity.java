@@ -12,11 +12,13 @@ import java.util.Date;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class ImsLocationEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "IMS_LOCATION_ID")
-    private Integer imsLocationId;
+@AttributeOverride(
+        name = "id",
+        column = @Column(
+                name = "IMS_LOCATION_ID"
+        )
+)
+public class ImsLocationEntity extends AbstractEntity<Integer>{
 
     @Column(name = "IMS_LOCATION_CODE")
     private String imsLocationCode;

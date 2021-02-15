@@ -19,9 +19,9 @@ import java.util.List;
 /**
  * Created by pvsubrah on 6/11/16.
  */
+@Entity
 @Getter
 @Setter
-@Entity
 @Table(name = "item_t", schema = "recap", catalog = "")
 @AttributeOverride(name = "id", column = @Column(name = "ITEM_ID"))
 public class ItemEntity extends ItemAbstractEntity {
@@ -44,7 +44,7 @@ public class ItemEntity extends ItemAbstractEntity {
     @JoinColumn(name = "OWNING_INST_ID", insertable = false, updatable = false)
     private InstitutionEntity institutionEntity;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(name = "IMS_LOCATION_ID", insertable = false, updatable = false)
     private ImsLocationEntity imsLocationEntity;
 
