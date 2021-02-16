@@ -58,6 +58,9 @@ public class SubmitCollectionProcessor {
     @Value("${email.submit.collection.subject.for.empty.directory}")
     private String subjectForEmptyDirectory;
 
+    @Value("${s3.submit.collection.report.dir}")
+    private String submitCollectionReportS3Dir;
+
     private String institutionCode;
     private boolean isCGDProtection;
     private String cgdType;
@@ -161,7 +164,7 @@ public class SubmitCollectionProcessor {
         emailPayLoad.setXmlFileName(name);
         emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.to"));
         emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.cc"));
-        emailPayLoad.setLocation(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "s3.submit.collection.report.dir"));
+        emailPayLoad.setLocation(submitCollectionReportS3Dir);
         emailPayLoad.setLocation(filePath);
         emailPayLoad.setInstitution(institutionCode.toUpperCase());
         emailPayLoad.setException(exception);
@@ -187,7 +190,7 @@ public class SubmitCollectionProcessor {
         emailPayLoad.setXmlFileName(xmlFileName);
         emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.to"));
         emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.cc"));
-        emailPayLoad.setLocation(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "s3.submit.collection.report.dir"));
+        emailPayLoad.setLocation(submitCollectionReportS3Dir);
         emailPayLoad.setInstitution(institutionCode.toUpperCase());
         return emailPayLoad;
     }
