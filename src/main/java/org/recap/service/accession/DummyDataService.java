@@ -71,7 +71,6 @@ public class DummyDataService {
      * @return the bibliographic entity
      */
     public BibliographicEntity createDummyDataAsIncomplete(Integer owningInstitutionId, String itemBarcode, String customerCode,ImsLocationEntity imsLocationEntity) {
-        Random random = new Random();
         BibliographicEntity bibliographicEntity = new BibliographicEntity();
         Date currentDate = new Date();
         try {
