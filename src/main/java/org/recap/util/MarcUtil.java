@@ -586,10 +586,10 @@ public class MarcUtil {
     private boolean doIndicatorsMatchForDataFieldType(String indicator1, String indicator2, DataFieldType dataField) {
         boolean result = true;
         if (StringUtils.isNotBlank(indicator1)) {
-            result = dataField.getInd1().equals(indicator1.charAt(0));
+            result = dataField.getInd1().equals(String.valueOf(indicator1.charAt(0)));
         }
         if (StringUtils.isNotBlank(indicator2)) {
-            result &= dataField.getInd2().equals(indicator2.charAt(0));
+            result &= dataField.getInd2().equals(String.valueOf(indicator2.charAt(0)));
         }
         return result;
     }
