@@ -239,7 +239,7 @@ public class AccessionMarcToBibEntityConverter extends AccessionXmlConverterAbst
     private Map<String, Object> processAndValidateHoldingsEntity(BibliographicEntity bibliographicEntity,  Record holdingsRecord, Date currentDate,StringBuilder errorMessage) {
         Map<String, Object> map = new HashMap<>();
         String holdingsContent = new MarcUtil().writeMarcXml(holdingsRecord);
-        HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent);
+        HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent,RecapCommonConstants.ACCESSION);
         String owningInstitutionHoldingsId = marcUtil.getDataFieldValue(holdingsRecord, "852", '0');
         return commonUtil.addHoldingsEntityToMap(map, holdingsEntity, owningInstitutionHoldingsId);
     }

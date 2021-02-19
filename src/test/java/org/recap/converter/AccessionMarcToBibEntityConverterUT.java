@@ -96,7 +96,7 @@ public class AccessionMarcToBibEntityConverterUT extends BaseTestCaseUT {
         holdingsMarcRecords.add(holdingsMarcRecord);
         Mockito.when(bibMarcRecord.getHoldingsMarcRecords()).thenReturn(holdingsMarcRecords);
         Mockito.when(holdingsMarcRecord.getHoldingsRecord()).thenReturn(record);
-        Mockito.when(commonUtil.buildHoldingsEntity(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyString())).thenReturn(saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
+        Mockito.when(commonUtil.buildHoldingsEntity(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyString(),Mockito.anyString())).thenReturn(saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
         Mockito.when(marcUtil.getDataFieldValue(Mockito.any(Record.class),Mockito.anyString(),Mockito.anyChar())).thenReturn("1");
         Map<String, Object> map1=new HashMap<>();
         map1.put("holdingsEntity",saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
@@ -149,7 +149,7 @@ public class AccessionMarcToBibEntityConverterUT extends BaseTestCaseUT {
         holdingsMarcRecords.add(holdingsMarcRecord);
         Mockito.when(bibMarcRecord.getHoldingsMarcRecords()).thenReturn(holdingsMarcRecords);
         Mockito.when(holdingsMarcRecord.getHoldingsRecord()).thenReturn(record);
-        Mockito.when(commonUtil.buildHoldingsEntity(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyString())).thenReturn(saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
+        Mockito.when(commonUtil.buildHoldingsEntity(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyString(),Mockito.anyString())).thenReturn(saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
         Mockito.when(marcUtil.getDataFieldValue(Mockito.any(Record.class),Mockito.anyString(),Mockito.anyChar())).thenReturn("1");
         Map<String, Object> map1=new HashMap<>();
         map1.put("holdingsEntity",saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
@@ -191,7 +191,7 @@ public class AccessionMarcToBibEntityConverterUT extends BaseTestCaseUT {
         holdingsMarcRecords.add(holdingsMarcRecord);
         Mockito.when(bibMarcRecord.getHoldingsMarcRecords()).thenReturn(holdingsMarcRecords);
         Mockito.when(holdingsMarcRecord.getHoldingsRecord()).thenReturn(record);
-        Mockito.when(commonUtil.buildHoldingsEntity(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyString())).thenReturn(saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
+        Mockito.when(commonUtil.buildHoldingsEntity(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyString(),Mockito.anyString())).thenReturn(saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
         Mockito.when(marcUtil.getDataFieldValue(Mockito.any(Record.class),Mockito.anyString(),Mockito.anyChar())).thenReturn("1");
         Map<String, Object> map1=new HashMap<>();
         map1.put("holdingsEntity",saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
