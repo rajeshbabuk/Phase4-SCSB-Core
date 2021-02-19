@@ -64,7 +64,7 @@ public class CommonUtil {
      * @param holdingsContent
      * @return
      */
-    public HoldingsEntity buildHoldingsEntity(BibliographicEntity bibliographicEntity, Date currentDate, StringBuilder errorMessage, String holdingsContent) {
+    public HoldingsEntity buildHoldingsEntity(BibliographicEntity bibliographicEntity, Date currentDate, StringBuilder errorMessage, String holdingsContent,String processName) {
         HoldingsEntity holdingsEntity = new HoldingsEntity();
         if (StringUtils.isNotBlank(holdingsContent)) {
             holdingsEntity.setContent(holdingsContent.getBytes());
@@ -72,9 +72,9 @@ public class CommonUtil {
             errorMessage.append(" Holdings Content cannot be empty");
         }
         holdingsEntity.setCreatedDate(currentDate);
-        holdingsEntity.setCreatedBy(RecapConstants.SUBMIT_COLLECTION);
+        holdingsEntity.setCreatedBy(processName);
         holdingsEntity.setLastUpdatedDate(currentDate);
-        holdingsEntity.setLastUpdatedBy(RecapConstants.SUBMIT_COLLECTION);
+        holdingsEntity.setLastUpdatedBy(processName);
         Integer owningInstitutionId = bibliographicEntity.getOwningInstitutionId();
         holdingsEntity.setOwningInstitutionId(owningInstitutionId);
         return holdingsEntity;

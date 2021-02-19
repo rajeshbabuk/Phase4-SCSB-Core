@@ -251,7 +251,7 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
     private Map<String, Object> processAndValidateHoldingsEntity(BibliographicEntity bibliographicEntity, Holding holding, CollectionType holdingContentCollection,Date currentDate,StringBuilder errorMessage) {
         Map<String, Object> map = new HashMap<>();
         String holdingsContent = holdingContentCollection.serialize(holdingContentCollection);
-        HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent);
+        HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent,RecapCommonConstants.ACCESSION);
         String owningInstitutionHoldingsId = holding.getOwningInstitutionHoldingsId();
         return commonUtil.addHoldingsEntityToMap(map, holdingsEntity, owningInstitutionHoldingsId);
     }

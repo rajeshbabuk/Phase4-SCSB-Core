@@ -200,7 +200,7 @@ public class CommonUtilUT extends BaseTestCaseUT {
     @Test
     public void buildHoldingsEntityEmpty(){
         StringBuilder errorMessage=new StringBuilder();
-        HoldingsEntity holdingsEntity=commonUtil.buildHoldingsEntity(getBibliographicEntity(),new Date(),errorMessage,"");
+        HoldingsEntity holdingsEntity=commonUtil.buildHoldingsEntity(getBibliographicEntity(),new Date(),errorMessage,"","UT");
         assertNotNull(holdingsEntity);
         assertEquals(" Holdings Content cannot be empty",errorMessage.toString());
     }
@@ -208,7 +208,7 @@ public class CommonUtilUT extends BaseTestCaseUT {
     @Test
     public void buildHoldingsEntity(){
         StringBuilder errorMessage=new StringBuilder();
-        HoldingsEntity holdingsEntity=commonUtil.buildHoldingsEntity(getBibliographicEntity(),new Date(),errorMessage,"test");
+        HoldingsEntity holdingsEntity=commonUtil.buildHoldingsEntity(getBibliographicEntity(),new Date(),errorMessage,"test","UT");
         assertNotNull(holdingsEntity);
         assertEquals("",errorMessage.toString());
     }

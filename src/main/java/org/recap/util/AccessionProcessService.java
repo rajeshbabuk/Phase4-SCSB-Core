@@ -124,6 +124,7 @@ public class AccessionProcessService {
                         itemBarcodeHistoryDetailsRepository.save(itemBarcodeHistoryEntity);
                     }
                 } catch (Exception e) {
+                    logger.info("Exception occured in accession process : {}",e.getMessage());
                     if (writeToReport) {
                         processException(accessionResponses, accessionRequest, reportDataEntitys, owningInstitution,imsLocationEntity ,e);
                     } else {
