@@ -189,6 +189,7 @@ public class BulkAccessionService extends AccessionService{
                     BibDataCallable bibDataCallable = applicationContext.getBean(BibDataCallable.class);
                     bibDataCallable.setAccessionRequest(accessionRequest);
                     bibDataCallable.setWriteToReport(true);
+                    bibDataCallable.setImsLocationEntity(imsValidation.getImsLocationEntity());
                     String owningInstitution = accessionUtil.getOwningInstitution(accessionRequest.getCustomerCode());
                     bibDataCallable.setOwningInstitution(owningInstitution);
                     Future submit = executorService.submit(bibDataCallable);
