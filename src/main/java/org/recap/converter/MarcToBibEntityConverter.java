@@ -162,7 +162,7 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
     ,StringBuilder errorMessage) {
         Map<String, Object> map = new HashMap<>();
         String holdingsContent = new MarcUtil().writeMarcXml(holdingsRecord);
-        HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent);
+        HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent,RecapConstants.SUBMIT_COLLECTION);
         String owningInstitutionHoldingsId = marcUtil.getDataFieldValue(holdingsRecord, "852", '0');
         return commonUtil.addHoldingsEntityToMap(map, holdingsEntity, owningInstitutionHoldingsId);
     }

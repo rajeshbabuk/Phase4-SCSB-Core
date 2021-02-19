@@ -179,7 +179,7 @@ public class SCSBToBibEntityConverter implements XmlToBibEntityConverterInterfac
         Map<String, Object> map = new HashMap<>();
         Date currentDate = new Date();
         String holdingsContent = new MarcUtil().writeMarcXml(holdingsRecord);
-        HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent);
+        HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent,RecapConstants.SUBMIT_COLLECTION);
         if (StringUtils.isBlank(owningInstitutionHoldingsId)) {
             owningInstitutionHoldingsId = UUID.randomUUID().toString();
         }

@@ -100,7 +100,7 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
         Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 'z')).thenReturn("PA");
         Record record = (Record) records.get(0);
         Mockito.when(holdingsMarcRecord.getHoldingsRecord()).thenReturn(record);
-        Mockito.when(commonUtil.buildHoldingsEntity(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyString())).thenReturn(saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
+        Mockito.when(commonUtil.buildHoldingsEntity(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyString(),Mockito.anyString())).thenReturn(saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
         Mockito.when(marcUtil.getDataFieldValue(record, "852", '0')).thenReturn("5123222f-2333-413e-8c9c-cb8709f010c3");
         Map<String, Object> map1=new HashMap<>();
         map1.put("holdingsEntity",saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
@@ -145,7 +145,7 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
         Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 'z')).thenReturn(null);
         Record record = (Record) records.get(0);
         Mockito.when(holdingsMarcRecord.getHoldingsRecord()).thenReturn(record);
-        Mockito.when(commonUtil.buildHoldingsEntity(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyString())).thenReturn(saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
+        Mockito.when(commonUtil.buildHoldingsEntity(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyString(),Mockito.anyString())).thenReturn(saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
         Mockito.when(marcUtil.getDataFieldValue(record, "852", '0')).thenReturn("5123222f-2333-413e-8c9c-cb8709f010c3");
         Map<String, Object> map1=new HashMap<>();
         map1.put("holdingsEntity",saveBibSingleHoldingsSingleItem("32101095533293","PA","1","1").getHoldingsEntities().get(0));
