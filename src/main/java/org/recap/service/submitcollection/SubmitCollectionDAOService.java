@@ -7,6 +7,7 @@ import org.recap.model.jpa.BibliographicEntity;
 import org.recap.model.jpa.HoldingsEntity;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.model.jpa.ItemChangeLogEntity;
+import org.recap.model.jpa.ImsLocationEntity;
 import org.recap.model.report.SubmitCollectionReportInfo;
 import org.recap.model.submitcollection.BoundWithBibliographicEntityObject;
 import org.recap.model.submitcollection.NonBoundWithBibliographicEntityObject;
@@ -572,11 +573,13 @@ public class SubmitCollectionDAOService {
     private BibliographicEntity saveBibliographicEntity(BibliographicEntity bibliographicEntity, List<Map<String, String>> idMapToRemoveIndexList, BibliographicEntity fetchBibliographicEntity) {
         BibliographicEntity savedBibliographicEntity;
         updateCustomerCode(fetchBibliographicEntity, bibliographicEntity);//Added to get customer code for existing dummy record, this value is used when the input xml dosent have the customer code in it
+        ImsLocationEntity dummyRecordItemLocationEntity = bibliographicEntity.getItemEntities().get(0).getImsLocationEntity();
         removeDummyRecord(idMapToRemoveIndexList, fetchBibliographicEntity);
         BibliographicEntity fetchedBibliographicEntity = repositoryService.getBibliographicDetailsRepository().findByOwningInstitutionIdAndOwningInstitutionBibId(bibliographicEntity.getOwningInstitutionId(), bibliographicEntity.getOwningInstitutionBibId());
         setItemAvailabilityStatus(bibliographicEntity.getItemEntities());
         BibliographicEntity bibliographicEntityToSave = bibliographicEntity;
         updateCatalogingStatusForItem(bibliographicEntityToSave);
+        updateImsLocationForItem(bibliographicEntityToSave, dummyRecordItemLocationEntity);
         updateCatalogingStatusForBib(bibliographicEntityToSave);
         if (fetchedBibliographicEntity != null) {//1Bib n holding n item
             bibliographicEntityToSave = updateExistingRecordForDummy(fetchedBibliographicEntity, bibliographicEntity);
@@ -584,6 +587,15 @@ public class SubmitCollectionDAOService {
         savedBibliographicEntity = repositoryService.getBibliographicDetailsRepository().saveAndFlush(bibliographicEntityToSave);
         entityManager.refresh(savedBibliographicEntity);
         return savedBibliographicEntity;
+    }
+
+    private void updateImsLocationForItem(BibliographicEntity bibliographicEntityToSave, ImsLocationEntity dummyRecordItemStatusEntity) {
+        for(ItemEntity itemEntity:bibliographicEntityToSave.getItemEntities()){
+            if(dummyRecordItemStatusEntity != null){
+                itemEntity.setImsLocationId(dummyRecordItemStatusEntity.getId());
+                itemEntity.setImsLocationEntity(dummyRecordItemStatusEntity);
+            }
+        }
     }
 
     /**
