@@ -363,7 +363,6 @@ public class SubmitCollectionService {
                         reportEntity.setCreatedDate(new Date());
                         reportEntity.setInstitutionName(owningInstitution);
                     }
-                    logger.info("Processing report for record {}",count);
                     if(submitCollectionReportInfo.getItemBarcode() != null){
 
                         ReportDataEntity itemBarcodeReportDataEntity = new ReportDataEntity();
@@ -391,8 +390,8 @@ public class SubmitCollectionService {
                         count ++;
                         reportRecordNumberList.add(savedReportEntity.getId());
                     }
-                    logger.info("Processed completed report for record {}",count);
                 }
+                logger.info("Processed completed report for record {}",count);
             } catch (Exception e) {
                 logger.error(RecapCommonConstants.LOG_ERROR,e);
             }

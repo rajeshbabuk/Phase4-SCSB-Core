@@ -44,7 +44,7 @@ public class ItemEntity extends ItemAbstractEntity {
     @JoinColumn(name = "OWNING_INST_ID", insertable = false, updatable = false)
     private InstitutionEntity institutionEntity;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "IMS_LOCATION_ID", insertable = false, updatable = false)
     private ImsLocationEntity imsLocationEntity;
 
