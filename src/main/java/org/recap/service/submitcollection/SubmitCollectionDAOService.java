@@ -573,7 +573,7 @@ public class SubmitCollectionDAOService {
     private BibliographicEntity saveBibliographicEntity(BibliographicEntity bibliographicEntity, List<Map<String, String>> idMapToRemoveIndexList, BibliographicEntity fetchBibliographicEntity) {
         BibliographicEntity savedBibliographicEntity;
         updateCustomerCode(fetchBibliographicEntity, bibliographicEntity);//Added to get customer code for existing dummy record, this value is used when the input xml dosent have the customer code in it
-        ImsLocationEntity dummyRecordItemLocationEntity = bibliographicEntity.getItemEntities().get(0).getImsLocationEntity();
+        ImsLocationEntity dummyRecordItemLocationEntity = fetchBibliographicEntity.getItemEntities().get(0).getImsLocationEntity();
         removeDummyRecord(idMapToRemoveIndexList, fetchBibliographicEntity);
         BibliographicEntity fetchedBibliographicEntity = repositoryService.getBibliographicDetailsRepository().findByOwningInstitutionIdAndOwningInstitutionBibId(bibliographicEntity.getOwningInstitutionId(), bibliographicEntity.getOwningInstitutionBibId());
         setItemAvailabilityStatus(bibliographicEntity.getItemEntities());
