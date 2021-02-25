@@ -142,6 +142,7 @@ public class SubmitCollectionProcessor {
             stopWatch.stop();
             logger.info("Submit Collection : Total time taken for processing through s3---> {} sec", stopWatch.getTotalTimeSeconds());
         } catch (Exception e) {
+            logger.info("Caught for institution inside catch block {} ",institutionCode);
             logger.error(RecapCommonConstants.LOG_ERROR, e);
             exchange.setException(e);
         }
@@ -154,6 +155,7 @@ public class SubmitCollectionProcessor {
             String fileName = (String) exchange.getIn().getHeader(Exchange.FILE_NAME);
             String filePath = (String) exchange.getIn().getHeader(Exchange.FILE_PARENT);
             String institutionCode1 = (String) exchange.getIn().getHeader(RecapCommonConstants.INSTITUTION);
+            logger.info("Institution inside caught  - {}", institutionCode1);
             producer.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoadForExcepion(institutionCode1, fileName, filePath, exception, exception.getMessage()), RecapConstants.EMAIL_BODY_FOR, RecapConstants.SUBMIT_COLLECTION_EXCEPTION);
         }
     }
@@ -162,6 +164,7 @@ public class SubmitCollectionProcessor {
         EmailPayLoad emailPayLoad = new EmailPayLoad();
         emailPayLoad.setSubject(RecapConstants.SUBJECT_FOR_SUBMIT_COL_EXCEPTION);
         emailPayLoad.setXmlFileName(name);
+        logger.info("Institution inside email payload for exception- {}", institutionCode);
         emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.to"));
         emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.cc"));
         emailPayLoad.setLocation(submitCollectionReportS3Dir);
@@ -188,6 +191,7 @@ public class SubmitCollectionProcessor {
         emailPayLoad.setSubject(submitCollectionEmailSubject);
         emailPayLoad.setReportFileName(reportFileName);
         emailPayLoad.setXmlFileName(xmlFileName);
+        logger.info("Institution inside email payload", institutionCode);
         emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.to"));
         emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.cc"));
         emailPayLoad.setLocation(submitCollectionReportS3Dir);
