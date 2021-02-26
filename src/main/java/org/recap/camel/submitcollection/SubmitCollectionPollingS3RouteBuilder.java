@@ -133,7 +133,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
                     onException(Exception.class)
                             .log("Exception caught during submit collection process - " + currentInstitution + cgdType)
                             .handled(true)
-                            .setHeader(RecapCommonConstants.INSTITUTION, constant(""))
+                            .setHeader(RecapCommonConstants.INSTITUTION, constant(currentInstitution))
                             .to(RecapCommonConstants.DIRECT_ROUTE_FOR_EXCEPTION);
                     from("aws-s3://{{scsbBucketName}}?prefix="+submitCollectionS3BasePath+ currentInstitution + "/cgd_" + cgdType + "/{{s3DataFeedFileNamePrefix}}&deleteAfterRead=false&sendEmptyMessageWhenIdle=true&autocloseBody=false&region={{awsRegion}}&accessKey=RAW({{awsAccessKey}})&secretKey=RAW({{awsAccessSecretKey}})")
                             .routeId(currentInstitutionRouteId)
