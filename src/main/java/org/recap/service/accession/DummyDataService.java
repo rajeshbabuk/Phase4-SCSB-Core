@@ -9,18 +9,15 @@ import org.recap.model.jpa.ImsLocationEntity;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.model.jpa.ItemStatusEntity;
 import org.recap.model.jpa.OwningInstitutionIDSequence;
-import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.repository.jpa.CollectionGroupDetailsRepository;
 import org.recap.repository.jpa.ItemStatusDetailsRepository;
 import org.recap.repository.jpa.OwningInstitutionIDSequenceRepository;
+import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -28,7 +25,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Created by premkb on 27/4/17.
@@ -43,9 +39,6 @@ public class DummyDataService {
     private Map<String,Integer> itemStatusMap;
 
     @Autowired
-    private BibliographicDetailsRepository bibliographicDetailsRepository;
-
-    @Autowired
     private ItemStatusDetailsRepository itemStatusDetailsRepository;
 
     @Autowired
@@ -55,13 +48,10 @@ public class DummyDataService {
     private OwningInstitutionIDSequenceRepository owningInstitutionIDSequenceRepository;
 
     @Autowired
-    private AccessionDAO accessionDAO;
+    private BibliographicRepositoryDAO bibliographicRepositoryDAO;
 
     @Autowired
     private CommonUtil commonUtil;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     /**
      * This method is used to create dummy record when item barcode is not found in ILS.
@@ -105,7 +95,7 @@ public class DummyDataService {
         } catch (Exception e) {
             logger.error(RecapCommonConstants.LOG_ERROR,e);
         }
-        return accessionDAO.saveBibRecord(bibliographicEntity);
+        return bibliographicRepositoryDAO.saveOrUpdate(bibliographicEntity);
     }
 
     public HoldingsEntity getHoldingsWithDummyDetails(Integer owningInstitutionId, Date currentDate, String createdBy, String owningInstitutionHoldingsId) {
