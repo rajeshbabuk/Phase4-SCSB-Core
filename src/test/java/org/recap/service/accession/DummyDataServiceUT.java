@@ -11,6 +11,7 @@ import org.recap.model.jpa.*;
 import org.recap.repository.jpa.CollectionGroupDetailsRepository;
 import org.recap.repository.jpa.ItemStatusDetailsRepository;
 import org.recap.repository.jpa.OwningInstitutionIDSequenceRepository;
+import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.util.CommonUtil;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -41,7 +42,7 @@ public class DummyDataServiceUT extends BaseTestCaseUT {
     ItemStatusDetailsRepository itemStatusDetailsRepository;
 
     @Mock
-    AccessionDAO accessionDAO;
+    BibliographicRepositoryDAO bibliographicRepositoryDAO;
 
     @Mock
     CommonUtil commonUtil;
@@ -58,7 +59,7 @@ public class DummyDataServiceUT extends BaseTestCaseUT {
         itemStatusEntity.setStatusDescription("RecentlyReturned");
         itemStatusEntities.add(itemStatusEntity);
         Mockito.when(itemStatusDetailsRepository.findAll()).thenReturn(itemStatusEntities);
-        Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(getBibliographicEntity());
         Mockito.when(commonUtil.getContentByFileName(Mockito.anyString())).thenCallRealMethod();
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         BibliographicEntity bibliographicEntity = dummyDataService.createDummyDataAsIncomplete(1,"3245678232","PA",imsLocationEntity);
@@ -72,7 +73,7 @@ public class DummyDataServiceUT extends BaseTestCaseUT {
     @Test
     public void getCollectionGroupMapException(){
         Mockito.when(owningInstitutionIDSequenceRepository.saveAndFlush(Mockito.any())).thenReturn(new OwningInstitutionIDSequence());
-        Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(getBibliographicEntity());
         StringBuilder file=new StringBuilder();
         file.append("test");
         Mockito.when(commonUtil.getContentByFileName(Mockito.anyString())).thenReturn(file);
@@ -90,7 +91,7 @@ public class DummyDataServiceUT extends BaseTestCaseUT {
     @Test
     public void getItemStatusMapException(){
         Mockito.when(owningInstitutionIDSequenceRepository.saveAndFlush(Mockito.any())).thenReturn(new OwningInstitutionIDSequence());
-        Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(getBibliographicEntity());
         StringBuilder file=new StringBuilder();
         file.append("test");
         Mockito.when(commonUtil.getContentByFileName(Mockito.anyString())).thenReturn(file);
@@ -112,7 +113,7 @@ public class DummyDataServiceUT extends BaseTestCaseUT {
     @Test
     public void createDummyDataAsIncompleteException(){
         Mockito.when(owningInstitutionIDSequenceRepository.saveAndFlush(Mockito.any())).thenReturn(new OwningInstitutionIDSequence());
-        Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(getBibliographicEntity());
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         BibliographicEntity bibliographicEntity = dummyDataService.createDummyDataAsIncomplete(1,"3245678232","PA",imsLocationEntity);
         assertNotNull(bibliographicEntity);

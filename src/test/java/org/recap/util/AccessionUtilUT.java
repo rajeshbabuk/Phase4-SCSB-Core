@@ -27,7 +27,7 @@ import org.recap.repository.jpa.CustomerCodeDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.repository.jpa.ItemChangeLogDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
-import org.recap.service.accession.AccessionDAO;
+import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.service.accession.AccessionValidationService;
 import org.recap.service.accession.DummyDataService;
 import org.springframework.http.HttpStatus;
@@ -91,7 +91,7 @@ public class AccessionUtilUT extends BaseTestCaseUT{
     AccessionValidationService accessionValidationService;
 
     @Mock
-    AccessionDAO accessionDAO;
+    BibliographicRepositoryDAO bibliographicRepositoryDAO;
 
     @Mock
     ItemChangeLogDetailsRepository itemChangeLogDetailsRepository;
@@ -298,7 +298,7 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         Mockito.when(converter.convert(Mockito.any(),Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(responseMap);
         Mockito.when(accessionValidationService.validateItemAndHolding(Mockito.any(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any())).thenReturn(true);
         Mockito.when(bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibId(Mockito.anyInt(),Mockito.anyString())).thenReturn(getBibliographicEntity());
-        Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(getBibliographicEntity());
         Mockito.when(restTemplate.postForEntity(Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK));
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
@@ -320,7 +320,7 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         Mockito.when(converter.convert(Mockito.any(),Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(responseMap);
         Mockito.when(accessionValidationService.validateItemAndHolding(Mockito.any(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any())).thenReturn(true);
         Mockito.when(bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibId(Mockito.anyInt(),Mockito.anyString())).thenReturn(getBibliographicEntity());
-        Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenThrow(NullPointerException.class);
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenThrow(NullPointerException.class);
         Mockito.when(restTemplate.postForEntity(Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK));
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
@@ -342,7 +342,7 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         Mockito.when(converter.convert(Mockito.any(),Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(responseMap);
         Mockito.when(accessionValidationService.validateItemAndHolding(Mockito.any(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any())).thenReturn(true);
         Mockito.when(bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibId(Mockito.anyInt(),Mockito.anyString())).thenReturn(getBibliographicEntity1());
-        Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(getBibliographicEntity());
         Mockito.when(restTemplate.postForEntity(Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK));
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
@@ -365,7 +365,7 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         Mockito.when(converter.convert(Mockito.any(),Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(responseMap);
         Mockito.when(accessionValidationService.validateItemAndHolding(Mockito.any(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any())).thenReturn(true);
         Mockito.when(bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibId(Mockito.anyInt(),Mockito.anyString())).thenReturn(getBibliographicEntity1());
-        Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(getBibliographicEntity());
         Mockito.when(restTemplate.postForEntity(Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK));
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
@@ -405,7 +405,7 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         responseMap.put(RecapCommonConstants.BIBLIOGRAPHICENTITY,getBibliographicEntity());
         Mockito.when(converter.convert(Mockito.any(),Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(responseMap);
         Mockito.when(accessionValidationService.validateItemAndHolding(Mockito.any(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any())).thenReturn(true);
-        Mockito.when(accessionDAO.saveBibRecord(Mockito.any())).thenReturn(getBibliographicEntity());
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(getBibliographicEntity());
         Mockito.when(restTemplate.postForEntity(Mockito.anyString(),Mockito.any(),Mockito.any())).thenReturn(new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK));
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();

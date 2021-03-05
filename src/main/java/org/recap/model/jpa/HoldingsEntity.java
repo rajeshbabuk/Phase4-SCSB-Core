@@ -54,22 +54,4 @@ public class HoldingsEntity extends HoldingsAbstractEntity {
     public HoldingsEntity() {
         super();
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-
-        HoldingsEntity holdingsEntity = (HoldingsEntity) o;
-
-        return getOwningInstitutionHoldingsId().equals(holdingsEntity.getOwningInstitutionHoldingsId());
-
-    }
-
-    @Override
-    public int hashCode() {
-        return getOwningInstitutionHoldingsId().hashCode();
-    }
 }

@@ -23,7 +23,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -358,8 +357,6 @@ public class AccessionProcessService {
                 logger.info("Time taken to checkin item barcode {} in {} : {}", itemBarcode, owningInstitutionId, stopWatch.getTotalTimeSeconds());
                 logger.info("Checkin response for item barcode {} : {}", itemBarcode, null != responseEntity.getBody() ? responseEntity.getBody().getScreenMessage() : null);
             }
-        } catch (RestClientException ex) {
-            logger.error(RecapConstants.EXCEPTION, ex);
         } catch (Exception ex) {
             logger.error(RecapConstants.EXCEPTION, ex);
         }
