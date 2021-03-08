@@ -731,7 +731,7 @@ public class SubmitCollectionDAOService {
     private BibliographicEntity updateExistingRecord(BibliographicEntity fetchBibliographicEntity, BibliographicEntity incomingBibliographicEntity,
                                                      Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap) {
         BibliographicEntity savedOrUnsavedBibliographicEntity = null;
-        logger.info("Processing bib owning institution bibid - {}",incomingBibliographicEntity.getOwningInstitutionBibId());
+      //  logger.info("Processing bib owning institution bibid - {}",incomingBibliographicEntity.getOwningInstitutionBibId());
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -775,7 +775,7 @@ public class SubmitCollectionDAOService {
         for(Map.Entry<String,ItemEntity> incomingBarcodeItemEntityMapEntry:incomingBarcodeItemEntityMap.entrySet()){
             ItemEntity incomingItemEntity = incomingBarcodeItemEntityMapEntry.getValue();
             ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
-            logger.info("Processing barcode--->{}",incomingItemEntity.getBarcode());
+           // logger.info("Processing barcode--->{}",incomingItemEntity.getBarcode());
             if(fetchedItemEntity != null){
                 if (fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId())
                       && fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode())) {
@@ -821,7 +821,7 @@ public class SubmitCollectionDAOService {
     public BibliographicEntity updateExistingRecordToEntityObject(BibliographicEntity fetchBibliographicEntity, BibliographicEntity incomingBibliographicEntity,
             Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, Set<Integer> processedBibIds,List<ItemChangeLogEntity> itemChangeLogEntityList) {
         BibliographicEntity bibliographicEntityToSave = null;
-        logger.info("Processing bib owning institution bibid - {}",incomingBibliographicEntity.getOwningInstitutionBibId());
+      //  logger.info("Processing bib owning institution bibid - {}",incomingBibliographicEntity.getOwningInstitutionBibId());
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -867,7 +867,7 @@ public class SubmitCollectionDAOService {
         for(Map.Entry<String,ItemEntity> incomingBarcodeItemEntityMapEntry:incomingBarcodeItemEntityMap.entrySet()){
             ItemEntity incomingItemEntity = incomingBarcodeItemEntityMapEntry.getValue();
             ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
-            logger.info("Processing barcode--->{}",incomingItemEntity.getBarcode());
+          //  logger.info("Processing barcode--->{}",incomingItemEntity.getBarcode());
             if(fetchedItemEntity != null){
                 if (fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId()) &&
                      (fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode()) && !barcodeHavingMismatchHoldingsId.contains(incomingItemEntity.getBarcode()))) {
