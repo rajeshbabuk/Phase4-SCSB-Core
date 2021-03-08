@@ -154,7 +154,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
                             .handled(true)
                             .setHeader(RecapCommonConstants.INSTITUTION, constant(currentInstitution))
                             .to(RecapCommonConstants.DIRECT_ROUTE_FOR_EXCEPTION);
-                    from("file:///data/submitCollection/" + currentInstitution + "/cgd_" + cgdType + "?sendEmptyMessageWhenIdle=true&delete=true")
+                    from("file:///recap-vol/submitCollection/" + currentInstitution + "/cgd_" + cgdType + "?sendEmptyMessageWhenIdle=true&delete=true")
                             .routeId(currentInstitutionRouteId)
                             .noAutoStartup()
                             .choice().when(gzipFile)
@@ -187,7 +187,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
             S3ObjectInputStream inputStream = s3Object.getObjectContent();
             finalFileName = fileName.substring(fileName.lastIndexOf('/') + 1);
             if (inputStream != null) {
-                IOUtils.copy(inputStream, new FileOutputStream(new File("/data/submitCollection/" + currentInstitution + "/cgd_" + cgdType + "/" + finalFileName)));
+                IOUtils.copy(inputStream, new FileOutputStream(new File("/recap-vol/submitCollection/" + currentInstitution + "/cgd_" + cgdType + "/" + finalFileName)));
             }
         } catch (Exception e) {
             e.printStackTrace();
