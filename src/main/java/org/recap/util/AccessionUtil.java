@@ -27,7 +27,7 @@ import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.repository.jpa.ItemChangeLogDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
-import org.recap.service.accession.AccessionDAO;
+import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.service.accession.AccessionValidationService;
 import org.recap.service.accession.DummyDataService;
 import org.slf4j.Logger;
@@ -82,7 +82,7 @@ public class AccessionUtil {
     AccessionValidationService accessionValidationService;
 
     @Autowired
-    AccessionDAO accessionDAO;
+    BibliographicRepositoryDAO bibliographicRepositoryDAO;
 
     @Autowired
     ItemChangeLogDetailsRepository itemChangeLogDetailsRepository;
@@ -405,7 +405,7 @@ public class AccessionUtil {
         BibliographicEntity savedBibliographicEntity=null;
         BibliographicEntity fetchBibliographicEntity = bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibId(bibliographicEntity.getOwningInstitutionId(),bibliographicEntity.getOwningInstitutionBibId());
         if(fetchBibliographicEntity ==null) { // New Bib Record
-            savedBibliographicEntity = accessionDAO.saveBibRecord(bibliographicEntity);
+            savedBibliographicEntity = bibliographicRepositoryDAO.saveOrUpdate(bibliographicEntity);
         }else{ // Existing bib Record
             // Bib
             fetchBibliographicEntity.setContent(bibliographicEntity.getContent());
@@ -478,7 +478,7 @@ public class AccessionUtil {
 
     public BibliographicEntity saveBibRecord(BibliographicEntity fetchBibliographicEntity) {
         try {
-            return accessionDAO.saveBibRecord(fetchBibliographicEntity);
+            return bibliographicRepositoryDAO.saveOrUpdate(fetchBibliographicEntity);
         } catch (Exception e) {
             logger.info(RecapConstants.EXCEPTION,e);
         }
