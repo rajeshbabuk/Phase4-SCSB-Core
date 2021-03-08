@@ -71,6 +71,12 @@ public class SubmitCollectionProcessor {
     @Autowired
     AmazonS3 awsS3Client;
 
+    @Value("${s3.submit.collection.dir}")
+    private String submitCollectionS3BasePath;
+
+    @Value("${scsbBucketName}")
+    private String bucketName;
+
     public SubmitCollectionProcessor() {
     }
 
@@ -95,12 +101,11 @@ public class SubmitCollectionProcessor {
         List<Map<String, String>> bibIdMapToRemoveIndexList = new ArrayList<>();
         List<Integer> reportRecordNumList = new ArrayList<>();
         String xmlFileName = null;
-        String bucketName = null;
         try {
             logger.info("Submit Collection : Route started and started processing the records from s3 for submitcollection");
             String inputXml = exchange.getIn().getBody(String.class);
-            xmlFileName = exchange.getIn().getHeader(RecapConstants.CAMEL_AWS_KEY).toString();
-            bucketName = exchange.getIn().getHeader("CamelAwsS3BucketName").toString();
+            xmlFileName = exchange.getIn().getHeader("CamelFileNameOnly").toString();
+            xmlFileName = submitCollectionS3BasePath+ institutionCode+ "/cgd_" + cgdType + "/" + xmlFileName;
             logger.info("Processing xmlFileName----->{}", xmlFileName);
             Integer institutionId = setupDataService.getInstitutionCodeIdMap().get(institutionCode);
             submitCollectionBatchService.process(institutionCode, inputXml, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, xmlFileName, reportRecordNumList, false, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet);
@@ -156,6 +161,7 @@ public class SubmitCollectionProcessor {
             String filePath = (String) exchange.getIn().getHeader(Exchange.FILE_PARENT);
             String institutionCode1 = (String) exchange.getIn().getHeader(RecapCommonConstants.INSTITUTION);
             logger.info("Institution inside caught  - {}", institutionCode1);
+            logger.info("Exception occured is - {}", exception.getMessage());
             producer.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoadForExcepion(institutionCode1, fileName, filePath, exception, exception.getMessage()), RecapConstants.EMAIL_BODY_FOR, RecapConstants.SUBMIT_COLLECTION_EXCEPTION);
         }
     }
