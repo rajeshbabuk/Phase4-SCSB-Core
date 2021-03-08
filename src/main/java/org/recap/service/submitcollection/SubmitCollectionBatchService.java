@@ -175,7 +175,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
             if (groupByBarcodeBibliographicEntityObjectMapEntry.getValue().size() > 1) {
                 for (BarcodeBibliographicEntityObject barcodeBibliographicEntityObject : groupByBarcodeBibliographicEntityObjectMapEntry.getValue()) {
                     boundwithBibliographicEntityList.add(barcodeBibliographicEntityObject.getBibliographicEntity());
-                    logger.info("boundwith barcode--->{}", barcodeBibliographicEntityObject.getBarcode());
+                   // logger.info("boundwith barcode--->{}", barcodeBibliographicEntityObject.getBarcode());
                 }
             } else {
                 BibliographicEntity bibliographicEntity = groupByBarcodeBibliographicEntityObjectMapEntry.getValue().get(0).getBibliographicEntity();
