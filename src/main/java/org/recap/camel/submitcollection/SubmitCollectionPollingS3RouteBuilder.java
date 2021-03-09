@@ -8,6 +8,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.recap.RecapCommonConstants;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,6 +60,12 @@ public class SubmitCollectionPollingS3RouteBuilder {
     @Autowired
     AmazonS3 awsS3Client;
 
+    @Value("${scsbBucketName}")
+    private String scsbBucketName;
+
+    @Value("${submit.collection.local.dir}")
+    private String submitCollectionLocalWorkingDir;
+
     /**
      * Predicate to identify is the input file is gz
      */
@@ -90,7 +98,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
                 public void configure() throws Exception {
                     from(RecapCommonConstants.DIRECT_ROUTE_FOR_EXCEPTION)
                             .log("Calling direct route for exception")
-                            .bean(applicationContext.getBean(SubmitCollectionProcessor.class), RecapConstants.SUBMIT_COLLECTION_CAUGHT_EXCEPTION_METHOD);
+                            .bean(applicationContext.getBean(SubmitCollectionProcessor.class, "${in.header.institution", "${in.header.isCGDProtected", "${in.header.cgdType"), RecapConstants.SUBMIT_COLLECTION_CAUGHT_EXCEPTION_METHOD);
 
                 }
             });
@@ -130,7 +138,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
     public void addRoutesToCamelContext(String currentInstitution, String cgdType, String currentInstitutionRouteId, String nextInstitutionRouteId, Boolean isCGDProtected) {
         try {
             ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
-            listObjectsRequest.setBucketName("scsb-test");
+            listObjectsRequest.setBucketName(scsbBucketName);
             listObjectsRequest.setPrefix(submitCollectionS3BasePath + currentInstitution + "/cgd_" + cgdType + "/" + "scsb");
             ObjectListing objectListing = awsS3Client.listObjects(listObjectsRequest);
 
@@ -145,6 +153,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
                     onCompletion()
                             .choice()
                             .when(exchangeProperty(RecapCommonConstants.CAMEL_BATCH_COMPLETE))
+                            .process(exchange -> clearDirectory(currentInstitution, cgdType))
                             .log("OnCompletion executing for :" + currentInstitution + cgdType)
                             .to("controlbus:route?routeId=" + currentInstitutionRouteId + "&action=stop&async=true")
                             .delay(10)
@@ -153,17 +162,19 @@ public class SubmitCollectionPollingS3RouteBuilder {
                             .log("Exception caught during submit collection process - " + currentInstitution + cgdType)
                             .handled(true)
                             .setHeader(RecapCommonConstants.INSTITUTION, constant(currentInstitution))
+                            .setHeader(RecapCommonConstants.IS_CGD_PROTECTED, constant(isCGDProtected))
+                            .setHeader(RecapConstants.CGG_TYPE, constant(cgdType))
                             .to(RecapCommonConstants.DIRECT_ROUTE_FOR_EXCEPTION);
-                    from("file:///recap-vol/submitCollection/" + currentInstitution + "/cgd_" + cgdType + "?sendEmptyMessageWhenIdle=true&delete=true")
+                    from("file://"+ submitCollectionLocalWorkingDir + currentInstitution + "/cgd_" + cgdType + "?sendEmptyMessageWhenIdle=true&delete=true")
                             .routeId(currentInstitutionRouteId)
                             .noAutoStartup()
-                            .choice().when(gzipFile)
+                            .choice()
+                            .when(gzipFile)
                             .unmarshal()
                             .gzipDeflater()
                             .log(currentInstitution + "Submit Collection S3 Route Unzip Complete")
                             .bean(applicationContext.getBean(SubmitCollectionProcessor.class, currentInstitution, isCGDProtected, cgdType), RecapConstants.PROCESS_INPUT)
-                            .log("Successfully pulled from S3 {{scsbBucketName}} bucket. " + "File detected: ${header.CamelAwsS3Key}")
-                            .when(body().isNull())//This condition is satisfied when there are no files in the directory(parameter-sendEmptyMessageWhenIdle=true)
+                            .when(body().isNull())//This condition is satisfied when there are no files in the S3 directory(parameter-sendEmptyMessageWhenIdle=true)
                             .bean(applicationContext.getBean(SubmitCollectionProcessor.class, currentInstitution, isCGDProtected, cgdType), RecapConstants.SEND_EMAIL_FOR_EMPTY_DIRECTORY)
                             .log(currentInstitution + "-" + cgdType + " Directory is empty")
                             .otherwise()
@@ -183,11 +194,11 @@ public class SubmitCollectionPollingS3RouteBuilder {
         List<String> str = new ArrayList<>();
         String finalFileName = null;
         try {
-            S3Object s3Object = awsS3Client.getObject("scsb-test", fileName);
+            S3Object s3Object = awsS3Client.getObject(scsbBucketName, fileName);
             S3ObjectInputStream inputStream = s3Object.getObjectContent();
             finalFileName = fileName.substring(fileName.lastIndexOf('/') + 1);
             if (inputStream != null) {
-                IOUtils.copy(inputStream, new FileOutputStream(new File("/recap-vol/submitCollection/" + currentInstitution + "/cgd_" + cgdType + "/" + finalFileName)));
+                IOUtils.copy(inputStream, new FileOutputStream(new File(submitCollectionLocalWorkingDir + currentInstitution + "/cgd_" + cgdType + "/" + finalFileName)));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -227,5 +238,14 @@ public class SubmitCollectionPollingS3RouteBuilder {
             }
         }
         logger.info(" Total routes after removing : {}", camelContext.getRoutesSize());
+    }
+
+    public void clearDirectory(String institutionCode, String cgdType) {
+        File destDirFile = new File(submitCollectionLocalWorkingDir + institutionCode + "/cgd_"+ cgdType);
+        try {
+            FileUtils.cleanDirectory(destDirFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

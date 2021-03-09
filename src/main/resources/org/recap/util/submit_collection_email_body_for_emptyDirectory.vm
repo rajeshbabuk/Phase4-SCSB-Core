@@ -1,2 +1,2 @@
-There are no files in the directory to process submit collection.
-Directory - ${header.emailPayLoad.location}
+There are no files in the S3 location to process submit collection.
+Location - ${header.emailPayLoad.location}

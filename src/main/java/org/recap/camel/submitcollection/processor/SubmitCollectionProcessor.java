@@ -3,8 +3,6 @@ package org.recap.camel.submitcollection.processor;
 import com.amazonaws.services.s3.AmazonS3;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.component.aws.s3.S3Endpoint;
-import org.apache.camel.support.DefaultExchange;
 import org.recap.RecapCommonConstants;
 import org.recap.RecapConstants;
 import org.recap.camel.EmailPayLoad;
@@ -21,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -156,6 +153,8 @@ public class SubmitCollectionProcessor {
     public void caughtException(Exchange exchange) {
         logger.info("inside caught exception..........");
         Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
+        logger.info("Headers - institution - {}, isCgdProtected - {}, cgdType - {} ", exchange.getIn().getHeader(RecapCommonConstants.INSTITUTION),
+                exchange.getIn().getHeader(RecapCommonConstants.IS_CGD_PROTECTED), exchange.getIn().getHeader(RecapConstants.CGG_TYPE));
         if (exception != null) {
             String fileName = (String) exchange.getIn().getHeader(Exchange.FILE_NAME);
             String filePath = (String) exchange.getIn().getHeader(Exchange.FILE_PARENT);
@@ -211,7 +210,7 @@ public class SubmitCollectionProcessor {
      * @throws Exception
      */
     public void sendEmailForEmptyDirectory(Exchange exchange) throws Exception {
-        String s3Path = ((S3Endpoint) ((DefaultExchange) exchange).getFromEndpoint()).getConfiguration().getPrefix();
+        String s3Path = submitCollectionS3BasePath+ institutionCode + "/cgd_" + cgdType;
         producer.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoadForNoFiles(institutionCode,s3Path), RecapConstants.EMAIL_BODY_FOR, RecapConstants.SUBMIT_COLLECTION_FOR_NO_FILES);
     }
 
