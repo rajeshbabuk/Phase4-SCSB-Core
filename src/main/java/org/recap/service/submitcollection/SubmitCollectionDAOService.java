@@ -731,7 +731,6 @@ public class SubmitCollectionDAOService {
     private BibliographicEntity updateExistingRecord(BibliographicEntity fetchBibliographicEntity, BibliographicEntity incomingBibliographicEntity,
                                                      Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap) {
         BibliographicEntity savedOrUnsavedBibliographicEntity = null;
-        logger.info("Processing bib owning institution bibid - {}",incomingBibliographicEntity.getOwningInstitutionBibId());
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -775,7 +774,6 @@ public class SubmitCollectionDAOService {
         for(Map.Entry<String,ItemEntity> incomingBarcodeItemEntityMapEntry:incomingBarcodeItemEntityMap.entrySet()){
             ItemEntity incomingItemEntity = incomingBarcodeItemEntityMapEntry.getValue();
             ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
-            logger.info("Processing barcode--->{}",incomingItemEntity.getBarcode());
             if(fetchedItemEntity != null){
                 if (fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId())
                         && fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode())) {
@@ -821,7 +819,6 @@ public class SubmitCollectionDAOService {
     public BibliographicEntity updateExistingRecordToEntityObject(BibliographicEntity fetchBibliographicEntity, BibliographicEntity incomingBibliographicEntity,
                                                                   Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, Set<Integer> processedBibIds,List<ItemChangeLogEntity> itemChangeLogEntityList) {
         BibliographicEntity bibliographicEntityToSave = null;
-        logger.info("Processing bib owning institution bibid - {}",incomingBibliographicEntity.getOwningInstitutionBibId());
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -867,7 +864,6 @@ public class SubmitCollectionDAOService {
         for(Map.Entry<String,ItemEntity> incomingBarcodeItemEntityMapEntry:incomingBarcodeItemEntityMap.entrySet()){
             ItemEntity incomingItemEntity = incomingBarcodeItemEntityMapEntry.getValue();
             ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
-            logger.info("Processing barcode--->{}",incomingItemEntity.getBarcode());
             if(fetchedItemEntity != null){
                 if (fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId()) &&
                         (fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode()) && !barcodeHavingMismatchHoldingsId.contains(incomingItemEntity.getBarcode()))) {
@@ -1114,7 +1110,6 @@ public class SubmitCollectionDAOService {
         fetchBibliographicEntity.setContent(bibliographicEntity.getContent());
         fetchBibliographicEntity.setLastUpdatedBy(bibliographicEntity.getLastUpdatedBy());
         fetchBibliographicEntity.setLastUpdatedDate(bibliographicEntity.getLastUpdatedDate());
-        logger.info("updating existing bib - owning inst bibid - {} ", fetchBibliographicEntity.getOwningInstitutionBibId());
         return fetchBibliographicEntity;
     }
 
@@ -1147,7 +1142,6 @@ public class SubmitCollectionDAOService {
             fetchItemEntity.setImsLocationId(imsLocationDetailsRepository.findByImsLocationCode(RecapConstants.UNKNOWN_INSTITUTION).getId());
         }
         fetchItemEntity.setCgdProtection(itemEntity.isCgdProtection());
-        logger.info("updating existing barcode - {}", fetchItemEntity.getBarcode());
         itemEntityList.add(fetchItemEntity);
         return fetchItemEntity;
     }
