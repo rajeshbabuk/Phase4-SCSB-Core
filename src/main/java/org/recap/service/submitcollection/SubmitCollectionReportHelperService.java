@@ -64,7 +64,7 @@ public class SubmitCollectionReportHelperService {
      */
     public void setSubmitCollectionExceptionReportInfo(List<ItemEntity> itemEntityList, List<SubmitCollectionReportInfo> submitCollectionExceptionInfos, String message) {
         for (ItemEntity itemEntity : itemEntityList) {
-            logger.info("Report data for item {}",itemEntity.getBarcode());
+          //  logger.info("Report data for item {}",itemEntity.getBarcode());
             StringBuilder sbMessage = new StringBuilder();
             sbMessage.append(message);
             appendCompleteStatus(itemEntity, sbMessage);

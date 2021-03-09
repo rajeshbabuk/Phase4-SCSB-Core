@@ -171,12 +171,10 @@ public class SubmitCollectionService {
                 int count = 1;
                 Set<String> processedBarcodeSetForDummyRecords = new HashSet<>();
                 for (Record record : records) {
-                    logger.info("Processing record no: {}", count);
                     BibliographicEntity bibliographicEntity = loadData(record, format, submitCollectionReportInfoMap, idMapToRemoveIndexList, isCGDProtection, institutionEntity, processedBarcodeSetForDummyRecords);
                     if (null != bibliographicEntity && null != bibliographicEntity.getId()) {
                         processedBibIds.add(bibliographicEntity.getId());
                     }
-                    logger.info("Processing completed for record no: {}", count);
                     count++;
                 }
             }
@@ -345,7 +343,6 @@ public class SubmitCollectionService {
      * @param xmlFileName                the xml file name
      */
     public void generateSubmitCollectionReport(List<SubmitCollectionReportInfo> submitCollectionReportList, String fileName, String reportType, String xmlFileName, List<Integer> reportRecordNumberList){
-        logger.info("Preparing report entities");
         if(submitCollectionReportList != null && !submitCollectionReportList.isEmpty()){
             try {
                 int count = 1;
@@ -391,7 +388,6 @@ public class SubmitCollectionService {
                         reportRecordNumberList.add(savedReportEntity.getId());
                     }
                 }
-                logger.info("Processed completed report for record {}",count);
             } catch (Exception e) {
                 logger.error(RecapCommonConstants.LOG_ERROR,e);
             }

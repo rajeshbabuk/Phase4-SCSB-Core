@@ -1,5 +1,6 @@
 package org.recap.configuration;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -29,6 +30,9 @@ public class AWSClientConfig {
                 .standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withRegion(Regions.US_EAST_2)
+                .withClientConfiguration(
+                        new ClientConfiguration()
+                .withTcpKeepAlive(true))
                 .build();
     }
 

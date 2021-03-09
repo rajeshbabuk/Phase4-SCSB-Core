@@ -3,8 +3,6 @@ package org.recap.camel.submitcollection.processor;
 import com.amazonaws.services.s3.AmazonS3;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.component.aws.s3.S3Endpoint;
-import org.apache.camel.support.DefaultExchange;
 import org.recap.RecapCommonConstants;
 import org.recap.RecapConstants;
 import org.recap.camel.EmailPayLoad;
@@ -21,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -71,6 +68,12 @@ public class SubmitCollectionProcessor {
     @Autowired
     AmazonS3 awsS3Client;
 
+    @Value("${s3.submit.collection.dir}")
+    private String submitCollectionS3BasePath;
+
+    @Value("${scsbBucketName}")
+    private String bucketName;
+
     public SubmitCollectionProcessor() {
     }
 
@@ -95,12 +98,11 @@ public class SubmitCollectionProcessor {
         List<Map<String, String>> bibIdMapToRemoveIndexList = new ArrayList<>();
         List<Integer> reportRecordNumList = new ArrayList<>();
         String xmlFileName = null;
-        String bucketName = null;
         try {
             logger.info("Submit Collection : Route started and started processing the records from s3 for submitcollection");
             String inputXml = exchange.getIn().getBody(String.class);
-            xmlFileName = exchange.getIn().getHeader(RecapConstants.CAMEL_AWS_KEY).toString();
-            bucketName = exchange.getIn().getHeader("CamelAwsS3BucketName").toString();
+            xmlFileName = exchange.getIn().getHeader(RecapConstants.CAMEL_FILE_NAME_ONLY).toString();
+            xmlFileName = submitCollectionS3BasePath+ institutionCode+ RecapCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + RecapCommonConstants.PATH_SEPARATOR + xmlFileName;
             logger.info("Processing xmlFileName----->{}", xmlFileName);
             Integer institutionId = setupDataService.getInstitutionCodeIdMap().get(institutionCode);
             submitCollectionBatchService.process(institutionCode, inputXml, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, xmlFileName, reportRecordNumList, false, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet);
@@ -151,11 +153,14 @@ public class SubmitCollectionProcessor {
     public void caughtException(Exchange exchange) {
         logger.info("inside caught exception..........");
         Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
+        logger.info("Headers - institution - {}, isCgdProtected - {}, cgdType - {} ", exchange.getIn().getHeader(RecapCommonConstants.INSTITUTION),
+                exchange.getIn().getHeader(RecapCommonConstants.IS_CGD_PROTECTED), exchange.getIn().getHeader(RecapConstants.CGG_TYPE));
         if (exception != null) {
             String fileName = (String) exchange.getIn().getHeader(Exchange.FILE_NAME);
             String filePath = (String) exchange.getIn().getHeader(Exchange.FILE_PARENT);
             String institutionCode1 = (String) exchange.getIn().getHeader(RecapCommonConstants.INSTITUTION);
             logger.info("Institution inside caught  - {}", institutionCode1);
+            logger.info("Exception occured is - {}", exception.getMessage());
             producer.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoadForExcepion(institutionCode1, fileName, filePath, exception, exception.getMessage()), RecapConstants.EMAIL_BODY_FOR, RecapConstants.SUBMIT_COLLECTION_EXCEPTION);
         }
     }
@@ -191,7 +196,7 @@ public class SubmitCollectionProcessor {
         emailPayLoad.setSubject(submitCollectionEmailSubject);
         emailPayLoad.setReportFileName(reportFileName);
         emailPayLoad.setXmlFileName(xmlFileName);
-        logger.info("Institution inside email payload", institutionCode);
+        logger.info("Institution inside email payload - {}", institutionCode);
         emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.to"));
         emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.cc"));
         emailPayLoad.setLocation(submitCollectionReportS3Dir);
@@ -201,11 +206,9 @@ public class SubmitCollectionProcessor {
 
     /**
      * This method is used to send email when there are no files in the respective directory
-     * @param exchange
-     * @throws Exception
      */
-    public void sendEmailForEmptyDirectory(Exchange exchange) throws Exception {
-        String s3Path = ((S3Endpoint) ((DefaultExchange) exchange).getFromEndpoint()).getConfiguration().getPrefix();
+    public void sendEmailForEmptyDirectory() {
+        String s3Path = submitCollectionS3BasePath+ institutionCode + "/cgd_" + cgdType;
         producer.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoadForNoFiles(institutionCode,s3Path), RecapConstants.EMAIL_BODY_FOR, RecapConstants.SUBMIT_COLLECTION_FOR_NO_FILES);
     }
 
