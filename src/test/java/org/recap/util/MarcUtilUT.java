@@ -2,7 +2,11 @@ package org.recap.util;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import org.marc4j.marc.*;
+import org.marc4j.marc.DataField;
+import org.marc4j.marc.Leader;
+import org.marc4j.marc.Record;
+import org.marc4j.marc.Subfield;
+import org.marc4j.marc.VariableField;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -34,7 +38,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by pvsubrah on 6/15/16.
