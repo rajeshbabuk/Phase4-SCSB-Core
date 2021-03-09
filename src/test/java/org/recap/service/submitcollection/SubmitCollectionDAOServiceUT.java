@@ -19,8 +19,10 @@ import org.recap.model.report.SubmitCollectionReportInfo;
 import org.recap.model.submitcollection.BoundWithBibliographicEntityObject;
 import org.recap.model.submitcollection.NonBoundWithBibliographicEntityObject;
 import org.recap.repository.jpa.BibliographicDetailsRepository;
+import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.repository.jpa.ItemChangeLogDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
+import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.service.common.RepositoryService;
 import org.recap.service.common.SetupDataService;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -122,6 +124,18 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
     @Mock
     Map<Integer, String> institutionEntityMap;
 
+    @Mock
+    ImsLocationDetailsRepository imsLocationDetailsRepository;
+
+    @Mock
+    BibliographicRepositoryDAO bibliographicRepositoryDAO;
+
+    @Mock
+    ItemEntity fetchedItemEntity;
+
+    @Mock
+    BibliographicEntity savedBibliographicEntity;
+
     @Before
     public void setUp() {
         ReflectionTestUtils.setField(submitCollectionDAOService, "nonHoldingIdInstitution", "NYPL");
@@ -138,8 +152,52 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(repositoryService.getBibliographicDetailsRepository()).thenThrow(NullPointerException.class);
         BibliographicEntity bibliographicEntity1=getBibliographicEntity("64343");
         bibliographicEntity1.getItemEntities().get(0).setDeleted(true);
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(RecapConstants.UNKNOWN_INSTITUTION)).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
         BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity1,getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
         assertNull(bibliographicEntity);
+    }
+
+
+
+    @Test
+    public void updateExistingRecordExceptionForUnavailableBarcode() {
+        Set<String> processedBarcodeSetForDummyRecords = new HashSet<>();
+        Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap=new HashMap<>();
+        List<ItemEntity> itemEntities=new ArrayList<>();
+        itemEntities.add(incomingItemEntity);
+        Mockito.when(incomingItemEntity.getBarcode()).thenReturn("123456");
+        List<BibliographicEntity> bibliographicEntities=new ArrayList<>();
+        bibliographicEntities.add(incomingBibliographicEntity);
+        Mockito.when(incomingItemEntity.getBibliographicEntities()).thenReturn(bibliographicEntities);
+        Mockito.when(bibliographicEntity.getItemEntities()).thenReturn(itemEntities);
+        Mockito.when(repositoryService.getItemDetailsRepository()).thenReturn(itemDetailsRepository);
+        Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(itemEntities);
+        Mockito.when(bibliographicEntity.getOwningInstitutionBibId()).thenReturn("1");
+        Mockito.when(incomingBibliographicEntity.getOwningInstitutionBibId()).thenReturn("1");
+        BibliographicEntity bibliographicEntity1=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        assertNull(bibliographicEntity1);
+    }
+
+    @Test
+    public void updateExistingRecordExceptionForDeaccessionedItem() {
+        Set<String> processedBarcodeSetForDummyRecords = new HashSet<>();
+        Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap=new HashMap<>();
+        List<ItemEntity> itemEntities=new ArrayList<>();
+        itemEntities.add(fetchedItemEntity);
+        Mockito.when(fetchedItemEntity.getBarcode()).thenReturn("123456");
+        Mockito.when(fetchedItemEntity.isDeleted()).thenReturn(true);
+        Mockito.when(fetchedItemEntity.getOwningInstitutionItemId()).thenReturn("2");
+        List<BibliographicEntity> bibliographicEntities=new ArrayList<>();
+        bibliographicEntities.add(fetchedBibliographicEntity);
+        Mockito.when(fetchedItemEntity.getBibliographicEntities()).thenReturn(bibliographicEntities);
+        Mockito.when(bibliographicEntity.getItemEntities()).thenReturn(itemEntities);
+        Mockito.when(fetchedBibliographicEntity.getItemEntities()).thenReturn(itemEntities);
+        Mockito.when(repositoryService.getItemDetailsRepository()).thenReturn(itemDetailsRepository);
+        Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(itemEntities);
+        Mockito.when(bibliographicEntity.getOwningInstitutionBibId()).thenReturn("1");
+        Mockito.when(fetchedBibliographicEntity.getOwningInstitutionBibId()).thenReturn("1");
+        BibliographicEntity bibliographicEntity1=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        assertNull(bibliographicEntity1);
     }
 
     @Test
@@ -159,6 +217,7 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         bibliographicEntity1.getItemEntities().get(0).setUseRestrictions("true");
         Mockito.when(setupDataService.getItemStatusIdCodeMap()).thenReturn(itemStatusIdCodeMap);
         Mockito.when(itemStatusIdCodeMap.get(null)).thenReturn(RecapConstants.ITEM_STATUS_AVAILABLE);
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(RecapConstants.UNKNOWN_INSTITUTION)).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
         BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity1,getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
         assertNull(bibliographicEntity);
     }
@@ -179,6 +238,7 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         bibliographicEntity1.getItemEntities().get(0).setCollectionGroupId(null);
         Mockito.when(setupDataService.getInstitutionIdCodeMap()).thenReturn(institutionEntityMap);
         Mockito.when(institutionEntityMap.get(1)).thenReturn("NYPL");
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(RecapConstants.UNKNOWN_INSTITUTION)).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
         BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity1,getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
         assertNull(bibliographicEntity);
     }
@@ -196,6 +256,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         ReflectionTestUtils.setField(repositoryService,"itemChangeLogDetailsRepository",itemChangeLogDetailsRepository);
         Mockito.when(repositoryService.getItemChangeLogDetailsRepository()).thenCallRealMethod();
         Mockito.when(bibliographicDetailsRepository.saveAndFlush(Mockito.any())).thenReturn(getBibliographicEntity("64343"));
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(RecapConstants.UNKNOWN_INSTITUTION)).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(savedBibliographicEntity);
+        Mockito.when(savedBibliographicEntity.getId()).thenReturn(1);
         BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(getBibliographicEntity("64343"),getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
         assertNotNull(bibliographicEntity);
     }
@@ -233,6 +296,7 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(repositoryService.getItemChangeLogDetailsRepository()).thenCallRealMethod();
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(itemEntity);
         Mockito.when(bibliographicDetailsRepository.saveAndFlush(Mockito.any())).thenReturn(getBibliographicEntity("64343"));
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(savedBibliographicEntity);
         BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(getBibliographicEntity("64343"),getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
         assertNotNull(bibliographicEntity);
     }
@@ -253,6 +317,7 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(repositoryService.getItemDetailsRepository()).thenReturn(itemDetailsRepository);
         Mockito.when(repositoryService.getItemDetailsRepository().findByBarcodeInAndOwningInstitutionId(Arrays.asList("123456"),1)).thenReturn(itemEntity);
         Mockito.when(submitCollectionValidationService.isExistingBoundWithItem(itemEntity.get(0))).thenReturn(false);
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(RecapConstants.UNKNOWN_INSTITUTION)).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
         List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
         assertNotNull(bibliographicEntities);
     }
@@ -273,6 +338,7 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(repositoryService.getItemDetailsRepository().findByBarcodeInAndOwningInstitutionId(Arrays.asList("123456"),1)).thenReturn(itemEntity);
         Mockito.when(submitCollectionValidationService.isExistingBoundWithItem(itemEntity.get(0))).thenReturn(false);
         Mockito.when(submitCollectionReportHelperService.buildSubmitCollectionReportInfo(Mockito.anyMap(),Mockito.any(),Mockito.any())).thenThrow(NullPointerException.class);
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(RecapConstants.UNKNOWN_INSTITUTION)).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
         List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
         assertNotNull(bibliographicEntities);
     }
@@ -336,6 +402,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.doNothing().when(bibliographicDetailsRepository).flush();
         Mockito.when(bibliographicDetailsRepository.saveAndFlush(Mockito.any())).thenReturn(incomingBibliographicEntity);
         Mockito.when(repositoryService.getBibliographicDetailsRepository().findByOwningInstitutionIdAndOwningInstitutionBibId(Mockito.anyInt(),Mockito.anyString())).thenReturn(getBibliographicEntity("1577261074"));
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(RecapConstants.UNKNOWN_INSTITUTION)).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(savedBibliographicEntity);
+        Mockito.when(savedBibliographicEntity.getId()).thenReturn(1);
         List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
         assertNotNull(bibliographicEntities);
     }
@@ -427,6 +496,7 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         fetchedOwnInstBibIdBibliographicEntityMap.put("34558",getBibliographicEntity2("1577261074"));
         Mockito.when(submitCollectionValidationService.getOwnInstBibIdBibliographicEntityMap(Mockito.anyList())).thenReturn(fetchedOwnInstBibIdBibliographicEntityMap);
         Mockito.when(setupDataService.getItemStatusIdCodeMap()).thenReturn(getItemStatusIdCodeMapValue());
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(RecapConstants.UNKNOWN_INSTITUTION)).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
         List<BibliographicEntity> bibliographicEntities = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
         assertNotNull(bibliographicEntities);
     }
@@ -462,12 +532,13 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(setupDataService.getItemStatusIdCodeMap()).thenReturn(getItemStatusIdCodeMapValue());
         Mockito.when(repositoryService.getBibliographicDetailsRepository()).thenReturn(bibliographicDetailsRepository);
         Mockito.when(bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibId(Mockito.anyInt(),Mockito.anyString())).thenReturn(getBibliographicEntity("1577261074"));
+        Mockito.when(repositoryService.getItemChangeLogDetailsRepository()).thenReturn(itemChangeLogDetailsRepository);
         List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
         assertNotNull(bibliographicEntities1);
     }
 
     @Test
-    public void updateBibliographicEntityInBatchForBoundWithGreaterIncomingBib(){
+    public void updateBibliographicEntityInBatchForBoundWithGreaterIncomingBibNoIMSLocation(){
         List<BoundWithBibliographicEntityObject> boundWithBibliographicEntityObjectList = new ArrayList<>();
         BoundWithBibliographicEntityObject boundWithBibliographicEntityObject = getBoundWithBibliographicEntityObject();
         BibliographicEntity bibliographicEntity = getBibliographicEntity("1577261074");
@@ -500,6 +571,52 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Map<String,BibliographicEntity> fetchedOwnInstBibIdBibliographicEntityMap=new HashMap<>();
         fetchedOwnInstBibIdBibliographicEntityMap.put("245466",getBibliographicEntity("1577261074"));
         Mockito.when(submitCollectionValidationService.getOwnInstBibIdBibliographicEntityMap(Mockito.anyList())).thenReturn(fetchedOwnInstBibIdBibliographicEntityMap);
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(RecapConstants.UNKNOWN_INSTITUTION)).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
+        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        assertNotNull(bibliographicEntities1);
+    }
+
+    @Mock
+    BibliographicEntity bibliographicEntity;
+
+    @Test
+    public void updateBibliographicEntityInBatchForBoundWithGreaterIncomingBib(){
+        List<BoundWithBibliographicEntityObject> boundWithBibliographicEntityObjectList=new ArrayList<>();
+        boundWithBibliographicEntityObjectList.add(boundWithBibliographicEntityObject);
+        Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap=new HashMap<>();
+        Mockito.when(repositoryService.getItemDetailsRepository()).thenCallRealMethod();
+        ReflectionTestUtils.setField(repositoryService,"itemDetailsRepository",itemDetailsRepository);
+        List<ItemEntity> itemEntities=new ArrayList<>();
+        itemEntities.add(fetchedItemEntity);
+        Mockito.when(boundWithBibliographicEntityObject.getBarcode()).thenReturn("123456");
+        List<BibliographicEntity> bibliographicEntityList=new ArrayList<>();
+        bibliographicEntityList.add(existingBibliographicEntity);
+        bibliographicEntityList.add(incomingBibliographicEntity);
+        Mockito.when(boundWithBibliographicEntityObject.getBibliographicEntityList()).thenReturn(bibliographicEntityList);
+        Mockito.when(fetchedItemEntity.getBarcode()).thenReturn("123456");
+        Mockito.when(fetchedItemEntity.getId()).thenReturn(1);
+        List<BibliographicEntity> bibliographicEntities=new ArrayList<>();
+        bibliographicEntities.add(incomingBibliographicEntity);
+        Mockito.when(incomingBibliographicEntity.getOwningInstitutionBibId()).thenReturn("5");
+        List<BibliographicEntity> bibliographicEntities2=new ArrayList<>();
+        bibliographicEntities2.add(bibliographicEntity);
+        bibliographicEntities2.add(bibliographicEntity);
+        List<ItemEntity> itemEntitiesIncoming=new ArrayList<>();
+        itemEntitiesIncoming.add(incomingItemEntity);
+        Mockito.when(incomingItemEntity.getBarcode()).thenReturn("123456");
+        Mockito.when(bibliographicEntity.getItemEntities()).thenReturn(itemEntitiesIncoming);
+        List<HoldingsEntity> holdingsEntities=new ArrayList<>();
+        holdingsEntities.add(holdingsEntity);
+        Mockito.when(bibliographicEntity.getHoldingsEntities()).thenReturn(holdingsEntities);
+        Mockito.when(fetchedItemEntity.getHoldingsEntities()).thenReturn(holdingsEntities);
+        Mockito.when(boundWithBibliographicEntityObject.getBibliographicEntityList()).thenReturn(bibliographicEntities2);
+        Mockito.when(fetchedItemEntity.getBibliographicEntities()).thenReturn(bibliographicEntities);
+        Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(itemEntities);
+        Mockito.when(submitCollectionValidationService.validateIncomingItemHavingBibCountGreaterThanExistingItem(Mockito.anyMap(),Mockito.anyList(),Mockito.anyList())).thenReturn(true);
+        Mockito.when(setupDataService.getItemStatusIdCodeMap()).thenReturn(itemStatusIdCodeMap);
+        Mockito.when(itemStatusIdCodeMap.get(0)).thenReturn("Unavailable");
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(savedBibliographicEntity);
+        Mockito.when(savedBibliographicEntity.getId()).thenReturn(1);
         List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
         assertNotNull(bibliographicEntities1);
     }
@@ -535,8 +652,10 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(setupDataService.getItemStatusIdCodeMap()).thenReturn(getItemStatusIdCodeMapValue());
         Mockito.when(repositoryService.getBibliographicDetailsRepository()).thenReturn(bibliographicDetailsRepository);
         Mockito.when(bibliographicDetailsRepository.saveAndFlush(Mockito.any())).thenReturn(getBibliographicEntity("1577261074"));
-
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(RecapConstants.UNKNOWN_INSTITUTION)).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
         Mockito.when(bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibId(Mockito.anyInt(),Mockito.anyString())).thenReturn(getBibliographicEntity("1577261074"));
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(savedBibliographicEntity);
+        Mockito.when(savedBibliographicEntity.getId()).thenReturn(1);
         List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
         assertNotNull(bibliographicEntities1);
     }
@@ -587,6 +706,7 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(repositoryService.getItemDetailsRepository()).thenReturn(itemDetailsRepository);
         Mockito.when(repositoryService.getItemDetailsRepository().findByBarcodeInAndOwningInstitutionId(itemBarcodeList,1)).thenReturn(itemEntity);
         Mockito.when(submitCollectionValidationService.validateIncomingItemHavingBibCountLesserThanExistingItem(Mockito.anyMap(),Mockito.anyList(),Mockito.anyList(),Mockito.anyList(),Mockito.any())).thenReturn(true);
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(RecapConstants.UNKNOWN_INSTITUTION)).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
         Map<String,BibliographicEntity> fetchedOwnInstBibIdBibliographicEntityMap=new HashMap<>();
         fetchedOwnInstBibIdBibliographicEntityMap.put("64343",getBibliographicEntity("1577261074"));
         Mockito.when(submitCollectionValidationService.getOwnInstBibIdBibliographicEntityMap(Mockito.anyList())).thenReturn(fetchedOwnInstBibIdBibliographicEntityMap);
@@ -709,6 +829,7 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(bibliographicDetailsRepository.saveAndFlush(bibliographicEntity)).thenReturn(bibliographicEntity);
         Mockito.when(repositoryService.getBibliographicDetailsRepository().findByOwningInstitutionIdAndOwningInstitutionBibId(bibliographicEntity.getOwningInstitutionId(), bibliographicEntity.getOwningInstitutionBibId())).thenReturn(bibliographicEntity);
         Mockito.doNothing().when(entityManager).refresh(bibliographicEntity);
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(savedBibliographicEntity);
         BibliographicEntity bibliographicEntity1 = submitCollectionDAOService.updateDummyRecord(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity);
         assertNotNull(bibliographicEntity1);
     }
@@ -742,6 +863,7 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.doNothing().when(bibliographicDetailsRepository).flush();
         Mockito.when(bibliographicDetailsRepository.saveAndFlush(incomingBibliographicEntity)).thenReturn(incomingBibliographicEntity);
         Mockito.when(submitCollectionReportHelperService.getItemBasedOnOwningInstitutionItemIdAndOwningInstitutionId(incomingBibliographicEntity.getItemEntities())).thenReturn(Collections.EMPTY_LIST);
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(savedBibliographicEntity);
         submitCollectionDAOService.updateDummyRecordForNonBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList);
     }
     @Test
@@ -774,6 +896,7 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
     @Test
     public void updateDummyRecordForBoundWith(){
         BibliographicEntity incomingBibliographicEntity = getBibliographicEntity2("1577261074");
+        incomingBibliographicEntity.getItemEntities().get(0).setItemAvailabilityStatusId(null);
         Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
         List<Map<String, String>> idMapToRemoveIndexList = new ArrayList<>();
         Set<String> processedBarcodeSet = new HashSet<>();
@@ -788,6 +911,30 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.doNothing().when(bibliographicDetailsRepository).delete(fetchBibliographicEntity);
         Mockito.doNothing().when(bibliographicDetailsRepository).flush();
         Mockito.when(repositoryService.getBibliographicDetailsRepository().findByOwningInstitutionIdAndOwningInstitutionBibId(incomingBibliographicEntity.getOwningInstitutionId(), incomingBibliographicEntity.getOwningInstitutionBibId())).thenReturn(getBibliographicEntity("1577261074"));
+        BibliographicEntity bibliographicEntity = submitCollectionDAOService.updateDummyRecordForBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList,deleteDummyRecord,processedBibIds);
+        assertNotNull(bibliographicEntity);
+    }
+
+    @Test
+    public void updateDummyRecordForBoundWithSubmitCollectionReportInfoForInvalidDummyRecordBasedOnOwnInstItemId(){
+        BibliographicEntity incomingBibliographicEntity = getBibliographicEntity2("1577261074");
+        Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
+        List<Map<String, String>> idMapToRemoveIndexList = new ArrayList<>();
+        Set<String> processedBarcodeSet = new HashSet<>();
+        processedBarcodeSet.add("123");
+        BibliographicEntity savedBibliographicEntity = getBibliographicEntity("1577261074");
+        BibliographicEntity fetchBibliographicEntity = getBibliographicEntity("1577261074");
+        List< ItemChangeLogEntity > itemChangeLogEntityList = new ArrayList<>();
+        boolean deleteDummyRecord = true;
+        Set<Integer> processedBibIds = new HashSet<>();
+        processedBibIds.add(123456);
+        Mockito.when(repositoryService.getBibliographicDetailsRepository()).thenReturn(bibliographicDetailsRepository);
+        Mockito.doNothing().when(bibliographicDetailsRepository).delete(fetchBibliographicEntity);
+        Mockito.doNothing().when(bibliographicDetailsRepository).flush();
+        Mockito.when(repositoryService.getBibliographicDetailsRepository().findByOwningInstitutionIdAndOwningInstitutionBibId(incomingBibliographicEntity.getOwningInstitutionId(), incomingBibliographicEntity.getOwningInstitutionBibId())).thenReturn(getBibliographicEntity("1577261074"));
+        List<ItemEntity> itemEntities=new ArrayList<>();
+        itemEntities.add(incomingItemEntity);
+        Mockito.when(submitCollectionReportHelperService.getItemBasedOnOwningInstitutionItemIdAndOwningInstitutionId(Mockito.anyList())).thenReturn(itemEntities);
         BibliographicEntity bibliographicEntity = submitCollectionDAOService.updateDummyRecordForBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList,deleteDummyRecord,processedBibIds);
         assertNotNull(bibliographicEntity);
     }

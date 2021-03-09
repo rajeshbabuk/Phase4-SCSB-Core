@@ -105,6 +105,9 @@ public class AccessionUtilUT extends BaseTestCaseUT{
     @Mock
     PropertyUtil propertyUtil;
 
+    @Mock
+    AccessionRequest accessionRequest;
+
     @Test
     public void processAndValidateBibliographicEntitysuccessBibCount(){
         StringBuilder errorMessage=new StringBuilder();
@@ -165,6 +168,14 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         Mockito.when(customerCodeDetailsRepository.findByCustomerCode(Mockito.anyString())).thenThrow(NullPointerException.class);
         String owningInstitution=accessionUtil.getOwningInstitution("PA");
         assertNull(owningInstitution);
+    }
+
+    @Test
+    public void createReportDataEntityList(){
+        Mockito.when(accessionRequest.getCustomerCode()).thenReturn("PA");
+        Mockito.when(accessionRequest.getItemBarcode()).thenReturn("123456");
+        List<ReportDataEntity> reportDataEntityList=accessionUtil.createReportDataEntityList(accessionRequest,"");
+        assertNotNull(reportDataEntityList);
     }
 
     private CustomerCodeEntity getCustomerCodeEntity() {
