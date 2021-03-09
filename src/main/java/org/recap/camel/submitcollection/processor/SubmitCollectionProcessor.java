@@ -101,8 +101,8 @@ public class SubmitCollectionProcessor {
         try {
             logger.info("Submit Collection : Route started and started processing the records from s3 for submitcollection");
             String inputXml = exchange.getIn().getBody(String.class);
-            xmlFileName = exchange.getIn().getHeader("CamelFileNameOnly").toString();
-            xmlFileName = submitCollectionS3BasePath+ institutionCode+ "/cgd_" + cgdType + "/" + xmlFileName;
+            xmlFileName = exchange.getIn().getHeader(RecapConstants.CAMEL_FILE_NAME_ONLY).toString();
+            xmlFileName = submitCollectionS3BasePath+ institutionCode+ RecapCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + RecapCommonConstants.PATH_SEPARATOR + xmlFileName;
             logger.info("Processing xmlFileName----->{}", xmlFileName);
             Integer institutionId = setupDataService.getInstitutionCodeIdMap().get(institutionCode);
             submitCollectionBatchService.process(institutionCode, inputXml, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, xmlFileName, reportRecordNumList, false, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet);
@@ -196,7 +196,7 @@ public class SubmitCollectionProcessor {
         emailPayLoad.setSubject(submitCollectionEmailSubject);
         emailPayLoad.setReportFileName(reportFileName);
         emailPayLoad.setXmlFileName(xmlFileName);
-        logger.info("Institution inside email payload", institutionCode);
+        logger.info("Institution inside email payload - {}", institutionCode);
         emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.to"));
         emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.cc"));
         emailPayLoad.setLocation(submitCollectionReportS3Dir);
@@ -206,10 +206,8 @@ public class SubmitCollectionProcessor {
 
     /**
      * This method is used to send email when there are no files in the respective directory
-     * @param exchange
-     * @throws Exception
      */
-    public void sendEmailForEmptyDirectory(Exchange exchange) throws Exception {
+    public void sendEmailForEmptyDirectory() {
         String s3Path = submitCollectionS3BasePath+ institutionCode + "/cgd_" + cgdType;
         producer.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoadForNoFiles(institutionCode,s3Path), RecapConstants.EMAIL_BODY_FOR, RecapConstants.SUBMIT_COLLECTION_FOR_NO_FILES);
     }

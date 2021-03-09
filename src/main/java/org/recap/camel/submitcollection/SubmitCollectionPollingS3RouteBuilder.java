@@ -26,7 +26,6 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -70,8 +69,8 @@ public class SubmitCollectionPollingS3RouteBuilder {
      * Predicate to identify is the input file is gz
      */
     Predicate gzipFile = exchange -> {
-        if (exchange.getIn().getHeader("CamelFileNameOnly") != null) {
-            String fileName = exchange.getIn().getHeader("CamelFileNameOnly").toString();
+        if (exchange.getIn().getHeader(RecapConstants.CAMEL_FILE_NAME_ONLY) != null) {
+            String fileName = exchange.getIn().getHeader(RecapConstants.CAMEL_FILE_NAME_ONLY).toString();
             return StringUtils.equalsIgnoreCase("gz", FilenameUtils.getExtension(fileName));
         } else {
             return false;
@@ -144,7 +143,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
 
             for (S3ObjectSummary os : objectListing.getObjectSummaries()) {
                 getObjectContentToDrive(os.getKey(), currentInstitution, cgdType);
-                logger.info("File with the key -->" + os.getKey() + " " + os.getSize() + " " + os.getLastModified());
+                logger.info("File with the key --> {} Size --> {} Last Modified -->{} " , os.getKey() , os.getSize() , os.getLastModified());
             }
 
             camelContext.addRoutes(new RouteBuilder() {
@@ -165,7 +164,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
                             .setHeader(RecapCommonConstants.IS_CGD_PROTECTED, constant(isCGDProtected))
                             .setHeader(RecapConstants.CGG_TYPE, constant(cgdType))
                             .to(RecapCommonConstants.DIRECT_ROUTE_FOR_EXCEPTION);
-                    from("file://"+ submitCollectionLocalWorkingDir + currentInstitution + "/cgd_" + cgdType + "?sendEmptyMessageWhenIdle=true&delete=true")
+                    from("file://"+ submitCollectionLocalWorkingDir + currentInstitution + RecapCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + "?sendEmptyMessageWhenIdle=true&delete=true")
                             .routeId(currentInstitutionRouteId)
                             .noAutoStartup()
                             .choice()
@@ -191,14 +190,13 @@ public class SubmitCollectionPollingS3RouteBuilder {
     }
 
     private void getObjectContentToDrive(String fileName, String currentInstitution, String cgdType) {
-        List<String> str = new ArrayList<>();
         String finalFileName = null;
         try {
             S3Object s3Object = awsS3Client.getObject(scsbBucketName, fileName);
             S3ObjectInputStream inputStream = s3Object.getObjectContent();
             finalFileName = fileName.substring(fileName.lastIndexOf('/') + 1);
             if (inputStream != null) {
-                IOUtils.copy(inputStream, new FileOutputStream(new File(submitCollectionLocalWorkingDir + currentInstitution + "/cgd_" + cgdType + "/" + finalFileName)));
+                IOUtils.copy(inputStream, new FileOutputStream(new File(submitCollectionLocalWorkingDir + currentInstitution + RecapCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + RecapCommonConstants.PATH_SEPARATOR + finalFileName)));
             }
         } catch (Exception e) {
             e.printStackTrace();
