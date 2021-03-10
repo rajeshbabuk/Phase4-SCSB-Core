@@ -27,7 +27,6 @@ import org.recap.service.submitcollection.SubmitCollectionDAOService;
 import org.recap.service.submitcollection.SubmitCollectionService;
 import org.recap.service.submitcollection.SubmitCollectionValidationService;
 import org.recap.util.MarcUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -225,7 +224,7 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
         List<SubmitCollectionResponse> submitCollectionResponseList = new ArrayList<>();
         submitCollectionResponseList.add(submitCollectionResponse);
         Mockito.when(setupDataService.getInstitutionCodeIdMap()).thenReturn(map);
-        Mockito.when(submitCollectionBatchService.process(institution, inputRecords, processedBibIdSet, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, "", reportRecordNumberList, true, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet)).thenCallRealMethod();
+        Mockito.when(submitCollectionBatchService.process(institution, inputRecords, processedBibIdSet, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, "", reportRecordNumberList, true, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, exchange)).thenCallRealMethod();
         Mockito.when(submitCollectionBatchService.getValidationService()).thenReturn(validationService);
         Mockito.when(submitCollectionBatchService.getRepositoryService()).thenReturn(repositoryService);
         Mockito.when(repositoryService.getInstitutionDetailsRepository()).thenReturn(institutionDetailsRepository);
@@ -280,7 +279,7 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
         List<SubmitCollectionResponse> submitCollectionResponseList = new ArrayList<>();
         submitCollectionResponseList.add(submitCollectionResponse);
         Mockito.when(setupDataService.getInstitutionCodeIdMap()).thenReturn(map);
-        Mockito.when(submitCollectionBatchService.process(institution, inputRecords, processedBibIdSet, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, "", reportRecordNumberList, true, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet)).thenThrow(NullPointerException.class);
+        Mockito.when(submitCollectionBatchService.process(institution, inputRecords, processedBibIdSet, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, "", reportRecordNumberList, true, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, exchange)).thenThrow(NullPointerException.class);
         ResponseEntity response = sharedCollectionRestController.submitCollection(requestParameters);
         assertEquals(RecapConstants.SUBMIT_COLLECTION_INTERNAL_ERROR,response.getBody());
     }

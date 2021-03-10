@@ -1,5 +1,6 @@
 package org.recap.service.submitcollection;
 
+import org.apache.camel.Exchange;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.MarcException;
@@ -91,11 +92,12 @@ public class SubmitCollectionService {
      * @param idMapToRemoveIndexList the id map to remove index
      * @param xmlFileName        the xml file name
      * @param checkLimit
+     * @param exchange
      * @return the string
      */
     @Transactional
     public List<SubmitCollectionResponse> process(String institutionCode, String inputRecords, Set<Integer> processedBibIds, List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, String xmlFileName, List<Integer> reportRecordNumberList, boolean checkLimit
-            ,boolean isCGDProtected,Set<String> updatedDummyRecordOwnInstBibIdSet) {
+            , boolean isCGDProtected, Set<String> updatedDummyRecordOwnInstBibIdSet, Exchange exchange) {
         logger.info("Submit Collection : Input record processing started");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -127,6 +129,9 @@ public class SubmitCollectionService {
             }catch (Exception e) {
                 logger.error(RecapCommonConstants.LOG_ERROR, e);
                 response = RecapConstants.SUBMIT_COLLECTION_INTERNAL_ERROR;
+                if(exchange != null){
+                    exchange.setException(e);
+                }
             }
             setResponse(response, submitCollectionResponseList);
             stopWatch.stop();
