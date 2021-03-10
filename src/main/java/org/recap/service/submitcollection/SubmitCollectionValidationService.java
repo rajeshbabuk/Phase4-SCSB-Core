@@ -125,7 +125,7 @@ public class SubmitCollectionValidationService {
         Boolean isValid;
         ItemEntity incomingItemEntity = incomingOwningItemIdEntityMapEntry.getValue();
         ItemEntity fetchedItemEntity = fetchedOwningItemIdEntityMap.get(incomingOwningItemIdEntityMapEntry.getKey());
-        if (fetchedItemEntity != null && incomingItemEntity.getBarcode().equals(fetchedItemEntity.getBarcode())) {
+        if (fetchedItemEntity != null && incomingItemEntity.getBarcode().equals(fetchedItemEntity.getBarcode()) && incomingItemEntity.getOwningInstitutionItemId().equals(fetchedItemEntity.getOwningInstitutionItemId())) {
             isValid = true;
         } else {//Failure report - item id mismatch
             reportFailureRecords(incomingItemEntity, fetchedItemEntity, fetchedOwningItemIdEntityMap, incomingOwningInstHoldingsId, failureSubmitCollectionReportInfoList,owningInstitution);
@@ -221,6 +221,10 @@ public class SubmitCollectionValidationService {
             for (BibliographicEntity incomingBibliographicEntity : incomingBibliographicEntityList) {
                 if(matchedOwningInstBibIdList.contains(incomingBibliographicEntity.getOwningInstitutionBibId())){
                     BibliographicEntity existingBibliographicEntity = existingBibliographicEntityMap.get(incomingBibliographicEntity.getOwningInstitutionBibId());
+                    Boolean isValid = validateIncomingEntities(submitCollectionReportInfoMap,existingBibliographicEntity,incomingBibliographicEntity );
+                    isValidRecordToProcess &= isValid;
+                } else {
+                    BibliographicEntity existingBibliographicEntity = existingBibliographicEntityList.get(0);
                     Boolean isValid = validateIncomingEntities(submitCollectionReportInfoMap,existingBibliographicEntity,incomingBibliographicEntity );
                     isValidRecordToProcess &= isValid;
                 }
