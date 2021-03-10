@@ -97,7 +97,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
                 public void configure() throws Exception {
                     from(RecapCommonConstants.DIRECT_ROUTE_FOR_EXCEPTION)
                             .log("Calling direct route for exception")
-                            .bean(applicationContext.getBean(SubmitCollectionProcessor.class, "${in.header.institution", "${in.header.isCGDProtected", "${in.header.cgdType"), RecapConstants.SUBMIT_COLLECTION_CAUGHT_EXCEPTION_METHOD);
+                            .bean(applicationContext.getBean(SubmitCollectionProcessor.class), RecapConstants.SUBMIT_COLLECTION_CAUGHT_EXCEPTION_METHOD);
 
                 }
             });

@@ -105,7 +105,7 @@ public class SubmitCollectionProcessor {
             xmlFileName = submitCollectionS3BasePath+ institutionCode+ RecapCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + RecapCommonConstants.PATH_SEPARATOR + xmlFileName;
             logger.info("Processing xmlFileName----->{}", xmlFileName);
             Integer institutionId = setupDataService.getInstitutionCodeIdMap().get(institutionCode);
-            submitCollectionBatchService.process(institutionCode, inputXml, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, xmlFileName, reportRecordNumList, false, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet);
+            submitCollectionBatchService.process(institutionCode, inputXml, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, xmlFileName, reportRecordNumList, false, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, exchange);
             logger.info("Submit Collection : Solr indexing started for {} records", processedBibIds.size());
             logger.info("idMapToRemoveIndex---> {}", idMapToRemoveIndexList.size());
             if (!processedBibIds.isEmpty()) {
