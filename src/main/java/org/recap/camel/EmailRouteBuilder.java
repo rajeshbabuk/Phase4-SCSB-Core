@@ -73,7 +73,7 @@ public class EmailRouteBuilder {
                                     .setHeader("from", simple(from))
                                     .setHeader("to", simple(emailPayLoadTo))
                                     .setHeader("cc", simple(emailPayLoadcc))
-                                    .log("email body for submit collection")
+                                    .log("email sent for submit collection")
                                     .to(smtps + smtpServer + userName + username + password + emailPassword)
                                 .when(header(RecapConstants.EMAIL_BODY_FOR).isEqualTo(RecapConstants.SUBMIT_COLLECTION_FOR_NO_FILES))
                                     .setHeader(subjectHeader, simple(emailPayLoadSubject))
