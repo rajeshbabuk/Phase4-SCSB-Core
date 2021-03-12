@@ -1,6 +1,7 @@
 package org.recap.controller;
 
 import org.junit.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
@@ -9,7 +10,6 @@ import org.recap.service.deletedrecords.DeletedRecordsService;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -17,22 +17,26 @@ import static org.junit.Assert.assertNotNull;
  */
 public class ReportDeletedRecordsControllerUT extends BaseTestCaseUT {
 
-    @Mock
+    @InjectMocks
     ReportDeletedRecordsController reportDeletedRecordsController;
 
     @Mock
     DeletedRecordsService deletedRecordsService;
 
     @Test
-    public void testReportDeletedRecordsController(){
-        Mockito.when(reportDeletedRecordsController.getDeletedRecordsService()).thenReturn(deletedRecordsService);
+    public void deletedRecordsSuccess(){
         Mockito.when(deletedRecordsService.deletedRecords()).thenReturn(true);
-        Mockito.when(reportDeletedRecordsController.deletedRecords()).thenCallRealMethod();
         ResponseEntity responseEntity = reportDeletedRecordsController.deletedRecords();
         assertNotNull(responseEntity);
         assertEquals(RecapConstants.DELETED_RECORDS_SUCCESS_MSG, responseEntity.getBody());
-        Mockito.when(reportDeletedRecordsController.getDeletedRecordsService()).thenCallRealMethod();
-        assertNotEquals(reportDeletedRecordsController.getDeletedRecordsService(),deletedRecordsService);
+    }
+
+    @Test
+    public void deletedRecordsFailure(){
+        Mockito.when(deletedRecordsService.deletedRecords()).thenReturn(false);
+        ResponseEntity responseEntity = reportDeletedRecordsController.deletedRecords();
+        assertNotNull(responseEntity);
+        assertEquals(RecapConstants.DELETED_RECORDS_FAILURE_MSG, responseEntity.getBody());
     }
 
 }

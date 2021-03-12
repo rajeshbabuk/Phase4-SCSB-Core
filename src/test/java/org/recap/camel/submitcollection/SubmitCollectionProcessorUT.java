@@ -3,6 +3,7 @@ package org.recap.camel.submitcollection;
 import com.amazonaws.services.s3.AmazonS3;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
+import org.apache.camel.Message;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.support.DefaultExchange;
@@ -13,22 +14,29 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.recap.BaseTestCaseUT;
+import org.recap.RecapCommonConstants;
 import org.recap.RecapConstants;
+import org.recap.TestUtil;
 import org.recap.camel.submitcollection.processor.SubmitCollectionProcessor;
+import org.recap.converter.MarcToBibEntityConverter;
 import org.recap.model.jpa.BibliographicEntity;
-import org.recap.model.jpa.HoldingsEntity;
 import org.recap.model.jpa.InstitutionEntity;
 import org.recap.model.jpa.ItemEntity;
+import org.recap.repository.jpa.BibliographicDetailsRepository;
+import org.recap.repository.jpa.InstitutionDetailsRepository;
+import org.recap.repository.jpa.ItemDetailsRepository;
+import org.recap.service.BibliographicRepositoryDAO;
+import org.recap.service.common.RepositoryService;
 import org.recap.service.common.SetupDataService;
-import org.recap.service.submitcollection.SubmitCollectionBatchService;
-import org.recap.service.submitcollection.SubmitCollectionReportGenerator;
+import org.recap.service.submitcollection.*;
+import org.recap.util.MarcUtil;
 import org.recap.util.PropertyUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Arrays;
-import java.util.Date;
+import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +56,9 @@ public class SubmitCollectionProcessorUT extends BaseTestCaseUT {
     SubmitCollectionBatchService submitCollectionBatchService;
 
     @Mock
+    SubmitCollectionService submitCollectionService;
+
+    @Mock
     SubmitCollectionReportGenerator submitCollectionReportGenerator;
 
     @Mock
@@ -58,6 +69,63 @@ public class SubmitCollectionProcessorUT extends BaseTestCaseUT {
 
     @Mock
     PropertyUtil propertyUtil;
+
+    @Mock
+    Exchange exchange;
+
+    @Mock
+    Message message;
+
+    @Value("${scsbBucketName}")
+    private String bucketName;
+
+    @Mock
+    SubmitCollectionValidationService validationService;
+
+    @Mock
+    RepositoryService repositoryService;
+
+    @Mock
+    InstitutionDetailsRepository institutionDetailsRepository;
+
+    @Mock
+    InstitutionEntity institutionEntity;
+
+    @Mock
+    MarcUtil marcUtil;
+
+    @Mock
+    MarcToBibEntityConverter marcToBibEntityConverter;
+
+    @Mock
+    Map responseMap;
+
+    @Mock
+    BibliographicEntity incomingBibliographicEntity;
+
+    @Mock
+    ItemEntity itemEntity;
+
+    @Mock
+    SubmitCollectionDAOService submitCollectionDAOService;
+
+    @Mock
+    SubmitCollectionValidationService submitCollectionValidationService;
+
+    @Mock
+    ItemDetailsRepository itemDetailsRepository;
+
+    @Mock
+    SubmitCollectionReportHelperService submitCollectionReportHelperService;
+
+    @Mock
+    BibliographicDetailsRepository bibliographicDetailsRepository;
+
+    @Mock
+    BibliographicRepositoryDAO bibliographicRepositoryDAO;
+
+    @Mock
+    EntityManager entityManager;
 
     @Before
     public void setUp() throws Exception {
@@ -215,14 +283,77 @@ public class SubmitCollectionProcessorUT extends BaseTestCaseUT {
     @Test
     public void processInputForCUL(){
         ReflectionTestUtils.setField(submitCollectionProcessor, "institutionCode","CUL" );
-        CamelContext ctx = new DefaultCamelContext();
-        Exchange ex = new DefaultExchange(ctx);
-        ex.getIn().setHeader("CamelFileName", "CUL");
-        ex.getIn().setHeader("CamelFileParent", "CUL");
-        ex.getIn().setHeader("institution", "CUL");
-        ex.getIn().setBody("Test text for Example");
+        ReflectionTestUtils.setField(submitCollectionProcessor, "bucketName",bucketName );
+        ReflectionTestUtils.setField(submitCollectionBatchService, "validationService",validationService);
+        ReflectionTestUtils.setField(submitCollectionBatchService, "marcUtil",marcUtil);
+        ReflectionTestUtils.setField(submitCollectionBatchService, "partitionSize",5000);
+        ReflectionTestUtils.setField(submitCollectionBatchService, "marcToBibEntityConverter",marcToBibEntityConverter);
+        ReflectionTestUtils.setField(submitCollectionBatchService, "submitCollectionDAOService",submitCollectionDAOService);
+        ReflectionTestUtils.setField(submitCollectionDAOService, "submitCollectionValidationService",submitCollectionValidationService);
+        ReflectionTestUtils.setField(submitCollectionDAOService, "repositoryService",repositoryService);
+        ReflectionTestUtils.setField(submitCollectionDAOService, "submitCollectionReportHelperService",submitCollectionReportHelperService);
+        ReflectionTestUtils.setField(submitCollectionDAOService, "bibliographicRepositoryDAO",bibliographicRepositoryDAO);
+        ReflectionTestUtils.setField(submitCollectionDAOService, "entityManager",entityManager);
+        ReflectionTestUtils.setField(marcUtil, "inputLimit",10);
+        Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(incomingBibliographicEntity);
+        Mockito.when(repositoryService.getBibliographicDetailsRepository()).thenReturn(bibliographicDetailsRepository);
+        StringBuilder errorMessage=new StringBuilder();
+        Mockito.when(repositoryService.getItemDetailsRepository()).thenReturn(itemDetailsRepository);
+        Mockito.when(responseMap.get("errorMessage")).thenReturn(errorMessage);
+        List<ItemEntity> itemEntities=new ArrayList<>();
+        itemEntities.add(itemEntity);
+        Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(itemEntities);
+        List<ItemEntity> fetchedItemBasedOnOwningInstitutionItemId=new ArrayList<>();
+        Mockito.when(submitCollectionReportHelperService.getItemBasedOnOwningInstitutionItemIdAndOwningInstitutionId(Mockito.anyList())).thenReturn(fetchedItemBasedOnOwningInstitutionItemId);
+
+        Mockito.when(submitCollectionValidationService.isExistingBoundWithItem(Mockito.any())).thenReturn(false);
+        Mockito.when(itemEntity.getBarcode()).thenReturn("123456");
+        Mockito.when(itemEntity.getImsLocationEntity()).thenReturn(TestUtil.getImsLocationEntity(1,"RECAP","RECAP"));
+        Mockito.when(itemEntity.getCollectionGroupId()).thenReturn(1);
+        List<BibliographicEntity> bibliographicEntityList=new ArrayList<>();
+        bibliographicEntityList.add(incomingBibliographicEntity);
+        Mockito.when(institutionEntity.getId()).thenReturn(2);
+        Mockito.when(submitCollectionDAOService.updateDummyRecordForNonBoundWith(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.any(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.getBarcodeSetFromItemEntityList(Mockito.anyList())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.getBarcodeItemEntityMap(Mockito.anyList())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(Mockito.anyList(),Mockito.anyInt(),Mockito.anyMap(),Mockito.anySet(),Mockito.anyList(),Mockito.anySet())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.getBarcodeSetFromNonBoundWithBibliographicEntity(Mockito.anyList())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.getBarcodeItemEntityMapFromNonBoundWithBibliographicEntityList(Mockito.anyList())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.getItemEntityListUsingBarcodeList(Mockito.anyList(),Mockito.anyInt())).thenCallRealMethod();
+        Mockito.when(itemEntity.getBibliographicEntities()).thenReturn(bibliographicEntityList);
+        Mockito.when(incomingBibliographicEntity.getItemEntities()).thenReturn(itemEntities);
+        Mockito.when(incomingBibliographicEntity.getId()).thenReturn(1);
+        Mockito.when(incomingBibliographicEntity.getCatalogingStatus()).thenReturn(RecapCommonConstants.COMPLETE_STATUS);
+        Mockito.when(itemEntity.getCatalogingStatus()).thenReturn(RecapCommonConstants.COMPLETE_STATUS);
+        Mockito.when(incomingBibliographicEntity.getOwningInstitutionBibId()).thenReturn("d34645");
+        Mockito.when(responseMap.get("bibliographicEntity")).thenReturn(incomingBibliographicEntity);
+        Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
+        Mockito.when(marcUtil.convertAndValidateXml(Mockito.anyString(),Mockito.anyBoolean(),Mockito.anyList())).thenCallRealMethod();
+        Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenCallRealMethod();
+        Mockito.when(submitCollectionBatchService.getMarcToBibEntityConverter()).thenCallRealMethod();
         Mockito.when(setupDataService.getInstitutionCodeIdMap()).thenReturn(getMap());
-        submitCollectionProcessor.processInput(ex);
+        Mockito.when(validationService.validateInstitution(Mockito.anyString())).thenReturn(true);
+        Mockito.when(institutionDetailsRepository.findByInstitutionCode(Mockito.anyString())).thenReturn(institutionEntity);
+        Mockito.when(exchange.getIn()).thenReturn(message);
+        Mockito.when(submitCollectionBatchService.processMarc(Mockito.anyString(),Mockito.anySet(),Mockito.anyMap(),Mockito.anyList(),Mockito.anyList(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any(),Mockito.anySet())).thenCallRealMethod();
+        Mockito.when(message.getBody(String.class)).thenReturn(updatedMarcXml);
+        Mockito.when(message.getHeader(RecapConstants.CAMEL_FILE_NAME_ONLY)).thenReturn("xmlFileName");
+        Mockito.when(awsS3Client.doesObjectExist(Mockito.anyString(),Mockito.anyString())).thenReturn(true);
+        Mockito.when(submitCollectionBatchService.getValidationService()).thenCallRealMethod();
+        Mockito.when(submitCollectionBatchService.getMarcUtil()).thenCallRealMethod();
+        Mockito.when(submitCollectionBatchService.getSubmitCollectionDAOService()).thenCallRealMethod();
+        Mockito.when(submitCollectionBatchService.getConverter(Mockito.anyString())).thenCallRealMethod();
+        Mockito.when(submitCollectionBatchService.getRepositoryService()).thenReturn(repositoryService);
+        Mockito.when(repositoryService.getInstitutionDetailsRepository()).thenReturn(institutionDetailsRepository);
+        Mockito.when(submitCollectionBatchService.process(Mockito.anyString(),Mockito.anyString(),Mockito.anySet(),Mockito.anyList(),Mockito.anyList(),Mockito.anyString(),Mockito.anyList(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.anySet(),Mockito.any())).thenCallRealMethod();
+        submitCollectionProcessor.processInput(exchange);
+    }
+
+
+    @Test
+    public void sendEmailForEmptyDirectory(){
+        submitCollectionProcessor.sendEmailForEmptyDirectory();
+        assertTrue(true);
     }
     @Test
     public void processInputForPUL(){
@@ -233,7 +364,6 @@ public class SubmitCollectionProcessorUT extends BaseTestCaseUT {
         ex.getIn().setHeader("CamelFileParent", "PUL");
         ex.getIn().setHeader("institution", "PUL");
         ex.getIn().setBody("Test text for Example");
-        Map institutionCodeIdMap = getMap();
         Mockito.when(setupDataService.getInstitutionCodeIdMap()).thenReturn(getMap());
         submitCollectionProcessor.processInput(ex);
     }
@@ -256,91 +386,6 @@ public class SubmitCollectionProcessorUT extends BaseTestCaseUT {
         institutionCodeIdMap.put("PUL", 1);
         institutionCodeIdMap.put("NYPL", 3);
         return institutionCodeIdMap;
-    }
-
-    private InstitutionEntity getInstitutionEntity() {
-        InstitutionEntity institutionEntity = new InstitutionEntity();
-        institutionEntity.setId(1);
-        institutionEntity.setInstitutionName("PUL");
-        institutionEntity.setInstitutionCode("PUL");
-        return institutionEntity;
-    }
-
-    private BibliographicEntity getBibliographicEntityMultiVolume(String owningInstitutionBibId){
-        BibliographicEntity bibliographicEntity = getBibliographicEntity(1,owningInstitutionBibId);
-        HoldingsEntity holdingsEntity = getHoldingsEntity();
-        ItemEntity itemEntity = getItemEntity("843617540");
-        List<BibliographicEntity> bibliographicEntitylist = new LinkedList(Arrays.asList(bibliographicEntity));
-        List<HoldingsEntity> holdingsEntitylist = new LinkedList(Arrays.asList(holdingsEntity));
-        List<ItemEntity> itemEntitylist = new LinkedList(Arrays.asList(itemEntity,getItemEntity("78547557")));
-        holdingsEntity.setBibliographicEntities(bibliographicEntitylist);
-        holdingsEntity.setItemEntities(itemEntitylist);
-        bibliographicEntity.setHoldingsEntities(holdingsEntitylist);
-        bibliographicEntity.setItemEntities(itemEntitylist);
-        itemEntity.setHoldingsEntities(holdingsEntitylist);
-        itemEntity.setBibliographicEntities(bibliographicEntitylist);
-        return bibliographicEntity;
-    }
-    private HoldingsEntity getHoldingsEntity() {
-        HoldingsEntity holdingsEntity = new HoldingsEntity();
-        holdingsEntity.setCreatedDate(new Date());
-        holdingsEntity.setLastUpdatedDate(new Date());
-        holdingsEntity.setCreatedBy("tst");
-        holdingsEntity.setLastUpdatedBy("tst");
-        holdingsEntity.setOwningInstitutionId(1);
-        holdingsEntity.setOwningInstitutionHoldingsId("34567");
-        holdingsEntity.setDeleted(false);
-        return  holdingsEntity;
-    }
-
-    private ItemEntity getItemEntity(String OwningInstitutionItemId) {
-        ItemEntity itemEntity = new ItemEntity();
-        itemEntity.setId(1);
-        itemEntity.setLastUpdatedDate(new Date());
-        itemEntity.setOwningInstitutionItemId("843617540");
-        itemEntity.setOwningInstitutionId(1);
-        itemEntity.setBarcode("123456");
-        itemEntity.setCallNumber("x.12321");
-        itemEntity.setCollectionGroupId(1);
-        itemEntity.setCallNumberType("1");
-        itemEntity.setCustomerCode("123");
-        itemEntity.setCreatedDate(new Date());
-        itemEntity.setCreatedBy("tst");
-        itemEntity.setLastUpdatedBy("tst");
-        itemEntity.setCatalogingStatus("Complete");
-        itemEntity.setItemAvailabilityStatusId(1);
-        itemEntity.setDeleted(false);
-        itemEntity.setInstitutionEntity(getInstitutionEntity());
-        return itemEntity;
-    }
-    private BibliographicEntity getBibliographicEntity(int bibliographicId,String owningInstitutionBibId) {
-        BibliographicEntity bibliographicEntity = new BibliographicEntity();
-        bibliographicEntity.setId(bibliographicId);
-        bibliographicEntity.setContent("Test".getBytes());
-        bibliographicEntity.setCreatedDate(new Date());
-        bibliographicEntity.setLastUpdatedDate(new Date());
-        bibliographicEntity.setCreatedBy("tst");
-        bibliographicEntity.setLastUpdatedBy("tst");
-        bibliographicEntity.setOwningInstitutionId(1);
-        bibliographicEntity.setOwningInstitutionBibId(owningInstitutionBibId);
-        bibliographicEntity.setDeleted(false);
-        return bibliographicEntity;
-    }
-
-    private BibliographicEntity getBibliographicEntities(String owningInstitutionBibId){
-        BibliographicEntity bibliographicEntity = getBibliographicEntity(1,owningInstitutionBibId);
-        HoldingsEntity holdingsEntity = getHoldingsEntity();
-        ItemEntity itemEntity = getItemEntity("843617540");
-        List<BibliographicEntity> bibliographicEntitylist = new LinkedList(Arrays.asList(bibliographicEntity));
-        List<HoldingsEntity> holdingsEntitylist = new LinkedList(Arrays.asList(holdingsEntity));
-        List<ItemEntity> itemEntitylist = new LinkedList(Arrays.asList(itemEntity));
-        holdingsEntity.setBibliographicEntities(bibliographicEntitylist);
-        holdingsEntity.setItemEntities(itemEntitylist);
-        bibliographicEntity.setHoldingsEntities(holdingsEntitylist);
-        bibliographicEntity.setItemEntities(itemEntitylist);
-        itemEntity.setHoldingsEntities(holdingsEntitylist);
-        itemEntity.setBibliographicEntities(bibliographicEntitylist);
-        return bibliographicEntity;
     }
 
 }
