@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by pvsubrah on 6/10/16.
  */
-public interface BibliographicDetailsRepository extends BaseRepository<BibliographicEntity> {
+public interface BibliographicDetailsRepository extends BaseRepository<BibliographicEntity>,BibliographicDetailsResopistoryCustom {
 
     /**
      * Find by owning institution bib id list.
