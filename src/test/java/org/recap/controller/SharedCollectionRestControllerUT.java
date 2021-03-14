@@ -279,7 +279,7 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
         List<SubmitCollectionResponse> submitCollectionResponseList = new ArrayList<>();
         submitCollectionResponseList.add(submitCollectionResponse);
         Mockito.when(setupDataService.getInstitutionCodeIdMap()).thenReturn(map);
-        Mockito.when(submitCollectionBatchService.process(institution, inputRecords, processedBibIdSet, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, "", reportRecordNumberList, true, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, exchange)).thenThrow(NullPointerException.class);
+        Mockito.when(submitCollectionBatchService.process(institution, inputRecords, processedBibIdSet, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, "", reportRecordNumberList, true, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, null)).thenThrow(NullPointerException.class);
         ResponseEntity response = sharedCollectionRestController.submitCollection(requestParameters);
         assertEquals(RecapConstants.SUBMIT_COLLECTION_INTERNAL_ERROR,response.getBody());
     }

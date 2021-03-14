@@ -11,6 +11,7 @@ import org.recap.model.jpa.ImsLocationEntity;
 import org.recap.model.report.SubmitCollectionReportInfo;
 import org.recap.model.submitcollection.BoundWithBibliographicEntityObject;
 import org.recap.model.submitcollection.NonBoundWithBibliographicEntityObject;
+import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.service.common.RepositoryService;
@@ -58,6 +59,9 @@ public class SubmitCollectionDAOService {
 
     @Autowired
     private SubmitCollectionHelperService submitCollectionHelperService;
+
+    @Autowired
+    BibliographicDetailsRepository bibliographicDetailsRepository;
 
     @Autowired
     BibliographicRepositoryDAO bibliographicRepositoryDAO;
@@ -302,7 +306,8 @@ public class SubmitCollectionDAOService {
                                 bibIdMapToRemoveIndex.put(RecapCommonConstants.IS_DELETED_BIB, Boolean.toString(true));
                                 bibIdMapToRemoveIndexList.add(bibIdMapToRemoveIndex);
                                 logger.info("Added id to remove from solr - bib id - {}, is deleted bib - {}", existingBibliographicEntity.getId(), true);
-                                bibliographicRepositoryDAO.saveOrUpdate(existingBibliographicEntity);
+                                bibliographicDetailsRepository.updateBibForSubmitCollection(existingBibliographicEntity, fetchedItemEntity);
+                                entityManager.flush();
                                 entityManager.refresh(existingBibliographicEntity);
                                 processedBibIds.add(existingBibliographicEntity.getId());
                                 //here updating the bib after linking with the item
