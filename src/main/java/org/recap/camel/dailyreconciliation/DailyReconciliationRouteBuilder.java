@@ -62,26 +62,28 @@ public class DailyReconciliationRouteBuilder extends RouteBuilder {
                 .noAutoStartup()
                 .log("Daily Reconciliation started for IMS Location : " + imsLocation)
                 .choice()
-                .when(gzipFile)
-                .unmarshal().
-                gzipDeflater()
-                .log("Unzip process completed for daily reconciliation file for IMS Location : " + imsLocation)
-                .process(new StartRouteProcessor(RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation))
-                .to(RecapConstants.DIRECT + RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
-                .when(body().isNull())
-                .process(new StopRouteProcessor(RecapConstants.DAILY_RR_S3_ROUTE_ID + imsLocation))
-                .log("No File To Process Daily Reconciliation for Ims Location " + imsLocation)
-                .otherwise()
-                .process(new StartRouteProcessor(RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation))
-                .to(RecapConstants.DIRECT + RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
+                    .when(gzipFile)
+                        .unmarshal()
+                        .gzipDeflater()
+                        .log("Unzip process completed for daily reconciliation file for IMS Location : " + imsLocation)
+                        .process(new StartRouteProcessor(RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation))
+                        .to(RecapConstants.DIRECT + RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
+                    .when(body().isNull())
+                        .process(new StopRouteProcessor(RecapConstants.DAILY_RR_S3_ROUTE_ID + imsLocation))
+                        .log("No File To Process Daily Reconciliation for Ims Location " + imsLocation)
+                    .otherwise()
+                        .process(new StartRouteProcessor(RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation))
+                        .to(RecapConstants.DIRECT + RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
                 .endChoice();
 
         from(RecapConstants.DIRECT + RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
+                .routeId(RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
+                .noAutoStartup()
                 .unmarshal().bindy(BindyType.Csv, DailyReconcilationRecord.class)
                 .bean(applicationContext.getBean(DailyReconciliationProcessor.class, imsLocation), RecapConstants.PROCESS_INPUT)
                 .end()
                 .onCompletion()
-                .process(new StopRouteProcessor(RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation));
+                    .process(new StopRouteProcessor(RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation));
 
         from(RecapConstants.DAILY_RR_FS_FILE + dailyReconciliationFilePath + "/" + imsLocation + RecapConstants.DAILY_RR_FS_OPTIONS)
                 .routeId(RecapConstants.DAILY_RR_FS_ROUTE_ID + imsLocation)
@@ -90,11 +92,9 @@ public class DailyReconciliationRouteBuilder extends RouteBuilder {
                 .setHeader(S3Constants.KEY, simple(dailyReconciliationFtpProcessed + imsLocation + "/DailyReconciliation_" + imsLocation +"_${date:now:yyyyMMdd_HHmmss}.xlsx"))
                 .to(RecapConstants.SCSB_CAMEL_S3_TO_ENDPOINT)
                 .onCompletion()
-                .log("Email service started for daily reconciliation for IMS Location : " + imsLocation)
-                .bean(applicationContext.getBean(DailyReconciliationEmailService.class, imsLocation))
-                .process(new StopRouteProcessor(RecapConstants.DAILY_RR_FS_ROUTE_ID + imsLocation))
-                .log("Daily Reconciliation completed for IMS Location: " + imsLocation);
-
-
+                    .log("Email service started for daily reconciliation for IMS Location : " + imsLocation)
+                    .bean(applicationContext.getBean(DailyReconciliationEmailService.class, imsLocation))
+                    .process(new StopRouteProcessor(RecapConstants.DAILY_RR_FS_ROUTE_ID + imsLocation))
+                    .log("Daily Reconciliation completed for IMS Location: " + imsLocation);
     }
 }
