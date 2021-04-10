@@ -318,6 +318,11 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
             itemEntity.setImsLocationEntity(imsLocationEntity);
             itemEntity.setImsLocationId(imsLocationEntity.getId());
 
+            String itemLibrary = getMarcUtil().getDataFieldValueForRecordType(itemRecordType, "876", null, null, "k");
+            if (StringUtils.isNotBlank(itemLibrary) ) {
+                itemEntity.setItemLibrary(itemLibrary);
+            }
+
             String useRestrictions = getMarcUtil().getDataFieldValueForRecordType(itemRecordType, "876", null, null, "h");
             if (StringUtils.isNotBlank(useRestrictions) && ("In Library Use".equalsIgnoreCase(useRestrictions) || "Supervised Use".equalsIgnoreCase(useRestrictions))) {
                 itemEntity.setUseRestrictions(useRestrictions);

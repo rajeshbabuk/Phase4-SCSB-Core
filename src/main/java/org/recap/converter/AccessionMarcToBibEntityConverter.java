@@ -283,6 +283,10 @@ public class AccessionMarcToBibEntityConverter extends AccessionXmlConverterAbst
         if (StringUtils.isNotBlank(copyNumber) && NumberUtils.isCreatable(copyNumber)) {
             itemEntity.setCopyNumber(Integer.valueOf(copyNumber));
         }
+        String itemLibrary = marcUtil.getDataFieldValue(itemRecord, "876", 'k');
+        if (StringUtils.isNotBlank(itemLibrary)) {
+            itemEntity.setItemLibrary(itemLibrary);
+        }
         if (owningInstitutionId != null) {
             itemEntity.setOwningInstitutionId(owningInstitutionId);
         } else {
