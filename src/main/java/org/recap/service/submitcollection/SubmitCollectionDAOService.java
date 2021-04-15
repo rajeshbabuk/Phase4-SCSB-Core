@@ -413,7 +413,9 @@ public class SubmitCollectionDAOService {
         logger.info("updatedBibliographicEntityList size--->{}",updatedBibliographicEntityList.size());
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        repositoryService.getBibliographicDetailsRepository().saveAll(updatedBibliographicEntityList);
+        for (BibliographicEntity bibliographicEntityToUpdate : updatedBibliographicEntityList) {
+            bibliographicRepositoryDAO.saveOrUpdate(bibliographicEntityToUpdate);
+        }
         repositoryService.getBibliographicDetailsRepository().flush();
         stopWatch.stop();
         logger.info("Time taken to save {} bib size---->{} sec",updatedBibliographicEntityList.size(),stopWatch.getTotalTimeSeconds());
@@ -682,12 +684,13 @@ public class SubmitCollectionDAOService {
                 bibliographicEntityToSave = incomingBibliographicEntity;
                 updateCatalogingStatusForItem(bibliographicEntityToSave);
                 updateCatalogingStatusForBib(bibliographicEntityToSave);
+                updateImsLocationForItem(bibliographicEntityToSave, fetchBibliographicEntity.getItemEntities().get(0).getImsLocationEntity());
                 if (fetchedBibliographicEntity != null) {//1Bib n holding n item
                     bibliographicEntityToSave = updateExistingRecordForDummy(fetchedBibliographicEntity, incomingBibliographicEntity);
                     processedBibIds.add(fetchedBibliographicEntity.getId());
                 }
                 savedBibliographicEntity = bibliographicEntityToSave;
-                entityManager.merge(savedBibliographicEntity);
+                bibliographicRepositoryDAO.saveOrUpdate(savedBibliographicEntity);
                 entityManager.flush();
 
                 //TODO need to change the item change log message for boundwith dummy record
