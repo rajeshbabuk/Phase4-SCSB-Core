@@ -274,6 +274,7 @@ public class SubmitCollectionDAOService {
                             updatedBibliographicEntity = updateDummyRecordForBoundWith(incomingBibliographicEntity, submitCollectionReportInfoMap, idMapToRemoveIndexList, processedBarcodeSetForDummyRecords, updatedBibliographicEntity, fetchedBibliographicEntityList.get(0), itemChangeLogEntityList,deleteDummyRecord,processedBibIds);
                             if (updatedBibliographicEntity != null) {
                                 updatedBibliographicEntityList.add(updatedBibliographicEntity);
+                                processedBibIds.add(updatedBibliographicEntity.getId());
                             }
                         } else if (fetchedBibliographicEntity !=null) {
                             BibliographicEntity updatedBibliographicEntity = updateExistingRecordToEntityObject(fetchedBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, processedBibIds,itemChangeLogEntityList);
@@ -690,7 +691,7 @@ public class SubmitCollectionDAOService {
                     processedBibIds.add(fetchedBibliographicEntity.getId());
                 }
                 savedBibliographicEntity = bibliographicEntityToSave;
-                bibliographicRepositoryDAO.saveOrUpdate(savedBibliographicEntity);
+                savedBibliographicEntity = bibliographicRepositoryDAO.saveOrUpdate(savedBibliographicEntity);
                 entityManager.flush();
 
                 //TODO need to change the item change log message for boundwith dummy record
