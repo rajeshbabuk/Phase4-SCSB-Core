@@ -30,7 +30,7 @@ public class SearchResultRowUT extends BaseTestCaseUT {
         searchResultRow.setDeliveryLocation("PB");
         searchResultRow.setOwningInstitution("PUL");
         searchResultRow.setLeaderMaterialType("Monograph");
-        searchResultRow.setCustomerCode("NA");
+        searchResultRow.setOwnerCode("NA");
         searchResultRow.setPatronBarcode(45698328);
         searchResultRow.setPublisher("test");
         searchResultRow.setPublisherDate(new Date().toString());
@@ -54,7 +54,7 @@ public class SearchResultRowUT extends BaseTestCaseUT {
         assertNotNull(searchResultRow.getDeliveryLocation());
         assertNotNull(searchResultRow.getOwningInstitution());
         assertNotNull(searchResultRow.getLeaderMaterialType());
-        assertNotNull(searchResultRow.getCustomerCode());
+        assertNotNull(searchResultRow.getOwnerCode());
         assertNotNull(searchResultRow.getPatronBarcode());
         assertNotNull(searchResultRow.getPublisher());
         assertNotNull(searchResultRow.getPublisherDate());

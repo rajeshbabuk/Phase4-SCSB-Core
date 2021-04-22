@@ -204,7 +204,7 @@ public class AccessionSCSBToBibEntityConverterUT extends BaseTestCaseUT {
     public void convert() throws Exception {
         BibRecords bibRecords = getBibRecords();
         AccessionRequest accessionRequest = new AccessionRequest();
-        accessionRequest.setCustomerCode("NA");
+        accessionRequest.setOwnerCode("NA");
         accessionRequest.setItemBarcode("33433002031718");
         Map collectionGroupMap=new HashMap();
         collectionGroupMap.put("Shared",1);
@@ -239,7 +239,7 @@ public class AccessionSCSBToBibEntityConverterUT extends BaseTestCaseUT {
     public void processAndValidateItemEntity() throws Exception {
         BibRecords bibRecords = getBibRecords();
         AccessionRequest accessionRequest = new AccessionRequest();
-        accessionRequest.setCustomerCode("NA");
+        accessionRequest.setOwnerCode("NA");
         accessionRequest.setItemBarcode("33433002031718");
         Map collectionGroupMap=new HashMap();
         collectionGroupMap.put("Shared",1);
@@ -273,7 +273,7 @@ public class AccessionSCSBToBibEntityConverterUT extends BaseTestCaseUT {
     @Test
     public void processAndValidateBibliographicEntity() throws Exception {
         AccessionRequest accessionRequest = new AccessionRequest();
-        accessionRequest.setCustomerCode("NA");
+        accessionRequest.setOwnerCode("NA");
         accessionRequest.setItemBarcode("33433002031718");
         Bib bib=new Bib();
         bib.setOwningInstitutionBibId("");

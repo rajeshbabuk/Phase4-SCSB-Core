@@ -98,9 +98,9 @@ public class AccessionReconciliationProcessorUT extends BaseTestCaseUT {
         ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "institutionCode", "pul");
         ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "camelContext", ctx);
         ResponseEntity<Map> responseEntity = new ResponseEntity<Map>(map, HttpStatus.OK);
-        HashMap<String,String> barcodesAndCustomerCodes=new HashMap<>();
-        barcodesAndCustomerCodes.put(barcodeReconcilitaionReport.getBarcode(),barcodeReconcilitaionReport.getCustomerCode());
-        HttpEntity httpEntity = new HttpEntity(barcodesAndCustomerCodes);
+        HashMap<String,String> barcodesAndOwnerCodes=new HashMap<>();
+        barcodesAndOwnerCodes.put(barcodeReconcilitaionReport.getBarcode(),barcodeReconcilitaionReport.getCustomerCode());
+        HttpEntity httpEntity = new HttpEntity(barcodesAndOwnerCodes);
         Mockito.when(restTemplate.exchange(solrSolrClientUrl+ RecapConstants.ACCESSION_RECONCILATION_SOLR_CLIENT_URL, HttpMethod.POST, httpEntity,Map.class)).thenReturn(responseEntity);
         Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
         mockedAccessionReconciliationProcessor.processInput(ex);
@@ -120,9 +120,9 @@ public class AccessionReconciliationProcessorUT extends BaseTestCaseUT {
         map.put("accessionReconcilationService", true);
         ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "institutionCode", "cul");
         ResponseEntity<Map> responseEntity = new ResponseEntity<Map>(map, HttpStatus.OK);
-        HashMap<String,String> barcodesAndCustomerCodes=new HashMap<>();
-        barcodesAndCustomerCodes.put(barcodeReconcilitaionReport.getBarcode(),barcodeReconcilitaionReport.getCustomerCode());
-        HttpEntity httpEntity = new HttpEntity(barcodesAndCustomerCodes);
+        HashMap<String,String> barcodesAndOwnerCodes=new HashMap<>();
+        barcodesAndOwnerCodes.put(barcodeReconcilitaionReport.getBarcode(),barcodeReconcilitaionReport.getCustomerCode());
+        HttpEntity httpEntity = new HttpEntity(barcodesAndOwnerCodes);
         Mockito.when(restTemplate.exchange(solrSolrClientUrl+ RecapConstants.ACCESSION_RECONCILATION_SOLR_CLIENT_URL, HttpMethod.POST, httpEntity,Map.class)).thenReturn(responseEntity);
         Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
         Mockito.when(awsS3Client.doesObjectExist(Mockito.anyString(),Mockito.anyString())).thenReturn(true);

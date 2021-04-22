@@ -304,10 +304,10 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
     public void accessionExceedLimit() throws Exception{
         List<AccessionRequest> accessionRequestList=new ArrayList<>();
         AccessionRequest accessionRequest = new AccessionRequest();
-        accessionRequest.setCustomerCode("PA");
+        accessionRequest.setOwnerCode("PA");
         accessionRequest.setItemBarcode("32101095533293");
         AccessionRequest accessionRequest1 = new AccessionRequest();
-        accessionRequest1.setCustomerCode("PA");
+        accessionRequest1.setOwnerCode("PA");
         accessionRequest1.setItemBarcode("32101095533294");
         accessionRequestList.add(accessionRequest1);
         AccessionModelRequest accessionModelRequest=new AccessionModelRequest();
@@ -333,7 +333,7 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
     private List<AccessionRequest> getAccessionRequests() {
         List<AccessionRequest> accessionRequestList = new ArrayList<>();
         AccessionRequest accessionRequest = new AccessionRequest();
-        accessionRequest.setCustomerCode("PA");
+        accessionRequest.setOwnerCode("PA");
         accessionRequest.setItemBarcode("32101095533293");
         accessionRequestList.add(accessionRequest);
         return accessionRequestList;

@@ -71,7 +71,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         List<Map<String, String>> responseMaps=new ArrayList<>();
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setCustomerCode("PA");
+        accessionRequest.setOwnerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         List<ItemEntity> itemEntities=new ArrayList<>();
         ItemEntity itemEntity=new ItemEntity();
@@ -99,7 +99,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         List<Map<String, String>> responseMaps=new ArrayList<>();
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setCustomerCode("PA");
+        accessionRequest.setOwnerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         List<ItemEntity> itemEntities=new ArrayList<>();
         ItemEntity itemEntity=new ItemEntity();
@@ -127,7 +127,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         List<Map<String, String>> responseMaps=new ArrayList<>();
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setCustomerCode("PA");
+        accessionRequest.setOwnerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         List<ItemEntity> itemEntities=new ArrayList<>();
         ItemEntity itemEntity=new ItemEntity();
@@ -156,7 +156,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         List<Map<String, String>> responseMaps=new ArrayList<>();
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setCustomerCode("PA");
+        accessionRequest.setOwnerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         List<ItemEntity> itemEntities=new ArrayList<>();
         ItemEntity itemEntity=new ItemEntity();
@@ -185,7 +185,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         responseMaps.add(responseMap1);
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setCustomerCode("PA");
+        accessionRequest.setOwnerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         InstitutionEntity institutionEntity=new InstitutionEntity();
         institutionEntity.setInstitutionCode("PUL");
@@ -247,7 +247,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         responseMaps.add(responseMap1);
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setCustomerCode("PA");
+        accessionRequest.setOwnerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         InstitutionEntity institutionEntity=new InstitutionEntity();
         institutionEntity.setInstitutionCode("PUL");
@@ -279,7 +279,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         List<Map<String, String>> responseMaps=new ArrayList<>();
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setCustomerCode("PA");
+        accessionRequest.setOwnerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         InstitutionEntity institutionEntity=new InstitutionEntity();
         institutionEntity.setInstitutionCode("PUL");
@@ -310,7 +310,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         for (String error: errors) {
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setCustomerCode("PA");
+        accessionRequest.setOwnerCode("PA");
         Mockito.when(ex.getMessage()).thenReturn(error);
             ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
             accessionProcessService.processException(new HashSet<>(),accessionRequest,new ArrayList<>(),"PUL",imsLocationEntity,ex);

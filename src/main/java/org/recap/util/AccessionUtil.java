@@ -13,20 +13,20 @@ import org.recap.model.ILSConfigProperties;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
 import org.recap.model.jpa.BibliographicEntity;
-import org.recap.model.jpa.CustomerCodeEntity;
 import org.recap.model.jpa.HoldingsEntity;
 import org.recap.model.jpa.ImsLocationEntity;
 import org.recap.model.jpa.InstitutionEntity;
 import org.recap.model.jpa.ItemChangeLogEntity;
 import org.recap.model.jpa.ItemEntity;
+import org.recap.model.jpa.OwnerCodeEntity;
 import org.recap.model.jpa.ReportDataEntity;
 import org.recap.model.jpa.ReportEntity;
 import org.recap.repository.jpa.BibliographicDetailsRepository;
-import org.recap.repository.jpa.CustomerCodeDetailsRepository;
 import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.repository.jpa.ItemChangeLogDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
+import org.recap.repository.jpa.OwnerCodeDetailsRepository;
 import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.service.accession.AccessionValidationService;
 import org.recap.service.accession.DummyDataService;
@@ -67,7 +67,7 @@ public class AccessionUtil {
     BibliographicDetailsRepository bibliographicDetailsRepository;
 
     @Autowired
-    CustomerCodeDetailsRepository customerCodeDetailsRepository;
+    OwnerCodeDetailsRepository ownerCodeDetailsRepository;
 
     @Autowired
     ItemDetailsRepository itemDetailsRepository;
@@ -205,10 +205,10 @@ public class AccessionUtil {
     public List<ReportDataEntity> createReportDataEntityList(AccessionRequest accessionRequest, String response) {
         List<ReportDataEntity> reportDataEntityList = new ArrayList<>();
         if (StringUtils.isNotBlank(accessionRequest.getCustomerCode())) {
-            ReportDataEntity reportDataEntityCustomerCode = new ReportDataEntity();
-            reportDataEntityCustomerCode.setHeaderName(RecapCommonConstants.CUSTOMER_CODE);
-            reportDataEntityCustomerCode.setHeaderValue(accessionRequest.getCustomerCode());
-            reportDataEntityList.add(reportDataEntityCustomerCode);
+            ReportDataEntity reportDataEntityOwnerCode = new ReportDataEntity();
+            reportDataEntityOwnerCode.setHeaderName(RecapCommonConstants.CUSTOMER_CODE);
+            reportDataEntityOwnerCode.setHeaderValue(accessionRequest.getCustomerCode());
+            reportDataEntityList.add(reportDataEntityOwnerCode);
         }
         if (StringUtils.isNotBlank(accessionRequest.getItemBarcode())) {
             ReportDataEntity reportDataEntityItemBarcode = new ReportDataEntity();
@@ -245,12 +245,14 @@ public class AccessionUtil {
      * @param customerCode
      * @return
      */
-    public String getOwningInstitution(String customerCode) {
+    public String getOwningInstitution(String customerCode, String imsLocationCode) {
         String owningInstitution = null;
         try {
-            CustomerCodeEntity customerCodeEntity = customerCodeDetailsRepository.findByCustomerCode(customerCode);
-            if (null != customerCodeEntity) {
-                owningInstitution = customerCodeEntity.getInstitutionEntity().getInstitutionCode();
+            ImsLocationEntity imsLocationEntity = imsLocationDetailsRepository.findByImsLocationCode(imsLocationCode);
+            OwnerCodeEntity ownerCodeEntity = ownerCodeDetailsRepository.findByOwnerCodeAndImsLocationId(customerCode, imsLocationEntity.getId());
+
+            if (null != ownerCodeEntity) {
+                owningInstitution = ownerCodeEntity.getInstitutionEntity().getInstitutionCode();
             }
         } catch (Exception e) {
             logger.error(RecapConstants.EXCEPTION,e);
@@ -266,7 +268,7 @@ public class AccessionUtil {
      * @param reportDataEntityList
      * @param accessionRequest
      */
-    public String createDummyRecordIfAny(String response, String owningInstitution, List<ReportDataEntity> reportDataEntityList, AccessionRequest accessionRequest,ImsLocationEntity imsLocationEntity) {
+    public String createDummyRecordIfAny(String response, String owningInstitution, List<ReportDataEntity> reportDataEntityList, AccessionRequest accessionRequest, ImsLocationEntity imsLocationEntity) {
         String message = response;
         if (response != null && (response.contains(RecapConstants.ITEM_BARCODE_NOT_FOUND) ||
                 response.contains(RecapConstants.INVALID_MARC_XML_ERROR_MSG)) ) {

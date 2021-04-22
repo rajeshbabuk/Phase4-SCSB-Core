@@ -126,7 +126,7 @@ public class DailyReconciliationProcessorUT extends BaseTestCaseUT {
 
     private DailyReconcilationRecord getDailyReconcilationRecord(String barcode,String requestId,String status) {
         DailyReconcilationRecord dailyReconcilationRecord=new DailyReconcilationRecord();
-        dailyReconcilationRecord.setCustomerCode("PA");
+        dailyReconcilationRecord.setOwnerCode("PA");
         dailyReconcilationRecord.setRequestId(requestId);
         dailyReconcilationRecord.setBarcode(barcode);
         dailyReconcilationRecord.setStopCode("PA");

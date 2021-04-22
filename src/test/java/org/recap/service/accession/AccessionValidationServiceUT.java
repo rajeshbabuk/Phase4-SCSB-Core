@@ -16,16 +16,8 @@ import org.recap.model.accession.AccessionRequest;
 import org.recap.model.jaxb.BibRecord;
 import org.recap.model.jaxb.JAXBHandler;
 import org.recap.model.jaxb.marc.BibRecords;
-import org.recap.model.jpa.BibliographicEntity;
-import org.recap.model.jpa.CustomerCodeEntity;
-import org.recap.model.jpa.HoldingsEntity;
-import org.recap.model.jpa.InstitutionEntity;
-import org.recap.model.jpa.ItemEntity;
-import org.recap.repository.jpa.CustomerCodeDetailsRepository;
-import org.recap.repository.jpa.HoldingsDetailsRepository;
-import org.recap.repository.jpa.ImsLocationDetailsRepository;
-import org.recap.repository.jpa.InstitutionDetailsRepository;
-import org.recap.repository.jpa.ItemDetailsRepository;
+import org.recap.model.jpa.*;
+import org.recap.repository.jpa.*;
 import org.recap.util.AccessionUtil;
 import org.recap.util.MarcUtil;
 import org.slf4j.Logger;
@@ -67,7 +59,7 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
     private MarcUtil marcUtil;
 
     @Mock
-    private CustomerCodeDetailsRepository customerCodeDetailsRepository;
+    private OwnerCodeDetailsRepository ownerCodeDetailsRepository;
 
     @Mock
     private HoldingsDetailsRepository holdingsDetailsRepository;
@@ -86,28 +78,28 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
 
     @Test
     public void validateBarcodeOrCustomerCode(){
-        Mockito.when(accessionUtil.getOwningInstitution(Mockito.anyString())).thenReturn("").thenReturn("PUL");
-        AccessionValidationService.AccessionValidationResponse invalidBarcodeLength=accessionValidationService.validateBarcodeOrCustomerCode("12345123451234512345123451234512345123451234512345","PA");
+        Mockito.when(accessionUtil.getOwningInstitution(Mockito.anyString(), Mockito.anyString())).thenReturn("").thenReturn("PUL");
+        AccessionValidationService.AccessionValidationResponse invalidBarcodeLength=accessionValidationService.validateBarcodeOrCustomerCode("12345123451234512345123451234512345123451234512345","PA","RECAP");
         assertEquals(RecapConstants.INVALID_BARCODE_LENGTH,invalidBarcodeLength.getMessage());
         assertNull(invalidBarcodeLength.getOwningInstitution());
         assertFalse(invalidBarcodeLength.isValid());
 
-        AccessionValidationService.AccessionValidationResponse blankBarcode=accessionValidationService.validateBarcodeOrCustomerCode("","PA");
+        AccessionValidationService.AccessionValidationResponse blankBarcode=accessionValidationService.validateBarcodeOrCustomerCode("","PA", "RECAP");
         assertEquals(RecapConstants.ITEM_BARCODE_EMPTY,blankBarcode.getMessage());
         assertNull(blankBarcode.getOwningInstitution());
         assertFalse(blankBarcode.isValid());
 
-        AccessionValidationService.AccessionValidationResponse customerCode=accessionValidationService.validateBarcodeOrCustomerCode("123456","PA");
+        AccessionValidationService.AccessionValidationResponse customerCode=accessionValidationService.validateBarcodeOrCustomerCode("123456","PA", "RECAP");
         assertEquals(RecapCommonConstants.CUSTOMER_CODE_DOESNOT_EXIST,customerCode.getMessage());
         assertNull(customerCode.getOwningInstitution());
         assertFalse(customerCode.isValid());
 
-        AccessionValidationService.AccessionValidationResponse customerCodeEmpty=accessionValidationService.validateBarcodeOrCustomerCode("123456","");
+        AccessionValidationService.AccessionValidationResponse customerCodeEmpty=accessionValidationService.validateBarcodeOrCustomerCode("123456","","RECAP");
         assertEquals(RecapConstants.CUSTOMER_CODE_EMPTY,customerCodeEmpty.getMessage());
         assertNull(customerCodeEmpty.getOwningInstitution());
         assertFalse(customerCodeEmpty.isValid());
 
-        AccessionValidationService.AccessionValidationResponse response=accessionValidationService.validateBarcodeOrCustomerCode("123456","PA");
+        AccessionValidationService.AccessionValidationResponse response=accessionValidationService.validateBarcodeOrCustomerCode("123456","PA", "RECAP");
         assertEquals("",response.getMessage());
         assertEquals("PUL",response.getOwningInstitution());
         assertTrue(response.isValid());
@@ -121,9 +113,11 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("32101075852200");
         accessionRequest.setCustomerCode("PA");
-        CustomerCodeEntity customerCodeEntity = getCustomerCodeEntity();
-        Mockito.when(customerCodeDetailsRepository.findByCustomerCode(Mockito.anyString())).thenReturn(customerCodeEntity);
-        boolean isValidBoundWithRecord = accessionValidationService.validateBoundWithMarcRecordFromIls(records,accessionRequest);
+        OwnerCodeEntity ownerCodeEntity = getOwnerCodeEntity();
+        Mockito.when(ownerCodeDetailsRepository.findByOwnerCode(Mockito.anyString())).thenReturn(ownerCodeEntity);
+        ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
+        imsLocationEntity.setId(1);
+        boolean isValidBoundWithRecord = accessionValidationService.validateBoundWithMarcRecordFromIls(records,accessionRequest,imsLocationEntity);
         assertTrue(isValidBoundWithRecord);
     }
 
@@ -135,14 +129,16 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("32101075852200");
         accessionRequest.setCustomerCode("PA");
-        CustomerCodeEntity customerCodeEntity = getCustomerCodeEntity();
+        OwnerCodeEntity ownerCodeEntity = getOwnerCodeEntity();
         HoldingsEntity holdingsEntity=new HoldingsEntity();
         BibliographicEntity bibliographicEntity =   getBibliographicEntity("",marcXmlString);
         holdingsEntity.setBibliographicEntities(Arrays.asList(bibliographicEntity));
-        Mockito.when(customerCodeDetailsRepository.findByCustomerCode(Mockito.anyString())).thenReturn(customerCodeEntity);
+        Mockito.when(ownerCodeDetailsRepository.findByOwnerCode(Mockito.anyString())).thenReturn(ownerCodeEntity);
         Mockito.when(holdingsDetailsRepository.findByOwningInstitutionHoldingsIdAndOwningInstitutionId(Mockito.anyString(),Mockito.anyInt())).thenReturn(holdingsEntity);
         Mockito.when(marcUtil.getDataFieldValue(records.get(0),"876","","","0")).thenReturn("1");
-        boolean isValidBoundWithRecord = accessionValidationService.validateBoundWithMarcRecordFromIls(records,accessionRequest);
+        ImsLocationEntity imsLocationEntity = new ImsLocationEntity();
+        imsLocationEntity.setId(1);
+        boolean isValidBoundWithRecord = accessionValidationService.validateBoundWithMarcRecordFromIls(records,accessionRequest,imsLocationEntity);
         assertFalse(isValidBoundWithRecord);
     }
 
@@ -172,8 +168,8 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
         accessionRequest.setCustomerCode("PA");
         accessionRequest.setItemBarcode("32101095533293");
         StringBuilder errorMessage = new StringBuilder();
-        CustomerCodeEntity customerCodeEntity = getCustomerCodeEntity();
-        Mockito.when(customerCodeDetailsRepository.findByCustomerCode(Mockito.anyString())).thenReturn(customerCodeEntity);
+        OwnerCodeEntity ownerCodeEntity = getOwnerCodeEntity();
+        Mockito.when(ownerCodeDetailsRepository.findByOwnerCode(Mockito.anyString())).thenReturn(ownerCodeEntity);
         Mockito.when(holdingsDetailsRepository.findByOwningInstitutionHoldingsIdAndOwningInstitutionId(Mockito.anyString(),Mockito.anyInt())).thenReturn(bibliographicEntity.getHoldingsEntities().get(0));
         boolean isValid = accessionValidationService.validateItemAndHolding(bibliographicEntity,false,false,errorMessage);
         assertTrue(isValid);
@@ -247,12 +243,12 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
         assertEquals(RecapConstants.IMS_LOCACTION_CODE_IS_BLANK,accessionValidationResponse.getMessage());
     }
 
-    private CustomerCodeEntity getCustomerCodeEntity() {
-        CustomerCodeEntity customerCodeEntity=new CustomerCodeEntity();
-        customerCodeEntity.setCustomerCode("PA");
-        customerCodeEntity.setDescription("PRINCETON");
-        customerCodeEntity.setOwningInstitutionId(1);
-        return customerCodeEntity;
+    private OwnerCodeEntity getOwnerCodeEntity() {
+        OwnerCodeEntity ownerCodeEntity=new OwnerCodeEntity();
+        ownerCodeEntity.setOwnerCode("PA");
+        ownerCodeEntity.setDescription("PRINCETON");
+        ownerCodeEntity.setInstitutionId(1);
+        return ownerCodeEntity;
     }
 
     private InstitutionEntity getInstitutionEntity() {

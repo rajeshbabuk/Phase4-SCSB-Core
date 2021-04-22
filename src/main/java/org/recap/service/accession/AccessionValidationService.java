@@ -10,13 +10,8 @@ import org.recap.model.jaxb.BibRecord;
 import org.recap.model.jaxb.Holding;
 import org.recap.model.jaxb.Holdings;
 
-import org.recap.model.jpa.BibliographicEntity;
-import org.recap.model.jpa.CustomerCodeEntity;
-import org.recap.model.jpa.HoldingsEntity;
-import org.recap.model.jpa.ImsLocationEntity;
-import org.recap.model.jpa.InstitutionEntity;
-import org.recap.model.jpa.ItemEntity;
-import org.recap.repository.jpa.CustomerCodeDetailsRepository;
+import org.recap.model.jpa.*;
+import org.recap.repository.jpa.OwnerCodeDetailsRepository;
 import org.recap.repository.jpa.HoldingsDetailsRepository;
 import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
@@ -45,7 +40,7 @@ public class AccessionValidationService {
     private ItemDetailsRepository itemDetailsRepository;
 
     @Autowired
-    private CustomerCodeDetailsRepository customerCodeDetailsRepository;
+    private OwnerCodeDetailsRepository ownerCodeDetailsRepository;
 
     @Autowired
     private InstitutionDetailsRepository institutionDetailsRepository;
@@ -57,7 +52,7 @@ public class AccessionValidationService {
     private ImsLocationDetailsRepository imsLocationDetailsRepository;
 
 
-    public boolean validateBoundWithMarcRecordFromIls(List<Record> records, AccessionRequest accessionRequest){
+    public boolean validateBoundWithMarcRecordFromIls(List<Record> records, AccessionRequest accessionRequest, ImsLocationEntity imsLocationEntity){
         List<String> holdingIdList = new ArrayList<>();
         String holdingId=null;
         for(Record record : records){
@@ -70,8 +65,8 @@ public class AccessionValidationService {
                 }
             }
         }
-        CustomerCodeEntity customerCodeEntity = customerCodeDetailsRepository.findByCustomerCode(accessionRequest.getCustomerCode());
-        Integer owningInstitutionId = customerCodeEntity.getOwningInstitutionId();
+        OwnerCodeEntity ownerCodeEntity = ownerCodeDetailsRepository.findByOwnerCodeAndImsLocationId(accessionRequest.getCustomerCode(), imsLocationEntity.getId());
+        Integer owningInstitutionId = ownerCodeEntity.getInstitutionId();
         HoldingsEntity holdingsEntity = holdingsDetailsRepository.findByOwningInstitutionHoldingsIdAndOwningInstitutionId(holdingId, owningInstitutionId);
         return holdingsEntity == null || holdingsEntity.getBibliographicEntities().isEmpty();
     }
@@ -158,10 +153,10 @@ public class AccessionValidationService {
         return bibIdsStringBuilder;
     }
 
-    public AccessionValidationResponse validateBarcodeOrCustomerCode(String itemBarcode, String customerCode) {
+    public AccessionValidationResponse validateBarcodeOrCustomerCode(String itemBarcode, String customerCode, String imsLocationCode) {
         AccessionValidationResponse accessionValidationResponse = validateItemBarcode( itemBarcode);
         if(null == accessionValidationResponse) {
-            accessionValidationResponse = validateCustomerCode(customerCode);
+            accessionValidationResponse = validateOwnerCode(customerCode, imsLocationCode);
         }
         return accessionValidationResponse;
     }
@@ -178,11 +173,11 @@ public class AccessionValidationService {
         return null;
     }
 
-    private AccessionValidationResponse validateCustomerCode(String customerCode) {
+    private AccessionValidationResponse validateOwnerCode(String customerCode, String imsLocationCode) {
         if(StringUtils.isBlank(customerCode)) {
             return getAccessionValidationResponse(false, RecapConstants.CUSTOMER_CODE_EMPTY);
         } else {
-            String owningInstitution = accessionUtil.getOwningInstitution(customerCode);
+            String owningInstitution = accessionUtil.getOwningInstitution(customerCode, imsLocationCode);
             if(StringUtils.isBlank(owningInstitution)) {
                 return getAccessionValidationResponse(false, RecapCommonConstants.CUSTOMER_CODE_DOESNOT_EXIST);
             }

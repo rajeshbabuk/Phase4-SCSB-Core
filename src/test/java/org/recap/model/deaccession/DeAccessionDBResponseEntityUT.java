@@ -17,7 +17,7 @@ public class DeAccessionDBResponseEntityUT extends BaseTestCaseUT {
         deAccessionDBResponseEntity.setBarcode("123456");
         deAccessionDBResponseEntity.setBibliographicIds(Arrays.asList(1,2,3));
         deAccessionDBResponseEntity.setCollectionGroupCode("Shared");
-        deAccessionDBResponseEntity.setCustomerCode("PA");
+        deAccessionDBResponseEntity.setOwnerCode("PA");
         deAccessionDBResponseEntity.setDeliveryLocation("PA");
         deAccessionDBResponseEntity.setHoldingIds(Arrays.asList(4,5,6));
         deAccessionDBResponseEntity.setInstitutionCode("PUL");

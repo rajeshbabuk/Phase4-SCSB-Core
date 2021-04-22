@@ -21,7 +21,6 @@ import org.recap.util.MarcUtil;
 import org.recap.util.PropertyUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +71,7 @@ public class MarcFormatResolverUT extends BaseTestCaseUT {
         List<Record> records=new ArrayList<>();
         records.add(record);
         records.add(record);
-        Mockito.when(accessionValidationService.validateBoundWithMarcRecordFromIls(Mockito.anyList(),Mockito.any())).thenReturn(true);
+        Mockito.when(accessionValidationService.validateBoundWithMarcRecordFromIls(Mockito.anyList(),Mockito.any(),Mockito.any())).thenReturn(true);
         Mockito.when(commonUtil.getUpdatedDataResponse(Mockito.anySet(),Mockito.anyList(),Mockito.anyString(),Mockito.anyList(),Mockito.any(),Mockito.anyBoolean(),Mockito.anyInt(),Mockito.any(),Mockito.any())).thenReturn(RecapCommonConstants.SUCCESS);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         String response=mockMarcFormatResolver.processXml(getAccessionResponses(),records,responseMapList,"PUL",reportDataEntityList,accessionRequest,imsLocationEntity);
@@ -87,7 +86,7 @@ public class MarcFormatResolverUT extends BaseTestCaseUT {
         List<Record> records=new ArrayList<>();
         records.add(record);
         records.add(record);
-        Mockito.when(accessionValidationService.validateBoundWithMarcRecordFromIls(Mockito.anyList(),Mockito.any())).thenReturn(false);
+        Mockito.when(accessionValidationService.validateBoundWithMarcRecordFromIls(Mockito.anyList(),Mockito.any(),Mockito.any())).thenReturn(false);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         String response=mockMarcFormatResolver.processXml(getAccessionResponses(),records,responseMapList,"PUL",reportDataEntityList,accessionRequest,imsLocationEntity);
         assertEquals(RecapConstants.INVALID_BOUNDWITH_RECORD,response);

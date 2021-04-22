@@ -7,17 +7,19 @@ import org.marc4j.marc.Record;
 import org.recap.RecapConstants;
 import org.recap.RecapCommonConstants;
 import org.recap.model.jpa.BibliographicEntity;
-import org.recap.model.jpa.CustomerCodeEntity;
 import org.recap.model.jpa.HoldingsEntity;
+import org.recap.model.jpa.ImsLocationEntity;
 import org.recap.model.jpa.InstitutionEntity;
 import org.recap.model.jpa.ItemEntity;
+import org.recap.model.jpa.OwnerCodeEntity;
 import org.recap.model.jpa.ReportEntity;
 import org.recap.model.marc.BibMarcRecord;
 import org.recap.model.marc.HoldingsMarcRecord;
 import org.recap.model.marc.ItemMarcRecord;
-import org.recap.repository.jpa.CustomerCodeDetailsRepository;
+import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
+import org.recap.repository.jpa.OwnerCodeDetailsRepository;
 import org.recap.util.CommonUtil;
 import org.recap.util.DBReportUtil;
 import org.recap.util.MarcUtil;
@@ -53,10 +55,13 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
     private InstitutionDetailsRepository institutionDetailsRepository;
 
     @Autowired
-    private CustomerCodeDetailsRepository customerCodeDetailsRepository;
+    private OwnerCodeDetailsRepository ownerCodeDetailsRepository;
 
     @Autowired
     private ItemDetailsRepository itemDetailsRepository;
+
+    @Autowired
+    private ImsLocationDetailsRepository imsLocationDetailsRepository;
 
     @Override
     public Map convert(Object marcRecord, InstitutionEntity institutionEntity) {
@@ -178,9 +183,13 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
         } else {
             errorMessage.append(" Item Barcode cannot be null");
         }
-        String customerCode = marcUtil.getDataFieldValue(itemRecord, "876", 'z');
-        if (StringUtils.isNotBlank(customerCode)) {
-            itemEntity.setCustomerCode(customerCode);
+        String ownerCode = marcUtil.getDataFieldValue(itemRecord, "876", 'z');
+        if (StringUtils.isNotBlank(ownerCode)) {
+            itemEntity.setCustomerCode(ownerCode);
+        }
+        String itemLibrary = marcUtil.getDataFieldValue(itemRecord, "876", 'k');
+        if (StringUtils.isNotBlank(itemLibrary)) {
+            itemEntity.setItemLibrary(itemLibrary);
         }
         String itemLibrary = marcUtil.getDataFieldValue(itemRecord, "876", 'k');
         if (StringUtils.isNotBlank(itemLibrary)) {
@@ -226,11 +235,14 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
 
     private Integer getOwningInstitutionId(BibMarcRecord bibMarcRecord) {
         Record itemRecord = bibMarcRecord.getHoldingsMarcRecords().get(0).getItemMarcRecordList().get(0).getItemRecord();
-        String customerCode = marcUtil.getDataFieldValue(itemRecord, "876", 'z');
-        CustomerCodeEntity customerCodeEntity;
-        if(null != customerCode) {
-            customerCodeEntity = customerCodeDetailsRepository.findByCustomerCode(customerCode);
-            return customerCodeEntity.getOwningInstitutionId();
+        String ownerCode = marcUtil.getDataFieldValue(itemRecord, "876", 'z');
+        String imsLocation = marcUtil.getDataFieldValue(itemRecord, "876", 'l');
+        ImsLocationEntity imsLocationEntity = imsLocationDetailsRepository.findByImsLocationCode(imsLocation);
+
+        OwnerCodeEntity ownerCodeEntity;
+        if(null != ownerCode) {
+            ownerCodeEntity = ownerCodeDetailsRepository.findByOwnerCodeAndImsLocationId(ownerCode,imsLocationEntity.getId());
+            return ownerCodeEntity.getInstitutionId();
         } else {
             String barcode = marcUtil.getDataFieldValue(bibMarcRecord.getHoldingsMarcRecords().get(0).getItemMarcRecordList().get(0).getItemRecord(), "876",'p');
             List<ItemEntity> itemEntityList = itemDetailsRepository.findByBarcode(barcode);
