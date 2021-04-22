@@ -64,7 +64,7 @@ public class AccessionService {
                 // validate empty barcode ,customer code and owning institution
                 String itemBarcode = accessionRequest.getItemBarcode();
                 String customerCode = accessionRequest.getCustomerCode();
-                AccessionValidationService.AccessionValidationResponse accessionValidationResponse = accessionValidationService.validateBarcodeOrCustomerCode(itemBarcode, customerCode);
+                AccessionValidationService.AccessionValidationResponse accessionValidationResponse = accessionValidationService.validateBarcodeOrCustomerCode(itemBarcode, customerCode, imsLocationCode);
 
                 String owningInstitution = accessionValidationResponse.getOwningInstitution();
 

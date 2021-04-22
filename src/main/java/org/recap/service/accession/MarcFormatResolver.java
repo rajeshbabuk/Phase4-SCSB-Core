@@ -51,7 +51,7 @@ public class MarcFormatResolver extends AccessionResolverAbstract {
         boolean isBoundWithItem = isBoundWithItemForMarcRecord(records);
         boolean isValidBoundWithRecord = true;
         if (isBoundWithItem) {
-            isValidBoundWithRecord = accessionValidationService.validateBoundWithMarcRecordFromIls(records, accessionRequest);
+            isValidBoundWithRecord = accessionValidationService.validateBoundWithMarcRecordFromIls(records, accessionRequest, imsLocationEntity);
         }
         if ((!isBoundWithItem) || (isBoundWithItem && isValidBoundWithRecord)) {
             if (CollectionUtils.isNotEmpty(records)) {

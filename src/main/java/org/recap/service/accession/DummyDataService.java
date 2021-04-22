@@ -2,13 +2,7 @@ package org.recap.service.accession;
 
 import org.recap.RecapCommonConstants;
 import org.recap.RecapConstants;
-import org.recap.model.jpa.BibliographicEntity;
-import org.recap.model.jpa.CollectionGroupEntity;
-import org.recap.model.jpa.HoldingsEntity;
-import org.recap.model.jpa.ImsLocationEntity;
-import org.recap.model.jpa.ItemEntity;
-import org.recap.model.jpa.ItemStatusEntity;
-import org.recap.model.jpa.OwningInstitutionIDSequence;
+import org.recap.model.jpa.*;
 import org.recap.repository.jpa.CollectionGroupDetailsRepository;
 import org.recap.repository.jpa.ItemStatusDetailsRepository;
 import org.recap.repository.jpa.OwningInstitutionIDSequenceRepository;
@@ -60,7 +54,7 @@ public class DummyDataService {
      * @param customerCode        the customer code
      * @return the bibliographic entity
      */
-    public BibliographicEntity createDummyDataAsIncomplete(Integer owningInstitutionId, String itemBarcode, String customerCode,ImsLocationEntity imsLocationEntity) {
+    public BibliographicEntity createDummyDataAsIncomplete(Integer owningInstitutionId, String itemBarcode, String customerCode, ImsLocationEntity imsLocationEntity) {
         BibliographicEntity bibliographicEntity = new BibliographicEntity();
         Date currentDate = new Date();
         try {

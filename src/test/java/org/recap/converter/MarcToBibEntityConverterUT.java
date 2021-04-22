@@ -9,17 +9,13 @@ import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
 import org.recap.RecapCommonConstants;
 import org.recap.RecapConstants;
-import org.recap.model.jpa.BibliographicEntity;
-import org.recap.model.jpa.CustomerCodeEntity;
-import org.recap.model.jpa.HoldingsEntity;
-import org.recap.model.jpa.InstitutionEntity;
-import org.recap.model.jpa.ItemEntity;
+import org.recap.model.jpa.*;
 import org.recap.model.marc.BibMarcRecord;
 import org.recap.model.marc.HoldingsMarcRecord;
 import org.recap.model.marc.ItemMarcRecord;
-import org.recap.repository.jpa.CustomerCodeDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
+import org.recap.repository.jpa.OwnerCodeDetailsRepository;
 import org.recap.util.CommonUtil;
 import org.recap.util.DBReportUtil;
 import org.recap.util.MarcUtil;
@@ -75,7 +71,7 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
     Record itemRecord;
 
     @Mock
-    CustomerCodeDetailsRepository customerCodeDetailsRepository;
+    OwnerCodeDetailsRepository ownerCodeDetailsRepository;
 
     @Mock
     ItemDetailsRepository itemDetailsRepository;
@@ -94,7 +90,7 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
         Mockito.when(bibMarcRecord.getHoldingsMarcRecords()).thenReturn(holdingsMarcRecords);
         List<ItemMarcRecord> itemMarcRecordList=new ArrayList<>();
         itemMarcRecordList.add(itemMarcRecord);
-        Mockito.when(customerCodeDetailsRepository.findByCustomerCode(Mockito.anyString())).thenReturn(getCustomerCodeEntity());
+        Mockito.when(ownerCodeDetailsRepository.findByOwnerCode(Mockito.anyString())).thenReturn(getOwnerCodeEntity());
         Mockito.when(holdingsMarcRecord.getItemMarcRecordList()).thenReturn(itemMarcRecordList);
         Mockito.when(itemMarcRecord.getItemRecord()).thenReturn(itemRecord);
         Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 'z')).thenReturn("PA");
@@ -193,16 +189,16 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
         return marcUtil.readMarcXml(marcXmlString);
     }
 
-    private CustomerCodeEntity getCustomerCodeEntity() {
-        CustomerCodeEntity customerCodeEntity=new CustomerCodeEntity();
-        customerCodeEntity.setId(1);
-        customerCodeEntity.setOwningInstitutionId(1);
-        customerCodeEntity.setDescription("Princeton");
-        customerCodeEntity.setCustomerCode("PUL");
+    private OwnerCodeEntity getOwnerCodeEntity() {
+        OwnerCodeEntity ownerCodeEntity=new OwnerCodeEntity();
+        ownerCodeEntity.setId(1);
+        ownerCodeEntity.setInstitutionId(1);
+        ownerCodeEntity.setDescription("Princeton");
+        ownerCodeEntity.setOwnerCode("PUL");
         InstitutionEntity institutionEntity=new InstitutionEntity();
         institutionEntity.setInstitutionCode("PUL");
-        customerCodeEntity.setInstitutionEntity(institutionEntity);
-        return customerCodeEntity;
+        ownerCodeEntity.setInstitutionEntity(institutionEntity);
+        return ownerCodeEntity;
     }
     private InstitutionEntity getInstitutionEntity() {
         InstitutionEntity institutionEntity = new InstitutionEntity();

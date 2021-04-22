@@ -12,7 +12,6 @@ import org.recap.model.accession.AccessionModelRequest;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
 import org.recap.model.accession.AccessionSummary;
-import org.recap.model.jpa.ImsLocationEntity;
 import org.recap.util.AccessionProcessService;
 import org.recap.util.AccessionUtil;
 import org.slf4j.Logger;
@@ -54,7 +53,7 @@ public class AccessionServiceUT extends BaseTestCaseUT {
         List<AccessionRequest> accessionRequestList=getAccessionRequests();
         AccessionSummary accessionSummary=new AccessionSummary("test");
         Mockito.when(accessionProcessService.removeDuplicateRecord(Mockito.anyList())).thenReturn(removeDuplicateRecord(accessionRequestList));
-        Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(accessionValidationResponse);
+        Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString(), Mockito.anyString())).thenReturn(accessionValidationResponse);
         Mockito.when(accessionValidationResponse.getOwningInstitution()).thenReturn("PUL");
         Mockito.when(accessionValidationResponse.isValid()).thenReturn(true);
         AccessionModelRequest accessionModelRequest=new AccessionModelRequest();
@@ -70,7 +69,7 @@ public class AccessionServiceUT extends BaseTestCaseUT {
         List<AccessionRequest> accessionRequestList=getAccessionRequests();
         AccessionSummary accessionSummary=new AccessionSummary("test");
         Mockito.when(accessionProcessService.removeDuplicateRecord(Mockito.anyList())).thenReturn(removeDuplicateRecord(accessionRequestList));
-        Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(accessionValidationResponse);
+        Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString(),Mockito.anyString())).thenReturn(accessionValidationResponse);
         Mockito.when(accessionValidationResponse.getOwningInstitution()).thenReturn("PUL");
         Mockito.when(accessionValidationResponse.isValid()).thenReturn(true).thenReturn(false);
         AccessionModelRequest accessionModelRequest=new AccessionModelRequest();
@@ -86,7 +85,7 @@ public class AccessionServiceUT extends BaseTestCaseUT {
         List<AccessionRequest> accessionRequestList=getAccessionRequests();
         AccessionSummary accessionSummary=new AccessionSummary("test");
         Mockito.when(accessionProcessService.removeDuplicateRecord(Mockito.anyList())).thenReturn(removeDuplicateRecord(accessionRequestList));
-        Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(accessionValidationResponse);
+        Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString(), Mockito.anyString())).thenReturn(accessionValidationResponse);
         AccessionModelRequest accessionModelRequest=new AccessionModelRequest();
         accessionModelRequest.setAccessionRequests(accessionRequestList);
         accessionModelRequest.setImsLocationCode("test");

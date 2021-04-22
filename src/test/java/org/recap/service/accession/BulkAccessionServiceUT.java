@@ -64,7 +64,7 @@ public class BulkAccessionServiceUT extends BaseTestCaseUT {
         AccessionSummary accessionSummary=new AccessionSummary("test");
         Mockito.when(accessionProcessService.removeDuplicateRecord(Mockito.anyList())).thenReturn(removeDuplicateRecord(accessionRequestList));
         ReflectionTestUtils.setField(bulkAccessionService,"batchAccessionThreadSize",20);
-        Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(accessionValidationResponse);
+        Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString(), Mockito.anyString())).thenReturn(accessionValidationResponse);
         Mockito.when(accessionValidationResponse.getOwningInstitution()).thenReturn("PUL");
         Mockito.when(accessionValidationResponse.getMessage()).thenReturn(RecapConstants.ITEM_ALREADY_ACCESSIONED);
         Mockito.when(accessionValidationResponse.isValid()).thenReturn(true);
@@ -84,7 +84,7 @@ public class BulkAccessionServiceUT extends BaseTestCaseUT {
         AccessionSummary accessionSummary=new AccessionSummary("test");
         Mockito.when(accessionProcessService.removeDuplicateRecord(Mockito.anyList())).thenReturn(removeDuplicateRecord(accessionRequestList));
         ReflectionTestUtils.setField(bulkAccessionService,"batchAccessionThreadSize",20);
-        Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(accessionValidationResponse);
+        Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString(),Mockito.anyString())).thenReturn(accessionValidationResponse);
         Mockito.when(accessionValidationResponse.getOwningInstitution()).thenReturn("PUL");
         Mockito.when(accessionValidationResponse.isValid()).thenReturn(true).thenReturn(false);
         Mockito.when(accessionValidationResponse.getMessage()).thenReturn(RecapConstants.ITEM_ALREADY_ACCESSIONED);
@@ -105,7 +105,7 @@ public class BulkAccessionServiceUT extends BaseTestCaseUT {
         AccessionSummary accessionSummary=new AccessionSummary("test");
         Mockito.when(accessionProcessService.removeDuplicateRecord(Mockito.anyList())).thenReturn(removeDuplicateRecord(accessionRequestList));
         ReflectionTestUtils.setField(bulkAccessionService,"batchAccessionThreadSize",20);
-        Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(accessionValidationResponse);
+        Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString(),Mockito.anyString())).thenReturn(accessionValidationResponse);
         Mockito.when(accessionValidationResponse.getOwningInstitution()).thenReturn("PUL");
         Mockito.when(accessionValidationResponse.getMessage()).thenReturn(RecapConstants.ITEM_ALREADY_ACCESSIONED);
         AccessionModelRequest accessionModelRequest=new AccessionModelRequest();

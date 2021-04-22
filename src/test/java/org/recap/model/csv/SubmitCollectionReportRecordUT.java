@@ -14,12 +14,12 @@ public class SubmitCollectionReportRecordUT extends BaseTestCaseUT {
     public void testSubmitCollectionReportRecord(){
         SubmitCollectionReportRecord submitCollectionReportRecord = new SubmitCollectionReportRecord();
         submitCollectionReportRecord.setOwningInstitution("PUL");
-        submitCollectionReportRecord.setCustomerCode("PB");
+        submitCollectionReportRecord.setOwnerCode("PB");
         submitCollectionReportRecord.setItemBarcode("33256845687546764");
         submitCollectionReportRecord.setMessage("Success");
 
         assertNotNull(submitCollectionReportRecord.getMessage());
-        assertNotNull(submitCollectionReportRecord.getCustomerCode());
+        assertNotNull(submitCollectionReportRecord.getOwnerCode());
         assertNotNull(submitCollectionReportRecord.getItemBarcode());
         assertNotNull(submitCollectionReportRecord.getOwningInstitution());
     }

@@ -212,6 +212,10 @@ public class SCSBToBibEntityConverter implements XmlToBibEntityConverterInterfac
         if (StringUtils.isNotBlank(customerCode)) {
             itemEntity.setCustomerCode(customerCode);
         }
+        String itemLibrary = marcUtil.getDataFieldValue(itemRecord, "876", 'k');
+        if (itemLibrary != null) {
+            itemEntity.setItemLibrary(itemLibrary);
+        }
         itemEntity.setCallNumber(holdingsCallNumber);
         itemEntity.setCallNumberType(holdingsCallNumberType != null ? String.valueOf(holdingsCallNumberType) : "");
         String copyNumber = marcUtil.getDataFieldValue(itemRecord, "876", 't');

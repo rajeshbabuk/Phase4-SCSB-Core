@@ -128,7 +128,7 @@ public class BulkAccessionService extends AccessionService{
         int requestedCount = accessionModelRequest.getAccessionRequests().size();
         int duplicateCount = requestedCount - trimmedAccessionRequests.size();
         if(duplicateCount>0){
-            saveReportForDuplicateBarcodes(accessionSummary, accessionModelRequest.getAccessionRequests());
+            saveReportForDuplicateBarcodes(accessionSummary, accessionModelRequest.getAccessionRequests(), accessionModelRequest.getImsLocationCode());
         }
         accessionSummary.addDuplicateRecords(duplicateCount);
 
@@ -148,7 +148,7 @@ public class BulkAccessionService extends AccessionService{
                     // validate empty barcode ,customer code and owning institution
                     String itemBarcode = accessionRequest.getItemBarcode();
                     String customerCode = accessionRequest.getCustomerCode();
-                    AccessionValidationService.AccessionValidationResponse accessionValidationResponse = accessionValidationService.validateBarcodeOrCustomerCode(itemBarcode, customerCode);
+                    AccessionValidationService.AccessionValidationResponse accessionValidationResponse = accessionValidationService.validateBarcodeOrCustomerCode(itemBarcode, customerCode, accessionModelRequest.getImsLocationCode());
 
                     String owningInstitution = accessionValidationResponse.getOwningInstitution();
 
@@ -190,7 +190,7 @@ public class BulkAccessionService extends AccessionService{
                     bibDataCallable.setAccessionRequest(accessionRequest);
                     bibDataCallable.setWriteToReport(true);
                     bibDataCallable.setImsLocationEntity(imsValidation.getImsLocationEntity());
-                    String owningInstitution = accessionUtil.getOwningInstitution(accessionRequest.getCustomerCode());
+                    String owningInstitution = accessionUtil.getOwningInstitution(accessionRequest.getCustomerCode(), accessionModelRequest.getImsLocationCode());
                     bibDataCallable.setOwningInstitution(owningInstitution);
                     Future submit = executorService.submit(bibDataCallable);
                     try {
@@ -238,7 +238,7 @@ public class BulkAccessionService extends AccessionService{
         return strJson;
     }
 
-    private void saveReportForDuplicateBarcodes(AccessionSummary accessionSummary, List<AccessionRequest> accessionRequestList) {
+    private void saveReportForDuplicateBarcodes(AccessionSummary accessionSummary, List<AccessionRequest> accessionRequestList, String imsLocationCode) {
         accessionRequestList.stream()
                 .collect(Collectors.groupingBy(AccessionRequest::getItemBarcode))
                 .entrySet()
@@ -247,7 +247,7 @@ public class BulkAccessionService extends AccessionService{
                 .flatMap(e -> e.getValue().stream())
                 .collect(Collectors.toSet())
                 .forEach(accessionRequest -> {
-                    String owningInstitution = accessionUtil.getOwningInstitution(accessionRequest.getCustomerCode());
+                    String owningInstitution = accessionUtil.getOwningInstitution(accessionRequest.getCustomerCode(),imsLocationCode);
                     List<ReportDataEntity> reportDataEntityList = accessionUtil.createReportDataEntityList(accessionRequest, RecapConstants.DUPLICATE_BARCODE_ENTRY);
                     accessionUtil.saveReportEntity(owningInstitution, reportDataEntityList);
                 });

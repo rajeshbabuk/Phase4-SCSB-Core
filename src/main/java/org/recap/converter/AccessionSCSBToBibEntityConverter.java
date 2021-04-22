@@ -17,13 +17,10 @@ import org.recap.model.jpa.BibliographicEntity;
 import org.recap.model.jpa.HoldingsEntity;
 import org.recap.model.jpa.ImsLocationEntity;
 import org.recap.model.jpa.ItemEntity;
-import org.recap.repository.jpa.BibliographicDetailsRepository;
-import org.recap.util.CommonUtil;
 import org.recap.util.DBReportUtil;
 import org.recap.util.MarcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -317,6 +314,11 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
 
             itemEntity.setImsLocationEntity(imsLocationEntity);
             itemEntity.setImsLocationId(imsLocationEntity.getId());
+
+            String itemLibrary = getMarcUtil().getDataFieldValueForRecordType(itemRecordType, "876", null, null, "k");
+            if (StringUtils.isNotBlank(itemLibrary) ) {
+                itemEntity.setItemLibrary(itemLibrary);
+            }
 
             String useRestrictions = getMarcUtil().getDataFieldValueForRecordType(itemRecordType, "876", null, null, "h");
             if (StringUtils.isNotBlank(useRestrictions) && ("In Library Use".equalsIgnoreCase(useRestrictions) || "Supervised Use".equalsIgnoreCase(useRestrictions))) {

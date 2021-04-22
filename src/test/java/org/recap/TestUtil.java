@@ -14,7 +14,7 @@ public class TestUtil {
     private TestUtil() {}
 
 
-    public static  ImsLocationEntity getImsLocationEntity (int id,String imsLocationCode,String imsLocationName) {
+    public static ImsLocationEntity getImsLocationEntity (int id, String imsLocationCode, String imsLocationName) {
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         imsLocationEntity.setId(id);
         imsLocationEntity.setImsLocationCode(imsLocationCode);

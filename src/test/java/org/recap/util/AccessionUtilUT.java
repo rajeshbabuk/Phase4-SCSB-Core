@@ -15,15 +15,8 @@ import org.recap.converter.AccessionXmlToBibEntityConverterInterface;
 import org.recap.converter.XmlToBibEntityConverterFactory;
 import org.recap.model.ILSConfigProperties;
 import org.recap.model.accession.AccessionRequest;
-import org.recap.model.jpa.BibliographicEntity;
-import org.recap.model.jpa.CustomerCodeEntity;
-import org.recap.model.jpa.HoldingsEntity;
-import org.recap.model.jpa.ImsLocationEntity;
-import org.recap.model.jpa.InstitutionEntity;
-import org.recap.model.jpa.ItemEntity;
-import org.recap.model.jpa.ReportDataEntity;
+import org.recap.model.jpa.*;
 import org.recap.repository.jpa.BibliographicDetailsRepository;
-import org.recap.repository.jpa.CustomerCodeDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.repository.jpa.ItemChangeLogDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
@@ -100,7 +93,7 @@ public class AccessionUtilUT extends BaseTestCaseUT{
     ProducerTemplate producerTemplate;
 
     @Mock
-    CustomerCodeDetailsRepository customerCodeDetailsRepository;
+    OwnerCodeDetailsRepository customerCodeDetailsRepository;
 
     @Mock
     PropertyUtil propertyUtil;
@@ -158,14 +151,14 @@ public class AccessionUtilUT extends BaseTestCaseUT{
 
     @Test
     public void getOwningInstitution() throws Exception {
-        Mockito.when(customerCodeDetailsRepository.findByCustomerCode(Mockito.anyString())).thenReturn(getCustomerCodeEntity());
+        Mockito.when(customerCodeDetailsRepository.findByOwnerCode(Mockito.anyString())).thenReturn(getOwnerCodeEntity());
         String owningInstitution=accessionUtil.getOwningInstitution("PA");
         assertEquals("PUL",owningInstitution);
     }
 
     @Test
     public void getOwningInstitutionException() throws Exception {
-        Mockito.when(customerCodeDetailsRepository.findByCustomerCode(Mockito.anyString())).thenThrow(NullPointerException.class);
+        Mockito.when(customerCodeDetailsRepository.findByOwnerCode(Mockito.anyString())).thenThrow(NullPointerException.class);
         String owningInstitution=accessionUtil.getOwningInstitution("PA");
         assertNull(owningInstitution);
     }
@@ -178,39 +171,39 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         assertNotNull(reportDataEntityList);
     }
 
-    private CustomerCodeEntity getCustomerCodeEntity() {
-        CustomerCodeEntity customerCodeEntity=new CustomerCodeEntity();
-        customerCodeEntity.setId(1);
-        customerCodeEntity.setOwningInstitutionId(1);
-        customerCodeEntity.setDescription("Princeton");
-        customerCodeEntity.setCustomerCode("PUL");
-        customerCodeEntity.hashCode();
-        new CustomerCodeEntity().hashCode();
-        customerCodeEntity.compareTo(new CustomerCodeEntity());
-        customerCodeEntity.compareTo(customerCodeEntity);
-        customerCodeEntity.equals(new CustomerCodeEntity());
-        customerCodeEntity.equals(customerCodeEntity);
-        CustomerCodeEntity customerCodeEntity1=new CustomerCodeEntity();
-        customerCodeEntity1.setId(1);
-        customerCodeEntity1.setCustomerCode("CU");
-        customerCodeEntity.equals(customerCodeEntity1);
-        CustomerCodeEntity customerCodeEntity2=new CustomerCodeEntity();
-        customerCodeEntity2.setId(1);
-        customerCodeEntity2.setCustomerCode("PUL");
-        customerCodeEntity2.setDescription("Columbia");
-        customerCodeEntity.equals(customerCodeEntity2);
-        CustomerCodeEntity customerCodeEntity3=new CustomerCodeEntity();
-        customerCodeEntity3.setId(1);
-        customerCodeEntity3.setCustomerCode("PUL");
-        customerCodeEntity3.setDescription("Princeton");
-        customerCodeEntity.setOwningInstitutionId(8);
-        customerCodeEntity.equals(customerCodeEntity3);
-        boolean code= customerCodeEntity.equals(null);
-        customerCodeEntity.equals(CustomerCodeEntity.class);
+    private OwnerCodeEntity getOwnerCodeEntity() {
+        OwnerCodeEntity ownerCodeEntity=new OwnerCodeEntity();
+        ownerCodeEntity.setId(1);
+        ownerCodeEntity.setOwningInstitutionId(1);
+        ownerCodeEntity.setDescription("Princeton");
+        ownerCodeEntity.setOwnerCode("PUL");
+        ownerCodeEntity.hashCode();
+        new OwnerCodeEntity().hashCode();
+        ownerCodeEntity.compareTo(new OwnerCodeEntity());
+        ownerCodeEntity.compareTo(ownerCodeEntity);
+        ownerCodeEntity.equals(new OwnerCodeEntity());
+        ownerCodeEntity.equals(ownerCodeEntity);
+        OwnerCodeEntity ownerCodeEntity1=new OwnerCodeEntity();
+        ownerCodeEntity1.setId(1);
+        ownerCodeEntity1.setOwnerCode("CU");
+        ownerCodeEntity.equals(ownerCodeEntity1);
+        OwnerCodeEntity ownerCodeEntity2=new OwnerCodeEntity();
+        ownerCodeEntity2.setId(1);
+        ownerCodeEntity2.setOwnerCode("PUL");
+        ownerCodeEntity2.setDescription("Columbia");
+        ownerCodeEntity.equals(ownerCodeEntity2);
+        OwnerCodeEntity ownerCodeEntity3=new OwnerCodeEntity();
+        ownerCodeEntity3.setId(1);
+        ownerCodeEntity3.setOwnerCode("PUL");
+        ownerCodeEntity3.setDescription("Princeton");
+        ownerCodeEntity.setOwningInstitutionId(8);
+        ownerCodeEntity.equals(ownerCodeEntity3);
+        boolean code= ownerCodeEntity.equals(null);
+        ownerCodeEntity.equals(OwnerCodeEntity.class);
         assertFalse(code);
         InstitutionEntity institutionEntity=TestUtil.getInstitutionEntity(1,"PUL","princeton");
-        customerCodeEntity.setInstitutionEntity(institutionEntity);
-        return customerCodeEntity;
+        ownerCodeEntity.setInstitutionEntity(institutionEntity);
+        return ownerCodeEntity;
     }
 
     @Test
@@ -244,7 +237,7 @@ public class AccessionUtilUT extends BaseTestCaseUT{
         ReportDataEntity reportDataEntity=new ReportDataEntity();
         reportDataEntityList.add(reportDataEntity);
         AccessionRequest accessionRequest=new AccessionRequest();
-        accessionRequest.setCustomerCode("PA");
+        accessionRequest.setOwnerCode("PA");
         accessionRequest.setItemBarcode("12345");
         List<ItemEntity> itemEntityList=new ArrayList<>();
         ItemEntity itemEntity=new ItemEntity();
