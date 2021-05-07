@@ -11,8 +11,8 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.camel.submitcollection.processor.SubmitCollectionProcessor;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.util.PropertyUtil;
@@ -69,8 +69,8 @@ public class SubmitCollectionPollingS3RouteBuilder {
      * Predicate to identify is the input file is gz
      */
     Predicate gzipFile = exchange -> {
-        if (exchange.getIn().getHeader(RecapConstants.CAMEL_FILE_NAME_ONLY) != null) {
-            String fileName = exchange.getIn().getHeader(RecapConstants.CAMEL_FILE_NAME_ONLY).toString();
+        if (exchange.getIn().getHeader(ScsbConstants.CAMEL_FILE_NAME_ONLY) != null) {
+            String fileName = exchange.getIn().getHeader(ScsbConstants.CAMEL_FILE_NAME_ONLY).toString();
             return StringUtils.equalsIgnoreCase("gz", FilenameUtils.getExtension(fileName));
         } else {
             return false;
@@ -83,11 +83,11 @@ public class SubmitCollectionPollingS3RouteBuilder {
             camelContext.addRoutes(new RouteBuilder() {
                 @Override
                 public void configure() throws Exception {
-                    from(RecapConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_FROM)
-                            .routeId(RecapConstants.SUBMIT_COLLECTION_COMPLETED_ROUTE)
+                    from(ScsbConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_FROM)
+                            .routeId(ScsbConstants.SUBMIT_COLLECTION_COMPLETED_ROUTE)
                             .log("Completed Submit Collection Process")
                             .process(exchange -> exchange.getIn().setBody("Submit collection process completed sucessfully in sequential order"))
-                            .to(RecapConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_TO)
+                            .to(ScsbConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_TO)
                             .end();
                 }
             });
@@ -95,9 +95,9 @@ public class SubmitCollectionPollingS3RouteBuilder {
             camelContext.addRoutes(new RouteBuilder() {
                 @Override
                 public void configure() throws Exception {
-                    from(RecapCommonConstants.DIRECT_ROUTE_FOR_EXCEPTION)
+                    from(ScsbCommonConstants.DIRECT_ROUTE_FOR_EXCEPTION)
                             .log("Calling direct route for exception")
-                            .bean(applicationContext.getBean(SubmitCollectionProcessor.class), RecapConstants.SUBMIT_COLLECTION_CAUGHT_EXCEPTION_METHOD);
+                            .bean(applicationContext.getBean(SubmitCollectionProcessor.class), ScsbConstants.SUBMIT_COLLECTION_CAUGHT_EXCEPTION_METHOD);
 
                 }
             });
@@ -107,7 +107,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
     }
 
     public void createRoutesForSubmitCollection() {
-        List<String> protectedAndNotProtected = Arrays.asList(RecapConstants.PROTECTED, RecapConstants.NOT_PROTECTED);
+        List<String> protectedAndNotProtected = Arrays.asList(ScsbConstants.PROTECTED, ScsbConstants.NOT_PROTECTED);
         String nextInstitution = null;
         List<String> allInstitutionCodeExceptHTC = institutionDetailsRepository.findAllInstitutionCodeExceptHTC();
         for (int i = 0; i < allInstitutionCodeExceptHTC.size(); i++) {
@@ -115,22 +115,22 @@ public class SubmitCollectionPollingS3RouteBuilder {
             nextInstitution = (i < allInstitutionCodeExceptHTC.size() - 1) ? allInstitutionCodeExceptHTC.get(i + 1) : null;
             for (String cdgType : protectedAndNotProtected) {
                 String nextRouteId = getNextRouteId(currentInstitution, nextInstitution, cdgType);
-                if (RecapConstants.PROTECTED.equalsIgnoreCase(cdgType))
-                    addRoutesToCamelContext(currentInstitution, cdgType, currentInstitution + RecapConstants.CGD_PROTECTED_ROUTE_ID, nextRouteId, true);
+                if (ScsbConstants.PROTECTED.equalsIgnoreCase(cdgType))
+                    addRoutesToCamelContext(currentInstitution, cdgType, currentInstitution + ScsbConstants.CGD_PROTECTED_ROUTE_ID, nextRouteId, true);
                 else {
-                    addRoutesToCamelContext(currentInstitution, cdgType, currentInstitution + RecapConstants.CGD_NOT_PROTECTED_ROUTE_ID, nextRouteId, false);
+                    addRoutesToCamelContext(currentInstitution, cdgType, currentInstitution + ScsbConstants.CGD_NOT_PROTECTED_ROUTE_ID, nextRouteId, false);
                 }
             }
         }
     }
 
     private String getNextRouteId(String currentInstitution, String nextInstitution, String cdgType) {
-        if (RecapConstants.PROTECTED.equalsIgnoreCase(cdgType)) {
-            return currentInstitution + RecapConstants.CGD_NOT_PROTECTED_ROUTE_ID;
+        if (ScsbConstants.PROTECTED.equalsIgnoreCase(cdgType)) {
+            return currentInstitution + ScsbConstants.CGD_NOT_PROTECTED_ROUTE_ID;
         } else if (StringUtils.isNotBlank(nextInstitution)) {
-            return nextInstitution + RecapConstants.CGD_PROTECTED_ROUTE_ID;
+            return nextInstitution + ScsbConstants.CGD_PROTECTED_ROUTE_ID;
         } else {
-            return RecapConstants.SUBMIT_COLLECTION_COMPLETED_ROUTE;
+            return ScsbConstants.SUBMIT_COLLECTION_COMPLETED_ROUTE;
         }
     }
 
@@ -151,7 +151,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
                 public void configure() throws Exception {
                     onCompletion()
                             .choice()
-                            .when(exchangeProperty(RecapCommonConstants.CAMEL_BATCH_COMPLETE))
+                            .when(exchangeProperty(ScsbCommonConstants.CAMEL_BATCH_COMPLETE))
                             .process(exchange -> clearDirectory(currentInstitution, cgdType))
                             .log("OnCompletion executing for :" + currentInstitution + cgdType)
                             .to("controlbus:route?routeId=" + currentInstitutionRouteId + "&action=stop&async=true")
@@ -160,11 +160,11 @@ public class SubmitCollectionPollingS3RouteBuilder {
                     onException(Exception.class)
                             .log("Exception caught during submit collection process - " + currentInstitution + cgdType)
                             .handled(true)
-                            .setHeader(RecapCommonConstants.INSTITUTION, constant(currentInstitution))
-                            .setHeader(RecapCommonConstants.IS_CGD_PROTECTED, constant(isCGDProtected))
-                            .setHeader(RecapConstants.CGG_TYPE, constant(cgdType))
-                            .to(RecapCommonConstants.DIRECT_ROUTE_FOR_EXCEPTION);
-                    from("file://"+ submitCollectionLocalWorkingDir + currentInstitution + RecapCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + "?sendEmptyMessageWhenIdle=true&delete=true")
+                            .setHeader(ScsbCommonConstants.INSTITUTION, constant(currentInstitution))
+                            .setHeader(ScsbCommonConstants.IS_CGD_PROTECTED, constant(isCGDProtected))
+                            .setHeader(ScsbConstants.CGG_TYPE, constant(cgdType))
+                            .to(ScsbCommonConstants.DIRECT_ROUTE_FOR_EXCEPTION);
+                    from("file://"+ submitCollectionLocalWorkingDir + currentInstitution + ScsbCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + "?sendEmptyMessageWhenIdle=true&delete=true")
                             .routeId(currentInstitutionRouteId)
                             .noAutoStartup()
                             .choice()
@@ -172,20 +172,20 @@ public class SubmitCollectionPollingS3RouteBuilder {
                             .unmarshal()
                             .gzipDeflater()
                             .log(currentInstitution + "Submit Collection S3 Route Unzip Complete")
-                            .bean(applicationContext.getBean(SubmitCollectionProcessor.class, currentInstitution, isCGDProtected, cgdType), RecapConstants.PROCESS_INPUT)
+                            .bean(applicationContext.getBean(SubmitCollectionProcessor.class, currentInstitution, isCGDProtected, cgdType), ScsbConstants.PROCESS_INPUT)
                             .when(body().isNull())//This condition is satisfied when there are no files in the S3 directory(parameter-sendEmptyMessageWhenIdle=true)
-                            .bean(applicationContext.getBean(SubmitCollectionProcessor.class, currentInstitution, isCGDProtected, cgdType), RecapConstants.SEND_EMAIL_FOR_EMPTY_DIRECTORY)
+                            .bean(applicationContext.getBean(SubmitCollectionProcessor.class, currentInstitution, isCGDProtected, cgdType), ScsbConstants.SEND_EMAIL_FOR_EMPTY_DIRECTORY)
                             .log(currentInstitution + "-" + cgdType + " Directory is empty")
                             .otherwise()
                             .log("submit collection for " + currentInstitution + "-" + cgdType + " started")
-                            .bean(applicationContext.getBean(SubmitCollectionProcessor.class, currentInstitution, isCGDProtected, cgdType), RecapConstants.PROCESS_INPUT)
+                            .bean(applicationContext.getBean(SubmitCollectionProcessor.class, currentInstitution, isCGDProtected, cgdType), ScsbConstants.PROCESS_INPUT)
                             .log(currentInstitution + " Submit Collection " + cgdType + " S3 Route Record Processing completed")
                             .end();
                 }
             });
 
         } catch (Exception e) {
-            logger.error(RecapCommonConstants.LOG_ERROR, e.getMessage());
+            logger.error(ScsbCommonConstants.LOG_ERROR, e.getMessage());
         }
     }
 
@@ -196,7 +196,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
             S3ObjectInputStream inputStream = s3Object.getObjectContent();
             finalFileName = fileName.substring(fileName.lastIndexOf('/') + 1);
             if (inputStream != null) {
-                IOUtils.copy(inputStream, new FileOutputStream(new File(submitCollectionLocalWorkingDir + currentInstitution + RecapCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + RecapCommonConstants.PATH_SEPARATOR + finalFileName)));
+                IOUtils.copy(inputStream, new FileOutputStream(new File(submitCollectionLocalWorkingDir + currentInstitution + ScsbCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + ScsbCommonConstants.PATH_SEPARATOR + finalFileName)));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -208,7 +208,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
         startThread = new Thread(() -> {
             try {
                 if (nextInstitutionRouteId.contains("Complete")) {
-                    producer.sendBody(RecapConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_FROM, exchange);
+                    producer.sendBody(ScsbConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_FROM, exchange);
                 } else {
                     camelContext.getRouteController().startRoute(nextInstitutionRouteId);
                 }
@@ -222,16 +222,16 @@ public class SubmitCollectionPollingS3RouteBuilder {
 
     public void removeRoutesForSubmitCollection() throws Exception {
         logger.info(" Total routes before removing : {}", camelContext.getRoutesSize());
-        List<String> protectedAndNotProtected = Arrays.asList(RecapConstants.PROTECTED, RecapConstants.NOT_PROTECTED);
+        List<String> protectedAndNotProtected = Arrays.asList(ScsbConstants.PROTECTED, ScsbConstants.NOT_PROTECTED);
         List<String> allInstitutionCodeExceptHTC = institutionDetailsRepository.findAllInstitutionCodeExceptHTC();
         for (String institution : allInstitutionCodeExceptHTC) {
             for (String cdgType : protectedAndNotProtected) {
-                if (RecapConstants.PROTECTED.equalsIgnoreCase(cdgType)) {
-                    camelContext.getRouteController().stopRoute(institution + RecapConstants.CGD_PROTECTED_ROUTE_ID);
-                    camelContext.removeRoute(institution + RecapConstants.CGD_PROTECTED_ROUTE_ID);
+                if (ScsbConstants.PROTECTED.equalsIgnoreCase(cdgType)) {
+                    camelContext.getRouteController().stopRoute(institution + ScsbConstants.CGD_PROTECTED_ROUTE_ID);
+                    camelContext.removeRoute(institution + ScsbConstants.CGD_PROTECTED_ROUTE_ID);
                 } else {
-                    camelContext.getRouteController().stopRoute(institution + RecapConstants.CGD_NOT_PROTECTED_ROUTE_ID);
-                    camelContext.removeRoute(institution + RecapConstants.CGD_NOT_PROTECTED_ROUTE_ID);
+                    camelContext.getRouteController().stopRoute(institution + ScsbConstants.CGD_NOT_PROTECTED_ROUTE_ID);
+                    camelContext.removeRoute(institution + ScsbConstants.CGD_NOT_PROTECTED_ROUTE_ID);
                 }
             }
         }

@@ -2,7 +2,7 @@ package org.recap.camel.accessionreconciliation;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 import org.recap.util.PropertyUtil;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ public class AccessionReconciliationEmailService {
      */
     public void processInput(Exchange exchange) {
         logger.info("accession email started for {} - {}", imsLocationCode, institutionCode);
-        producerTemplate.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoad(exchange), RecapConstants.EMAIL_BODY_FOR, RecapConstants.REQUEST_ACCESSION_RECONCILIATION_MAIL_QUEUE);
+        producerTemplate.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoad(exchange), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.REQUEST_ACCESSION_RECONCILIATION_MAIL_QUEUE);
     }
 
     /**
@@ -56,7 +56,7 @@ public class AccessionReconciliationEmailService {
      */
     public EmailPayLoad getEmailPayLoad(Exchange exchange) {
         EmailPayLoad emailPayLoad = new EmailPayLoad();
-        String fileNameWithPath = (String) exchange.getIn().getHeader(RecapConstants.CAMEL_AWS_KEY);
+        String fileNameWithPath = (String) exchange.getIn().getHeader(ScsbConstants.CAMEL_AWS_KEY);
         emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.accession.reconciliation.to"));
         emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.accession.reconciliation.cc"));
         logger.info("Accession Reconciliation email sent to : {} and cc : {} ", emailPayLoad.getTo(), emailPayLoad.getCc());

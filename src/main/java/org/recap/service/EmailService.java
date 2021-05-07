@@ -1,7 +1,7 @@
 package org.recap.service;
 
 import org.apache.camel.ProducerTemplate;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +33,7 @@ public class EmailService {
         emailPayLoad.setMessageDisplay(messageDisplay);
         emailPayLoad.setPatronBarcode(patronBarcode);
         emailPayLoad.setSubject(subject);
-        producer.sendBodyAndHeader(RecapConstants.EMAIL_Q, emailPayLoad, RecapConstants.EMAIL_BODY_FOR, RecapConstants.DELETED_MAIL_QUEUE);
+        producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, emailPayLoad, ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.DELETED_MAIL_QUEUE);
     }
 
     /**
@@ -41,7 +41,7 @@ public class EmailService {
      * @return
      */
     private String emailIdTo(String institution) {
-        if(institution.equalsIgnoreCase(RecapConstants.DELETED_MAIL_TO)){
+        if(institution.equalsIgnoreCase(ScsbConstants.DELETED_MAIL_TO)){
             return deletedRecordsMailTo;
         }
         return null;

@@ -1,6 +1,6 @@
 package org.recap.service.accession;
 
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.ILSConfigProperties;
 import org.recap.service.authorization.OauthTokenApiService;
 import org.recap.util.PropertyUtil;
@@ -60,7 +60,7 @@ public class OAuthRestCallForBibdata extends BibDataAbstract{
             bibDataResponse = responseEntity.getBody();
 
         } catch (Exception e) {
-            response = String.format("[%s : %s] %s. (%s : %s)", itemBarcode, customerCode, RecapConstants.ITEM_BARCODE_NOT_FOUND, url, e.getMessage());
+            response = String.format("[%s : %s] %s. (%s : %s)", itemBarcode, customerCode, ScsbConstants.ITEM_BARCODE_NOT_FOUND, url, e.getMessage());
             logger.error(response);
             throw new RuntimeException(response);
         }

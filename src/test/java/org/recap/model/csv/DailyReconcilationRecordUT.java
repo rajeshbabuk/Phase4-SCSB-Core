@@ -18,7 +18,7 @@ public class DailyReconcilationRecordUT extends BaseTestCaseUT {
         DailyReconcilationRecord dailyReconcilationRecord = new DailyReconcilationRecord();
         dailyReconcilationRecord.setRequestId("1");
         dailyReconcilationRecord.setBarcode("33245555767876");
-        dailyReconcilationRecord.setOwnerCode("AD");
+        dailyReconcilationRecord.setCustomerCode("AD");
         dailyReconcilationRecord.setStopCode("AD");
         dailyReconcilationRecord.setPatronId("000000");
         dailyReconcilationRecord.setCreateDate(new Date().toString());
@@ -33,7 +33,7 @@ public class DailyReconcilationRecordUT extends BaseTestCaseUT {
 
         assertNotNull(dailyReconcilationRecord.getRequestId());
         assertNotNull(dailyReconcilationRecord.getBarcode());
-        assertNotNull(dailyReconcilationRecord.getOwnerCode());
+        assertNotNull(dailyReconcilationRecord.getCustomerCode());
         assertNotNull(dailyReconcilationRecord.getStopCode());
         assertNotNull(dailyReconcilationRecord.getPatronId());
         assertNotNull(dailyReconcilationRecord.getCreateDate());

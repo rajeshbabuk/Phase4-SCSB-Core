@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -64,7 +64,7 @@ public class ItemEntity extends ItemAbstractEntity {
      * @return the boolean
      */
     public boolean isComplete() {
-        return (StringUtils.isNotBlank(this.getCatalogingStatus()) && RecapCommonConstants.COMPLETE_STATUS.equals(this.getCatalogingStatus()));
+        return (StringUtils.isNotBlank(this.getCatalogingStatus()) && ScsbCommonConstants.COMPLETE_STATUS.equals(this.getCatalogingStatus()));
     }
 }
 

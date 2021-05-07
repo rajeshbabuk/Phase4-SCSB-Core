@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionModelRequest;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
@@ -66,7 +66,7 @@ public class BulkAccessionServiceUT extends BaseTestCaseUT {
         ReflectionTestUtils.setField(bulkAccessionService,"batchAccessionThreadSize",20);
         Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString(), Mockito.anyString())).thenReturn(accessionValidationResponse);
         Mockito.when(accessionValidationResponse.getOwningInstitution()).thenReturn("PUL");
-        Mockito.when(accessionValidationResponse.getMessage()).thenReturn(RecapConstants.ITEM_ALREADY_ACCESSIONED);
+        Mockito.when(accessionValidationResponse.getMessage()).thenReturn(ScsbConstants.ITEM_ALREADY_ACCESSIONED);
         Mockito.when(accessionValidationResponse.isValid()).thenReturn(true);
         BibDataCallable bibDataCallable = Mockito.mock(BibDataCallable.class);
         Mockito.when(applicationContext.getBean(BibDataCallable.class)).thenReturn(bibDataCallable);
@@ -87,7 +87,7 @@ public class BulkAccessionServiceUT extends BaseTestCaseUT {
         Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString(),Mockito.anyString())).thenReturn(accessionValidationResponse);
         Mockito.when(accessionValidationResponse.getOwningInstitution()).thenReturn("PUL");
         Mockito.when(accessionValidationResponse.isValid()).thenReturn(true).thenReturn(false);
-        Mockito.when(accessionValidationResponse.getMessage()).thenReturn(RecapConstants.ITEM_ALREADY_ACCESSIONED);
+        Mockito.when(accessionValidationResponse.getMessage()).thenReturn(ScsbConstants.ITEM_ALREADY_ACCESSIONED);
         AccessionModelRequest accessionModelRequest=new AccessionModelRequest();
         accessionModelRequest.setAccessionRequests(accessionRequestList);
         accessionModelRequest.setImsLocationCode("test");
@@ -107,7 +107,7 @@ public class BulkAccessionServiceUT extends BaseTestCaseUT {
         ReflectionTestUtils.setField(bulkAccessionService,"batchAccessionThreadSize",20);
         Mockito.when(accessionValidationService.validateBarcodeOrCustomerCode(Mockito.anyString(),Mockito.anyString(),Mockito.anyString())).thenReturn(accessionValidationResponse);
         Mockito.when(accessionValidationResponse.getOwningInstitution()).thenReturn("PUL");
-        Mockito.when(accessionValidationResponse.getMessage()).thenReturn(RecapConstants.ITEM_ALREADY_ACCESSIONED);
+        Mockito.when(accessionValidationResponse.getMessage()).thenReturn(ScsbConstants.ITEM_ALREADY_ACCESSIONED);
         AccessionModelRequest accessionModelRequest=new AccessionModelRequest();
         accessionModelRequest.setAccessionRequests(accessionRequestList);
         accessionModelRequest.setImsLocationCode("test");
@@ -122,7 +122,7 @@ public class BulkAccessionServiceUT extends BaseTestCaseUT {
         AccessionModelRequest accessionModelRequest=new AccessionModelRequest();
         accessionModelRequest.setAccessionRequests(getAccessionRequests());
         String status=bulkAccessionService.saveRequest(accessionModelRequest);
-        assertEquals(RecapConstants.ACCESSION_SAVE_SUCCESS_STATUS,status);
+        assertEquals(ScsbConstants.ACCESSION_SAVE_SUCCESS_STATUS,status);
     }
 
     @Test
@@ -131,13 +131,13 @@ public class BulkAccessionServiceUT extends BaseTestCaseUT {
         accessionModelRequest.setAccessionRequests(getAccessionRequests());
         Mockito.when(accessionDetailsRepository.save(Mockito.any())).thenThrow(NullPointerException.class);
         String status=bulkAccessionService.saveRequest(accessionModelRequest);
-        assertTrue(status.contains(RecapConstants.ACCESSION_SAVE_FAILURE_STATUS));
+        assertTrue(status.contains(ScsbConstants.ACCESSION_SAVE_FAILURE_STATUS));
     }
 
     @Test
     public void getAccessionRequestException() {
         Mockito.when(accessionDetailsRepository.findByAccessionStatus(Mockito.anyString())).thenReturn(getAccessionEntities("pending"));
-        List<AccessionEntity> accessionEntities=bulkAccessionService.getAccessionEntities(RecapConstants.PENDING);
+        List<AccessionEntity> accessionEntities=bulkAccessionService.getAccessionEntities(ScsbConstants.PENDING);
         List<AccessionModelRequest> accessionModelRequestList=new ArrayList<>();
         List<AccessionRequest> accessionEntity1=bulkAccessionService.getAccessionRequest(accessionModelRequestList);
         assertNotNull(accessionEntity1);
@@ -147,7 +147,7 @@ public class BulkAccessionServiceUT extends BaseTestCaseUT {
     @Test
     public void getAccessionRequest() {
         Mockito.when(accessionDetailsRepository.findByAccessionStatus(Mockito.anyString())).thenReturn(getAccessionEntities("pending"));
-        bulkAccessionService.updateStatusForAccessionEntities(getAccessionEntities("[{\"customerCode\":\"PA\",\"itemBarcode\":\"123\"}]"),RecapConstants.PENDING);
+        bulkAccessionService.updateStatusForAccessionEntities(getAccessionEntities("[{\"customerCode\":\"PA\",\"itemBarcode\":\"123\"}]"), ScsbConstants.PENDING);
         List<AccessionModelRequest> accessionModelRequestList=new ArrayList<>();
         List<AccessionRequest> accessionEntity1=bulkAccessionService.getAccessionRequest(accessionModelRequestList);
         assertNotNull(accessionEntity1);
@@ -157,7 +157,7 @@ public class BulkAccessionServiceUT extends BaseTestCaseUT {
         List<AccessionEntity> accessionEntityList=new ArrayList<>();
         AccessionEntity accessionEntity=new AccessionEntity();
         accessionEntity.setAccessionRequest(request);
-        accessionEntity.setAccessionStatus(RecapConstants.PENDING);
+        accessionEntity.setAccessionStatus(ScsbConstants.PENDING);
         accessionEntity.setCreatedDate(new Date());
         accessionEntity.setId(1);
         accessionEntityList.add(accessionEntity);

@@ -40,12 +40,7 @@ repositories {
 
 
 dependencies {
-	/*implementation('org.recap:phase4-scsb-common:1.0') {
-		version  {
-			branch = 'development'
-		}
-	}*/
-	compile fileTree(dir: '/data/commonjar', include: '*1.5.jar')
+	compile fileTree(dir: '/data/commonjar', include: '*1.6.jar')
 	implementation 'org.projectlombok:lombok:1.18.12'
 	annotationProcessor 'org.projectlombok:lombok:1.18.12'
 	testImplementation 'org.projectlombok:lombok:1.18.12'

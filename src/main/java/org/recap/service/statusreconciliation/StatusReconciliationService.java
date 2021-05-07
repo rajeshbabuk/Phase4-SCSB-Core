@@ -3,14 +3,12 @@ package org.recap.service.statusreconciliation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.ItemRefileRequest;
 import org.recap.model.csv.StatusReconciliationCSVRecord;
 import org.recap.model.csv.StatusReconciliationErrorCSVRecord;
-import org.recap.model.gfa.GFAItemStatusCheckResponse;
 import org.recap.model.gfa.ScsbLasItemStatusCheckModel;
-import org.recap.model.gfa.Ttitem;
 import org.recap.model.jpa.*;
 import org.recap.repository.jpa.*;
 import org.recap.service.SolrDocIndexService;
@@ -73,7 +71,7 @@ public class StatusReconciliationService {
         List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList = new ArrayList<>();
         List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
         for (List<ItemEntity> itemEntities : itemEntityChunkList) {
-            List<String> lasNotAvailableStatusList = RecapConstants.getGFAStatusNotAvailableList();
+            List<String> lasNotAvailableStatusList = ScsbConstants.getGFAStatusNotAvailableList();
             List<ScsbLasItemStatusCheckModel> gfaItemStatusCheckResponseItems = getGFAItemStatusCheckResponse(itemEntities);
             if (CollectionUtils.isNotEmpty(gfaItemStatusCheckResponseItems)) {
                 String lasStatus = null;
@@ -100,7 +98,7 @@ public class StatusReconciliationService {
                         statusReconciliationErrorCSVRecord.setBarcode(itemEntity.getBarcode());
                         statusReconciliationErrorCSVRecord.setInstitution(itemEntity.getInstitutionEntity().getInstitutionCode());
                         statusReconciliationErrorCSVRecord.setImsLocation(itemEntity.getImsLocationEntity().getImsLocationCode());
-                        statusReconciliationErrorCSVRecord.setReasonForFailure(RecapConstants.BARCODE_NOT_FOUND_IN_LAS);
+                        statusReconciliationErrorCSVRecord.setReasonForFailure(ScsbConstants.BARCODE_NOT_FOUND_IN_LAS);
                         statusReconciliationErrorCSVRecordList.add(statusReconciliationErrorCSVRecord);
                     }
                 }
@@ -116,16 +114,16 @@ public class StatusReconciliationService {
         try {
             HttpEntity httpEntity = new HttpEntity<>(commonUtil.getScsbItemStatusModelListByItemEntities(itemEntities));
             RestTemplate restTemplate = new RestTemplate();
-            responseEntity = restTemplate.exchange(scsbCircUrl + RecapConstants.GFA_MULTIPLE_ITEM_STATUS_URL, HttpMethod.POST, httpEntity, new ParameterizedTypeReference<List<ScsbLasItemStatusCheckModel>>() {});
+            responseEntity = restTemplate.exchange(scsbCircUrl + ScsbConstants.GFA_MULTIPLE_ITEM_STATUS_URL, HttpMethod.POST, httpEntity, new ParameterizedTypeReference<List<ScsbLasItemStatusCheckModel>>() {});
         } catch (Exception e) {
-            log.error(RecapCommonConstants.LOG_ERROR, e);
+            log.error(ScsbCommonConstants.LOG_ERROR, e);
         }
         return responseEntity != null ? responseEntity.getBody() : null;
     }
 
     private void processMismatchStatus(List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList, List<ItemChangeLogEntity> itemChangeLogEntityList, String lasStatus, ItemEntity itemEntity) {
         StatusReconciliationCSVRecord statusReconciliationCSVRecord = new StatusReconciliationCSVRecord();
-        List<String> requestStatusCodes = Arrays.asList(RecapCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, RecapCommonConstants.REQUEST_STATUS_EDD, RecapCommonConstants.REQUEST_STATUS_CANCELED, RecapCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
+        List<String> requestStatusCodes = Arrays.asList(ScsbCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, ScsbCommonConstants.REQUEST_STATUS_EDD, ScsbCommonConstants.REQUEST_STATUS_CANCELED, ScsbCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
         List<RequestStatusEntity> requestStatusEntityList = requestItemStatusDetailsRepository.findByRequestStatusCodeIn(requestStatusCodes);
         List<Integer> requestStatusIds = requestStatusEntityList.stream().map(RequestStatusEntity::getId).collect(Collectors.toList());
         List<Integer> requestid = requestItemDetailsRepository.getRequestItemEntitiesBasedOnDayLimit(itemEntity.getId(), requestStatusIds, statusReconciliationDayLimit);
@@ -136,13 +134,13 @@ public class StatusReconciliationService {
         ItemStatusEntity itemStatusEntity = itemStatusDetailsRepository.findById(itemEntity.getItemAvailabilityStatusId()).orElse(new ItemStatusEntity());
         if (!requestItemEntityList.isEmpty()) {
             for (RequestItemEntity requestItemEntity : requestItemEntityList) {
-                if (!requestItemEntity.getRequestStatusEntity().getRequestStatusCode().equalsIgnoreCase(RecapCommonConstants.REQUEST_STATUS_CANCELED)) {
+                if (!requestItemEntity.getRequestStatusEntity().getRequestStatusCode().equalsIgnoreCase(ScsbCommonConstants.REQUEST_STATUS_CANCELED)) {
                     statusReconciliationCSVRecord = getStatusReconciliationCSVRecord(lasStatus, itemEntity, barcodeList, requestIdList, simpleDateFormat, itemStatusEntity, requestItemEntity);
                 } else {
                     if (StringUtils.containsIgnoreCase(requestItemEntity.getNotes(), "Cancel requested")) {
                         statusReconciliationCSVRecord = getStatusReconciliationCSVRecord(lasStatus, itemEntity, barcodeList, requestIdList, simpleDateFormat, itemStatusEntity, requestItemEntity);
                     } else {
-                        RequestStatusEntity byRequestStatusCode = requestItemStatusDetailsRepository.findByRequestStatusCode(RecapCommonConstants.REQUEST_STATUS_REFILED);
+                        RequestStatusEntity byRequestStatusCode = requestItemStatusDetailsRepository.findByRequestStatusCode(ScsbCommonConstants.REQUEST_STATUS_REFILED);
                         requestItemEntity.setRequestStatusId(byRequestStatusCode.getId());
                         requestItemEntity.setLastUpdatedDate(new Date());
                         requestItemDetailsRepository.save(requestItemEntity);
@@ -152,7 +150,7 @@ public class StatusReconciliationService {
             }
         } else {
             statusReconciliationCSVRecord = getStatusReconciliationCSVRecord(itemEntity.getBarcode(), "No", null, lasStatus, simpleDateFormat.format(new Date()), itemStatusEntity, itemEntity.getImsLocationEntity().getImsLocationCode());
-            itemDetailsRepository.updateAvailabilityStatus(1, RecapConstants.GUEST_USER, itemEntity.getBarcode());
+            itemDetailsRepository.updateAvailabilityStatus(1, ScsbConstants.GUEST_USER, itemEntity.getBarcode());
             ItemChangeLogEntity itemChangeLogEntity = saveItemChangeLogEntity(itemEntity.getId(), itemEntity.getBarcode());
             itemChangeLogEntityList.add(itemChangeLogEntity);
             solrDocIndexService.updateSolrIndex(itemEntity);
@@ -180,9 +178,9 @@ public class StatusReconciliationService {
             itemRequestInfo.setItemBarcodes(itemBarcodes);
             itemRequestInfo.setRequestIds(requestIdList);
             HttpEntity request = new HttpEntity<>(itemRequestInfo, getHttpHeadersAuth());
-            restTemplate.exchange(scsbUrl + RecapConstants.SERVICEPATH.REFILE_ITEM, HttpMethod.POST, request, ItemRefileResponse.class);
+            restTemplate.exchange(scsbUrl + ScsbConstants.SERVICEPATH.REFILE_ITEM, HttpMethod.POST, request, ItemRefileResponse.class);
         } catch (Exception ex) {
-            log.error(RecapConstants.EXCEPTION, ex);
+            log.error(ScsbConstants.EXCEPTION, ex);
         }
     }
 
@@ -213,10 +211,10 @@ public class StatusReconciliationService {
 
     private ItemChangeLogEntity saveItemChangeLogEntity(Integer requestId, String barcode) {
         ItemChangeLogEntity itemChangeLogEntity = new ItemChangeLogEntity();
-        String notes = "ItemBarcode:" + barcode + " , " + "ItemAvailabilityStatusChange" + RecapConstants.REQUEST_ITEM_AVAILABILITY_STATUS_DATA_ROLLBACK;
-        itemChangeLogEntity.setUpdatedBy(RecapConstants.GUEST_USER);
+        String notes = "ItemBarcode:" + barcode + " , " + "ItemAvailabilityStatusChange" + ScsbConstants.REQUEST_ITEM_AVAILABILITY_STATUS_DATA_ROLLBACK;
+        itemChangeLogEntity.setUpdatedBy(ScsbConstants.GUEST_USER);
         itemChangeLogEntity.setUpdatedDate(new Date());
-        itemChangeLogEntity.setOperationType(RecapConstants.STATUS_RECONCILIATION_CHANGE_LOG_OPERATION_TYPE);
+        itemChangeLogEntity.setOperationType(ScsbConstants.STATUS_RECONCILIATION_CHANGE_LOG_OPERATION_TYPE);
         itemChangeLogEntity.setRecordId(requestId);
         itemChangeLogEntity.setNotes(notes);
         return itemChangeLogEntity;
@@ -225,7 +223,7 @@ public class StatusReconciliationService {
     private HttpHeaders getHttpHeadersAuth() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(RecapCommonConstants.API_KEY, SwaggerAPIProvider.getInstance().getSwaggerApiKey());
+        headers.set(ScsbCommonConstants.API_KEY, SwaggerAPIProvider.getInstance().getSwaggerApiKey());
         return headers;
     }
 }

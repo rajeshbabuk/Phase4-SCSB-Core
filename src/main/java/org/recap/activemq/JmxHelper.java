@@ -1,7 +1,7 @@
 package org.recap.activemq;
 
 import org.apache.activemq.broker.jmx.DestinationViewMBean;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +39,7 @@ public class JmxHelper {
             ObjectName nameConsumers = new ObjectName("org.apache.activemq:type=Broker,brokerName=localhost,destinationType=Queue,destinationName="+ queueName);
             return MBeanServerInvocationHandler.newProxyInstance(getConnection(), nameConsumers, DestinationViewMBean.class, true);
         } catch (MalformedObjectNameException e) {
-            logger.error(RecapCommonConstants.LOG_ERROR,e);
+            logger.error(ScsbCommonConstants.LOG_ERROR,e);
         }
         return null;
     }
@@ -56,7 +56,7 @@ public class JmxHelper {
                 connector = JMXConnectorFactory.connect(new JMXServiceURL(serviceUrl));
                 connection = connector.getMBeanServerConnection();
             } catch (IOException e) {
-                logger.error(RecapCommonConstants.LOG_ERROR,e);
+                logger.error(ScsbCommonConstants.LOG_ERROR,e);
             }
         }
         return connection;

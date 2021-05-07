@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.repository.jpa.ImsLocationDetailsRepository;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class DailyReconcilationJobControllerUT extends BaseTestCaseUT {
         Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
         String response = dailyReconcilationJobController.statCamel();
         assertNotNull(response);
-        assertEquals(RecapCommonConstants.SUCCESS, response);
+        assertEquals(ScsbCommonConstants.SUCCESS, response);
     }
 
 }

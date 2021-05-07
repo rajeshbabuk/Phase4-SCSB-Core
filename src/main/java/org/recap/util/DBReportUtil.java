@@ -2,7 +2,7 @@ package org.recap.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.marc.Record;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.model.jpa.BibliographicEntity;
 import org.recap.model.jpa.HoldingsEntity;
 import org.recap.model.jpa.ItemEntity;
@@ -73,7 +73,7 @@ public class DBReportUtil {
         if (bibliographicEntity.getOwningInstitutionId() != null) {
             for (Map.Entry<String, Integer> entry : institutionEntitiesMap.entrySet()) {
                 if (entry.getValue().equals(bibliographicEntity.getOwningInstitutionId())) {
-                    owningInstitutionReportDataEntity.setHeaderName(RecapCommonConstants.OWNING_INSTITUTION);
+                    owningInstitutionReportDataEntity.setHeaderName(ScsbCommonConstants.OWNING_INSTITUTION);
                     owningInstitutionReportDataEntity.setHeaderValue(entry.getKey());
                     reportDataEntities.add(owningInstitutionReportDataEntity);
                     break;
@@ -83,7 +83,7 @@ public class DBReportUtil {
 
         if (StringUtils.isNotBlank(bibliographicEntity.getOwningInstitutionBibId())) {
             ReportDataEntity owningInstitutionBibIdReportDataEntity = new ReportDataEntity();
-            owningInstitutionBibIdReportDataEntity.setHeaderName(RecapCommonConstants.OWNING_INSTITUTION_BIB_ID);
+            owningInstitutionBibIdReportDataEntity.setHeaderName(ScsbCommonConstants.OWNING_INSTITUTION_BIB_ID);
             owningInstitutionBibIdReportDataEntity.setHeaderValue(bibliographicEntity.getOwningInstitutionBibId());
             reportDataEntities.add(owningInstitutionBibIdReportDataEntity);
         }
@@ -91,7 +91,7 @@ public class DBReportUtil {
         String title = new MarcUtil().getDataFieldValue(record, "245", 'a');
         if (StringUtils.isNotBlank(title)) {
             ReportDataEntity titleReportDataEntity = new ReportDataEntity();
-            titleReportDataEntity.setHeaderName(RecapCommonConstants.TITLE);
+            titleReportDataEntity.setHeaderName(ScsbCommonConstants.TITLE);
             titleReportDataEntity.setHeaderValue(title.trim());
             reportDataEntities.add(titleReportDataEntity);
         }
@@ -111,7 +111,7 @@ public class DBReportUtil {
         List<ReportDataEntity> reportDataEntities = new ArrayList<>(generateBibFailureReportEntity(bibliographicEntity, bibRecord));
         if (holdingsEntity != null) {
                 ReportDataEntity owningInstitutionHoldingsIdReportDataEntity = new ReportDataEntity();
-                owningInstitutionHoldingsIdReportDataEntity.setHeaderName(RecapCommonConstants.OWNING_INSTITUTION_HOLDINGS_ID);
+                owningInstitutionHoldingsIdReportDataEntity.setHeaderName(ScsbCommonConstants.OWNING_INSTITUTION_HOLDINGS_ID);
                 owningInstitutionHoldingsIdReportDataEntity.setHeaderValue(holdingsEntity.getOwningInstitutionHoldingsId());
                 reportDataEntities.add(owningInstitutionHoldingsIdReportDataEntity);
             }
@@ -134,21 +134,21 @@ public class DBReportUtil {
         if (itemEntity != null) {
             if (StringUtils.isNotBlank(itemEntity.getOwningInstitutionItemId())) {
                 ReportDataEntity localItemIdReportDataEntity = new ReportDataEntity();
-                localItemIdReportDataEntity.setHeaderName(RecapCommonConstants.LOCAL_ITEM_ID);
+                localItemIdReportDataEntity.setHeaderName(ScsbCommonConstants.LOCAL_ITEM_ID);
                 localItemIdReportDataEntity.setHeaderValue(itemEntity.getOwningInstitutionItemId());
                 reportEntities.add(localItemIdReportDataEntity);
             }
 
             if (StringUtils.isNotBlank(itemEntity.getBarcode())) {
                 ReportDataEntity itemBarcodeReportDataEntity = new ReportDataEntity();
-                itemBarcodeReportDataEntity.setHeaderName(RecapCommonConstants.ITEM_BARCODE);
+                itemBarcodeReportDataEntity.setHeaderName(ScsbCommonConstants.ITEM_BARCODE);
                 itemBarcodeReportDataEntity.setHeaderValue(itemEntity.getBarcode());
                 reportEntities.add(itemBarcodeReportDataEntity);
             }
 
             if (StringUtils.isNotBlank(itemEntity.getCustomerCode())) {
                 ReportDataEntity customerCodeReportDataEntity = new ReportDataEntity();
-                customerCodeReportDataEntity.setHeaderName(RecapCommonConstants.CUSTOMER_CODE);
+                customerCodeReportDataEntity.setHeaderName(ScsbCommonConstants.CUSTOMER_CODE);
                 customerCodeReportDataEntity.setHeaderValue(itemEntity.getCustomerCode());
                 reportEntities.add(customerCodeReportDataEntity);
             }
@@ -157,7 +157,7 @@ public class DBReportUtil {
                 for (Map.Entry<String, Integer> entry : collectionGroupMap.entrySet()) {
                     if (entry.getValue().equals(itemEntity.getCollectionGroupId())) {
                         ReportDataEntity collectionGroupDesignationEntity = new ReportDataEntity();
-                        collectionGroupDesignationEntity.setHeaderName(RecapCommonConstants.COLLECTION_GROUP_DESIGNATION);
+                        collectionGroupDesignationEntity.setHeaderName(ScsbCommonConstants.COLLECTION_GROUP_DESIGNATION);
                         collectionGroupDesignationEntity.setHeaderValue(entry.getKey());
                         reportEntities.add(collectionGroupDesignationEntity);
                         break;
@@ -167,14 +167,14 @@ public class DBReportUtil {
 
             if (itemEntity.getCreatedDate() != null) {
                 ReportDataEntity createDateItemEntity = new ReportDataEntity();
-                createDateItemEntity.setHeaderName(RecapCommonConstants.CREATE_DATE_ITEM);
+                createDateItemEntity.setHeaderName(ScsbCommonConstants.CREATE_DATE_ITEM);
                 createDateItemEntity.setHeaderValue(new SimpleDateFormat("mm-dd-yyyy").format(itemEntity.getCreatedDate()));
                 reportEntities.add(createDateItemEntity);
             }
 
             if (itemEntity.getLastUpdatedDate() != null) {
                 ReportDataEntity lastUpdateItemEntity = new ReportDataEntity();
-                lastUpdateItemEntity.setHeaderName(RecapCommonConstants.LAST_UPDATED_DATE_ITEM);
+                lastUpdateItemEntity.setHeaderName(ScsbCommonConstants.LAST_UPDATED_DATE_ITEM);
                 lastUpdateItemEntity.setHeaderValue(new SimpleDateFormat("mm-dd-yyyy").format(itemEntity.getLastUpdatedDate()));
                 reportEntities.add(lastUpdateItemEntity);
             }

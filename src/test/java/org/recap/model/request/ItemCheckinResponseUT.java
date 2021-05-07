@@ -2,7 +2,7 @@ package org.recap.model.request;
 
 import org.junit.Test;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -27,7 +27,7 @@ public class ItemCheckinResponseUT extends BaseTestCaseUT {
         itemCheckinResponse.setHoldPatronId("4");
         itemCheckinResponse.setItemBarcodes(Arrays.asList("123456","234567"));
         itemCheckinResponse.setLCCN("58475");
-        itemCheckinResponse.setScreenMessage(RecapCommonConstants.SUCCESS);
+        itemCheckinResponse.setScreenMessage(ScsbCommonConstants.SUCCESS);
         itemCheckinResponse.setProcessed(true);
         itemCheckinResponse.setSecurityInhibit("security");
         itemCheckinResponse.setFeeAmount("1000");

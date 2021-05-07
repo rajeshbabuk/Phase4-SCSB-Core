@@ -3,8 +3,8 @@ package org.recap.util;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.csv.AccessionSummaryRecord;
 import org.recap.model.jpa.ReportDataEntity;
 import org.recap.model.jpa.ReportEntity;
@@ -28,7 +28,7 @@ public class AccessionSummaryRecordGeneratorUT extends BaseTestCaseUT {
     public void successBibCount()throws Exception {
         ReportEntity reportEntity=new ReportEntity();
         List<ReportDataEntity> reportDataEntityList=new ArrayList<>();
-        reportDataEntityList.add(getReportDataEntity(RecapCommonConstants.BIB_SUCCESS_COUNT));
+        reportDataEntityList.add(getReportDataEntity(ScsbCommonConstants.BIB_SUCCESS_COUNT));
         reportEntity.setReportDataEntities(reportDataEntityList);
         List<ReportEntity> reportEntityList=new ArrayList<>();
         reportEntityList.add(reportEntity);
@@ -41,7 +41,7 @@ public class AccessionSummaryRecordGeneratorUT extends BaseTestCaseUT {
         List<ReportEntity> reportEntityList=new ArrayList<>();
         ReportEntity reportEntity=new ReportEntity();
         List<ReportDataEntity> reportDataEntityList=new ArrayList<>();
-        reportDataEntityList.add(getReportDataEntity(RecapCommonConstants.ITEM_SUCCESS_COUNT));
+        reportDataEntityList.add(getReportDataEntity(ScsbCommonConstants.ITEM_SUCCESS_COUNT));
         reportEntity.setReportDataEntities(reportDataEntityList);
         reportEntityList.add(reportEntity);
         List<AccessionSummaryRecord> accessionSummaryRecordList=accessionSummaryRecordGenerator.prepareAccessionSummaryReportRecord(reportEntityList);
@@ -53,10 +53,10 @@ public class AccessionSummaryRecordGeneratorUT extends BaseTestCaseUT {
         List<ReportEntity> reportEntityList=new ArrayList<>();
         ReportEntity reportEntity=new ReportEntity();
         List<ReportDataEntity> reportDataEntityList=new ArrayList<>();
-        reportDataEntityList.add(getReportDataEntity(RecapCommonConstants.BIB_FAILURE_COUNT));
-        reportDataEntityList.add(getReportDataEntity(RecapCommonConstants.BIB_FAILURE_COUNT));
-        reportDataEntityList.add(getReportDataEntity(RecapConstants.FAILURE_BIB_REASON));
-        reportDataEntityList.add(getReportDataEntity(RecapConstants.FAILURE_BIB_REASON));
+        reportDataEntityList.add(getReportDataEntity(ScsbCommonConstants.BIB_FAILURE_COUNT));
+        reportDataEntityList.add(getReportDataEntity(ScsbCommonConstants.BIB_FAILURE_COUNT));
+        reportDataEntityList.add(getReportDataEntity(ScsbConstants.FAILURE_BIB_REASON));
+        reportDataEntityList.add(getReportDataEntity(ScsbConstants.FAILURE_BIB_REASON));
         reportEntity.setReportDataEntities(reportDataEntityList);
         reportEntityList.add(reportEntity);
         List<AccessionSummaryRecord> accessionSummaryRecordList=accessionSummaryRecordGenerator.prepareAccessionSummaryReportRecord(reportEntityList);
@@ -67,8 +67,8 @@ public class AccessionSummaryRecordGeneratorUT extends BaseTestCaseUT {
         List<ReportEntity> reportEntityList=new ArrayList<>();
         ReportEntity reportEntity=new ReportEntity();
         List<ReportDataEntity> reportDataEntityList=new ArrayList<>();
-        reportDataEntityList.add(getReportDataEntity(RecapCommonConstants.ITEM_FAILURE_COUNT));
-        reportDataEntityList.add(getReportDataEntity(RecapConstants.FAILURE_ITEM_REASON));
+        reportDataEntityList.add(getReportDataEntity(ScsbCommonConstants.ITEM_FAILURE_COUNT));
+        reportDataEntityList.add(getReportDataEntity(ScsbConstants.FAILURE_ITEM_REASON));
         reportEntity.setReportDataEntities(reportDataEntityList);
         reportEntityList.add(reportEntity);
         List<AccessionSummaryRecord> accessionSummaryRecordList=accessionSummaryRecordGenerator.prepareAccessionSummaryReportRecord(reportEntityList);
@@ -80,7 +80,7 @@ public class AccessionSummaryRecordGeneratorUT extends BaseTestCaseUT {
         List<ReportEntity> reportEntityList=new ArrayList<>();
         ReportEntity reportEntity=new ReportEntity();
         List<ReportDataEntity> reportDataEntityList=new ArrayList<>();
-        reportDataEntityList.add(getReportDataEntity(RecapCommonConstants.NUMBER_OF_BIB_MATCHES));
+        reportDataEntityList.add(getReportDataEntity(ScsbCommonConstants.NUMBER_OF_BIB_MATCHES));
         reportEntity.setReportDataEntities(reportDataEntityList);
         reportEntityList.add(reportEntity);
         List<AccessionSummaryRecord> accessionSummaryRecordList=accessionSummaryRecordGenerator.prepareAccessionSummaryReportRecord(reportEntityList);

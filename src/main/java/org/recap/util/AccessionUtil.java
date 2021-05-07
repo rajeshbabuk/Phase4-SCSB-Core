@@ -5,8 +5,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.marc.Leader;
 import org.marc4j.marc.Record;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.converter.AccessionXmlToBibEntityConverterInterface;
 import org.recap.converter.XmlToBibEntityConverterFactory;
 import org.recap.model.ILSConfigProperties;
@@ -131,9 +131,9 @@ public class AccessionUtil {
         }
         bibliographicEntity.setDeleted(false);
         bibliographicEntity.setCreatedDate(currentDate);
-        bibliographicEntity.setCreatedBy(RecapCommonConstants.ACCESSION);
+        bibliographicEntity.setCreatedBy(ScsbCommonConstants.ACCESSION);
         bibliographicEntity.setLastUpdatedDate(currentDate);
-        bibliographicEntity.setLastUpdatedBy(RecapCommonConstants.ACCESSION);
+        bibliographicEntity.setLastUpdatedBy(ScsbCommonConstants.ACCESSION);
 
 
     // FORMAT SPECIFIC
@@ -180,18 +180,18 @@ public class AccessionUtil {
             reasonForFailureBib = errorMessage.toString();
             reportDataEntities = dbReportUtil.generateBibFailureReportEntity(bibliographicEntity, bibRecord);
             ReportDataEntity errorReportDataEntity = new ReportDataEntity();
-            errorReportDataEntity.setHeaderName(RecapCommonConstants.ERROR_DESCRIPTION);
+            errorReportDataEntity.setHeaderName(ScsbCommonConstants.ERROR_DESCRIPTION);
             errorReportDataEntity.setHeaderValue(errorMessage.toString());
             reportDataEntities.add(errorReportDataEntity);
         }else if(exitsBibCount == 0){
             successBibCount = successBibCount+1;
         }
 
-        map.put(RecapCommonConstants.FAILED_BIB_COUNT , failedBibCount);
-        map.put(RecapCommonConstants.REASON_FOR_BIB_FAILURE , reasonForFailureBib);
-        map.put(RecapCommonConstants.BIBLIOGRAPHICENTITY, bibliographicEntity);
-        map.put(RecapCommonConstants.SUCCESS_BIB_COUNT,successBibCount);
-        map.put(RecapCommonConstants.EXIST_BIB_COUNT,exitsBibCount);
+        map.put(ScsbCommonConstants.FAILED_BIB_COUNT , failedBibCount);
+        map.put(ScsbCommonConstants.REASON_FOR_BIB_FAILURE , reasonForFailureBib);
+        map.put(ScsbCommonConstants.BIBLIOGRAPHICENTITY, bibliographicEntity);
+        map.put(ScsbCommonConstants.SUCCESS_BIB_COUNT,successBibCount);
+        map.put(ScsbCommonConstants.EXIST_BIB_COUNT,exitsBibCount);
         return map;
     }
 
@@ -206,18 +206,18 @@ public class AccessionUtil {
         List<ReportDataEntity> reportDataEntityList = new ArrayList<>();
         if (StringUtils.isNotBlank(accessionRequest.getCustomerCode())) {
             ReportDataEntity reportDataEntityOwnerCode = new ReportDataEntity();
-            reportDataEntityOwnerCode.setHeaderName(RecapCommonConstants.CUSTOMER_CODE);
+            reportDataEntityOwnerCode.setHeaderName(ScsbCommonConstants.CUSTOMER_CODE);
             reportDataEntityOwnerCode.setHeaderValue(accessionRequest.getCustomerCode());
             reportDataEntityList.add(reportDataEntityOwnerCode);
         }
         if (StringUtils.isNotBlank(accessionRequest.getItemBarcode())) {
             ReportDataEntity reportDataEntityItemBarcode = new ReportDataEntity();
-            reportDataEntityItemBarcode.setHeaderName(RecapCommonConstants.ITEM_BARCODE);
+            reportDataEntityItemBarcode.setHeaderName(ScsbCommonConstants.ITEM_BARCODE);
             reportDataEntityItemBarcode.setHeaderValue(accessionRequest.getItemBarcode());
             reportDataEntityList.add(reportDataEntityItemBarcode);
         }
         ReportDataEntity reportDataEntityMessage = new ReportDataEntity();
-        reportDataEntityMessage.setHeaderName(RecapCommonConstants.MESSAGE);
+        reportDataEntityMessage.setHeaderName(ScsbCommonConstants.MESSAGE);
         reportDataEntityMessage.setHeaderValue(response);
         reportDataEntityList.add(reportDataEntityMessage);
         return reportDataEntityList;
@@ -255,7 +255,7 @@ public class AccessionUtil {
                 owningInstitution = ownerCodeEntity.getInstitutionEntity().getInstitutionCode();
             }
         } catch (Exception e) {
-            logger.error(RecapConstants.EXCEPTION,e);
+            logger.error(ScsbConstants.EXCEPTION,e);
         }
         return owningInstitution;
     }
@@ -270,14 +270,14 @@ public class AccessionUtil {
      */
     public String createDummyRecordIfAny(String response, String owningInstitution, List<ReportDataEntity> reportDataEntityList, AccessionRequest accessionRequest, ImsLocationEntity imsLocationEntity) {
         String message = response;
-        if (response != null && (response.contains(RecapConstants.ITEM_BARCODE_NOT_FOUND) ||
-                response.contains(RecapConstants.INVALID_MARC_XML_ERROR_MSG)) ) {
+        if (response != null && (response.contains(ScsbConstants.ITEM_BARCODE_NOT_FOUND) ||
+                response.contains(ScsbConstants.INVALID_MARC_XML_ERROR_MSG)) ) {
             BibliographicEntity fetchBibliographicEntity = getBibEntityUsingBarcodeForIncompleteRecord(accessionRequest.getItemBarcode());
             if (fetchBibliographicEntity == null) {
                 String dummyRecordResponse = createDummyRecord(accessionRequest, owningInstitution,imsLocationEntity);
                 message = response+", "+dummyRecordResponse;
             } else {
-                message = RecapConstants.ITEM_BARCODE_ALREADY_ACCESSIONED_MSG;
+                message = ScsbConstants.ITEM_BARCODE_ALREADY_ACCESSIONED_MSG;
             }
         }
         return message;
@@ -310,7 +310,7 @@ public class AccessionUtil {
         Integer owningInstitutionId = (Integer) getInstitutionEntityMap().get(owningInstitution);
         BibliographicEntity dummyBibliographicEntity = dummyDataService.createDummyDataAsIncomplete(owningInstitutionId,accessionRequest.getItemBarcode(),accessionRequest.getCustomerCode(),imsLocationEntity);
         indexData(Set.of(dummyBibliographicEntity.getId()));
-        response = RecapConstants.ACCESSION_DUMMY_RECORD;
+        response = ScsbConstants.ACCESSION_DUMMY_RECORD;
         return response;
     }
 
@@ -333,7 +333,7 @@ public class AccessionUtil {
                     institutionEntityMap.put(institutionEntity.getInstitutionCode(), institutionEntity.getId());
                 }
             } catch (Exception e) {
-                logger.error(RecapConstants.EXCEPTION,e);
+                logger.error(ScsbConstants.EXCEPTION,e);
             }
         }
         return institutionEntityMap;
@@ -356,8 +356,8 @@ public class AccessionUtil {
             Map responseMap = converter.convert(record, owningInstitution, accessionRequest,imsLocationEntity);
             responseMapList.add(responseMap);
             StringBuilder errorMessage = (StringBuilder)responseMap.get("errorMessage");
-            BibliographicEntity bibliographicEntity = (BibliographicEntity) responseMap.get(RecapCommonConstants.BIBLIOGRAPHICENTITY);
-            String incompleteResponse = (String) responseMap.get(RecapConstants.INCOMPLETE_RESPONSE);
+            BibliographicEntity bibliographicEntity = (BibliographicEntity) responseMap.get(ScsbCommonConstants.BIBLIOGRAPHICENTITY);
+            String incompleteResponse = (String) responseMap.get(ScsbConstants.INCOMPLETE_RESPONSE);
             if (errorMessage != null && errorMessage.length()==0) {//Valid bibliographic entity is returned for further processing
                 if (bibliographicEntity != null) {
                     boolean isValidItemAndHolding = accessionValidationService.validateItemAndHolding(bibliographicEntity,isValidBoundWithRecord,isFirstRecord,errorMessage);
@@ -370,15 +370,15 @@ public class AccessionUtil {
                         response = errorMessage.toString();
                     }
                 }
-                if (StringUtils.isNotEmpty(response) && StringUtils.isNotEmpty(incompleteResponse) && RecapCommonConstants.SUCCESS.equalsIgnoreCase(response)){
-                    return RecapConstants.SUCCESS_INCOMPLETE_RECORD;
+                if (StringUtils.isNotEmpty(response) && StringUtils.isNotEmpty(incompleteResponse) && ScsbCommonConstants.SUCCESS.equalsIgnoreCase(response)){
+                    return ScsbConstants.SUCCESS_INCOMPLETE_RECORD;
                 }
             } else{
                 if(errorMessage != null) {
-                    return RecapConstants.FAILED + RecapCommonConstants.HYPHEN + errorMessage.toString();
+                    return ScsbConstants.FAILED + ScsbCommonConstants.HYPHEN + errorMessage.toString();
                 }
                 else {
-                    return RecapConstants.FAILED;
+                    return ScsbConstants.FAILED;
                 }
             }
 
@@ -394,7 +394,7 @@ public class AccessionUtil {
     private String indexBibliographicRecord(Integer bibliographicId) {
         String response;
         indexData(Set.of(bibliographicId));
-        response = RecapCommonConstants.SUCCESS;
+        response = ScsbCommonConstants.SUCCESS;
         return response;
     }
 
@@ -414,7 +414,7 @@ public class AccessionUtil {
             fetchBibliographicEntity.setLastUpdatedBy(bibliographicEntity.getLastUpdatedBy());
             fetchBibliographicEntity.setLastUpdatedDate(bibliographicEntity.getLastUpdatedDate());
             fetchBibliographicEntity.setDeleted(bibliographicEntity.isDeleted());
-            if (fetchBibliographicEntity.getCatalogingStatus().equals(RecapCommonConstants.INCOMPLETE_STATUS)) {
+            if (fetchBibliographicEntity.getCatalogingStatus().equals(ScsbCommonConstants.INCOMPLETE_STATUS)) {
                 fetchBibliographicEntity.setCatalogingStatus(bibliographicEntity.getCatalogingStatus());
             }
 
@@ -482,7 +482,7 @@ public class AccessionUtil {
         try {
             return bibliographicRepositoryDAO.saveOrUpdate(fetchBibliographicEntity);
         } catch (Exception e) {
-            logger.info(RecapConstants.EXCEPTION,e);
+            logger.info(ScsbConstants.EXCEPTION,e);
         }
         return null;
     }
@@ -541,26 +541,26 @@ public class AccessionUtil {
                 itemEntity.setDeleted(false);
                 Date currentDateTime = new Date();
                 itemEntity.setLastUpdatedDate(currentDateTime);
-                itemEntity.setLastUpdatedBy(RecapConstants.REACCESSION);
+                itemEntity.setLastUpdatedBy(ScsbConstants.REACCESSION);
 
                 for (HoldingsEntity holdingsEntity:itemEntity.getHoldingsEntities()) {
                     holdingsEntity.setDeleted(false);
                     holdingsEntity.setLastUpdatedDate(currentDateTime);
-                    holdingsEntity.setLastUpdatedBy(RecapConstants.REACCESSION);
+                    holdingsEntity.setLastUpdatedBy(ScsbConstants.REACCESSION);
                 }
                 for(BibliographicEntity bibliographicEntity:itemEntity.getBibliographicEntities()) {
                     bibliographicEntity.setDeleted(false);
                     bibliographicEntity.setLastUpdatedDate(currentDateTime);
-                    bibliographicEntity.setLastUpdatedBy(RecapConstants.REACCESSION);
+                    bibliographicEntity.setLastUpdatedBy(ScsbConstants.REACCESSION);
                 }
             }
             itemDetailsRepository.saveAll(itemEntityList);
             itemDetailsRepository.flush();
         } catch (Exception e) {
-            logger.error(RecapConstants.EXCEPTION,e);
-            return RecapCommonConstants.FAILURE;
+            logger.error(ScsbConstants.EXCEPTION,e);
+            return ScsbCommonConstants.FAILURE;
         }
-        return RecapCommonConstants.SUCCESS;
+        return ScsbCommonConstants.SUCCESS;
     }
 
     /**
@@ -577,17 +577,17 @@ public class AccessionUtil {
                 }
             }
         } catch (Exception e) {
-            logger.error(RecapConstants.EXCEPTION,e);
-            return RecapCommonConstants.FAILURE;
+            logger.error(ScsbConstants.EXCEPTION,e);
+            return ScsbCommonConstants.FAILURE;
         }
-        return RecapCommonConstants.SUCCESS;
+        return ScsbCommonConstants.SUCCESS;
     }
 
     public void saveItemChangeLogEntity(String operationType, String message, List<ItemEntity> itemEntityList) {
         List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
         for (ItemEntity itemEntity:itemEntityList) {
             ItemChangeLogEntity itemChangeLogEntity = new ItemChangeLogEntity();
-            itemChangeLogEntity.setOperationType(RecapCommonConstants.ACCESSION);
+            itemChangeLogEntity.setOperationType(ScsbCommonConstants.ACCESSION);
             itemChangeLogEntity.setUpdatedBy(operationType);
             itemChangeLogEntity.setUpdatedDate(new Date());
             itemChangeLogEntity.setRecordId(itemEntity.getId());
@@ -605,15 +605,15 @@ public class AccessionUtil {
     @Transactional
     public void saveReportEntity(String owningInstitution, List<ReportDataEntity> reportDataEntityList) {
         ReportEntity reportEntity;
-        reportEntity = getReportEntity(owningInstitution!=null ? owningInstitution : RecapConstants.UNKNOWN_INSTITUTION);
+        reportEntity = getReportEntity(owningInstitution!=null ? owningInstitution : ScsbConstants.UNKNOWN_INSTITUTION);
         reportEntity.setReportDataEntities(reportDataEntityList);
-        producerTemplate.sendBody(RecapConstants.ACCESSION_REPORT_Q, reportEntity);
+        producerTemplate.sendBody(ScsbConstants.ACCESSION_REPORT_Q, reportEntity);
     }
 
     private ReportEntity getReportEntity(String owningInstitution){
         ReportEntity reportEntity = new ReportEntity();
-        reportEntity.setFileName(RecapCommonConstants.ACCESSION_REPORT);
-        reportEntity.setType(RecapConstants.ONGOING_ACCESSION_REPORT);
+        reportEntity.setFileName(ScsbCommonConstants.ACCESSION_REPORT);
+        reportEntity.setType(ScsbConstants.ONGOING_ACCESSION_REPORT);
         reportEntity.setInstitutionName(owningInstitution);
         reportEntity.setCreatedDate(new Date());
         return reportEntity;

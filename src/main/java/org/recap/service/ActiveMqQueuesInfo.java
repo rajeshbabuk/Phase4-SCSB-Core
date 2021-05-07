@@ -2,7 +2,7 @@ package org.recap.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.model.queueinfo.QueueSizeInfoJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ public class ActiveMqQueuesInfo {
             } catch (ResourceAccessException e) {
                 logger.error("ActiveMq slave url called to get queues info ----> {} ",activemqUrl);
             } catch (Exception e){
-                logger.error(RecapCommonConstants.LOG_ERROR,e);
+                logger.error(ScsbCommonConstants.LOG_ERROR,e);
             }
         }
         return queueSizeCount;

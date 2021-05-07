@@ -8,8 +8,8 @@ import org.marc4j.MarcWriter;
 import org.marc4j.MarcXmlReader;
 import org.marc4j.MarcXmlWriter;
 import org.marc4j.marc.*;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.jaxb.BibRecord;
 import org.recap.model.jaxb.Holding;
 import org.recap.model.jaxb.Items;
@@ -536,7 +536,7 @@ public class MarcUtil {
                 errorMessage.append(" Leader Field value should be 24 characters");
             }
         }
-        map.put(RecapConstants.BIBLIOGRAPHIC_ENTITY, bibliographicEntity);
+        map.put(ScsbConstants.BIBLIOGRAPHIC_ENTITY, bibliographicEntity);
         return map;
     }
 
@@ -544,12 +544,12 @@ public class MarcUtil {
         try {
             records.addAll(convertMarcXmlToRecord(inputRecords));
             if (checkLimit && records.size() > inputLimit) {
-                return RecapConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE + inputLimit;
+                return ScsbConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE + inputLimit;
             }
         } catch (Exception e) {
             logger.info(String.valueOf(e.getCause()));
-            logger.error(RecapCommonConstants.LOG_ERROR, e);
-            return RecapConstants.INVALID_MARC_XML_FORMAT_MESSAGE;
+            logger.error(ScsbCommonConstants.LOG_ERROR, e);
+            return ScsbConstants.INVALID_MARC_XML_FORMAT_MESSAGE;
         }
         return null;
     }

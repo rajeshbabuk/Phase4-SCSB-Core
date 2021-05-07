@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.controller.StatusReconciliationController;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.model.jpa.ItemStatusEntity;
@@ -65,10 +65,10 @@ public class StatusReconciliationControllerUT extends BaseTestCaseUT {
     public void testStatusReconciliation(){
         Mockito.when(itemStatusDetailsRepository.findByStatusCode(Mockito.anyString())).thenReturn(getItemStatusEntity());
         List<RequestStatusEntity> requestStatusEntityList=new ArrayList<>();
-        requestStatusEntityList.add(getRequestStatusEntity(1,RecapCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED));
-        requestStatusEntityList.add(getRequestStatusEntity(3,RecapCommonConstants.REQUEST_STATUS_EDD));
-        requestStatusEntityList.add(getRequestStatusEntity(5,RecapCommonConstants.REQUEST_STATUS_CANCELED));
-        requestStatusEntityList.add(getRequestStatusEntity(9,RecapCommonConstants.REQUEST_STATUS_INITIAL_LOAD));
+        requestStatusEntityList.add(getRequestStatusEntity(1,ScsbCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED));
+        requestStatusEntityList.add(getRequestStatusEntity(3,ScsbCommonConstants.REQUEST_STATUS_EDD));
+        requestStatusEntityList.add(getRequestStatusEntity(5,ScsbCommonConstants.REQUEST_STATUS_CANCELED));
+        requestStatusEntityList.add(getRequestStatusEntity(9,ScsbCommonConstants.REQUEST_STATUS_INITIAL_LOAD));
         Mockito.when(requestItemStatusDetailsRepository.findByRequestStatusCodeIn(Mockito.any())).thenReturn(requestStatusEntityList);
         ReflectionTestUtils.setField(statusReconciliationController,"batchSize",100);
         ReflectionTestUtils.setField(statusReconciliationController,"statusReconciliationDayLimit",100);
@@ -90,8 +90,8 @@ public class StatusReconciliationControllerUT extends BaseTestCaseUT {
     private ItemStatusEntity getItemStatusEntity() {
         ItemStatusEntity itemStatusEntity=new ItemStatusEntity();
         itemStatusEntity.setId(1);
-        itemStatusEntity.setStatusCode(RecapCommonConstants.AVAILABLE);
-        itemStatusEntity.setStatusDescription(RecapCommonConstants.AVAILABLE);
+        itemStatusEntity.setStatusCode(ScsbCommonConstants.AVAILABLE);
+        itemStatusEntity.setStatusDescription(ScsbCommonConstants.AVAILABLE);
         return itemStatusEntity;
     }
 

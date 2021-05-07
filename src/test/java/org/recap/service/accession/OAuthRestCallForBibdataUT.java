@@ -5,7 +5,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.model.ILSConfigProperties;
 import org.recap.service.authorization.OauthTokenApiService;
 import org.recap.util.PropertyUtil;
@@ -58,14 +58,14 @@ public class OAuthRestCallForBibdataUT extends BaseTestCaseUT {
         Mockito.doNothing().when(factory).setConnectTimeout(Mockito.anyInt());
         Mockito.doNothing().when(factory).setReadTimeout(Mockito.anyInt());
         Mockito.when(oauthTokenApiService.generateAccessToken(Mockito.anyString(),Mockito.anyString(),Mockito.anyString())).thenReturn("test");
-        ResponseEntity<String> responseEntity=new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK);
+        ResponseEntity<String> responseEntity=new ResponseEntity<>(ScsbCommonConstants.SUCCESS, HttpStatus.OK);
         HttpEntity requestEntity = new HttpEntity(getHttpHeaders("test","1","fdhfujfdjfsd"));
         Mockito.when(restTemplate.exchange("url", HttpMethod.GET, requestEntity, String.class, getParamsMap("123456","PA"))).thenReturn(responseEntity);
         Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(getIlsConfigProperties());
         Mockito.when(OAuthRestCallForBibdata.getHttpHeaders(Mockito.anyString(),Mockito.anyString(),Mockito.anyString())).thenCallRealMethod();
         Mockito.when(OAuthRestCallForBibdata.getBibData("123456","PA","PUL","url")).thenCallRealMethod();
         String bibDataResponse=OAuthRestCallForBibdata.getBibData("123456","PA","PUL","url");
-        assertEquals(RecapCommonConstants.SUCCESS,bibDataResponse);
+        assertEquals(ScsbCommonConstants.SUCCESS,bibDataResponse);
     }
 
     @Test

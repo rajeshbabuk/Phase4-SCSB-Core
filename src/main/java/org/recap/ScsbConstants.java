@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by premkb on 19/8/16.
  */
-public final class RecapConstants {
+public final class ScsbConstants {
 
     public static final String EDD_REQUEST = "EDD";
     public static final String REFILED_REQUEST = "REFILED";
@@ -200,7 +200,7 @@ public final class RecapConstants {
     public static final String TAB = "\t";
     public static final String NEW_LINE = "\n";
     public static final String ITEM_STATUS_NOT_AVAILABLE = "Not Available";
-    private RecapConstants() {
+    private ScsbConstants() {
     }
     public static List<String> getGFAStatusAvailableList() {
         return GFA_STATUS_AVAILABLE_LIST;

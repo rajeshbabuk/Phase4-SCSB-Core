@@ -2,8 +2,8 @@ package org.recap.service.accession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.marc.Record;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.jaxb.Bib;
 import org.recap.model.jaxb.BibRecord;
@@ -162,11 +162,11 @@ public class AccessionValidationService {
     }
     private AccessionValidationResponse validateItemBarcode(String itemBarcode) {
         if(StringUtils.isBlank(itemBarcode)) {
-            return getAccessionValidationResponse(false, RecapConstants.ITEM_BARCODE_EMPTY);
+            return getAccessionValidationResponse(false, ScsbConstants.ITEM_BARCODE_EMPTY);
         } else {
             // todo : Validate barcode length
             if(itemBarcode.length() > 45) {
-                return getAccessionValidationResponse(false , RecapConstants.INVALID_BARCODE_LENGTH);
+                return getAccessionValidationResponse(false , ScsbConstants.INVALID_BARCODE_LENGTH);
             }
         }
 
@@ -175,11 +175,11 @@ public class AccessionValidationService {
 
     private AccessionValidationResponse validateOwnerCode(String customerCode, String imsLocationCode) {
         if(StringUtils.isBlank(customerCode)) {
-            return getAccessionValidationResponse(false, RecapConstants.CUSTOMER_CODE_EMPTY);
+            return getAccessionValidationResponse(false, ScsbConstants.CUSTOMER_CODE_EMPTY);
         } else {
             String owningInstitution = accessionUtil.getOwningInstitution(customerCode, imsLocationCode);
             if(StringUtils.isBlank(owningInstitution)) {
-                return getAccessionValidationResponse(false, RecapCommonConstants.CUSTOMER_CODE_DOESNOT_EXIST);
+                return getAccessionValidationResponse(false, ScsbCommonConstants.CUSTOMER_CODE_DOESNOT_EXIST);
             }
             AccessionValidationResponse accessionValidationResponse = getAccessionValidationResponse(true, "");
             accessionValidationResponse.setOwningInstitution(owningInstitution);
@@ -197,11 +197,11 @@ public class AccessionValidationService {
     public AccessionValidationResponse validateImsLocationCode(String imsLocationCode) {
         ImsLocationEntity imsLocationEntity=null;
         if(StringUtils.isBlank(imsLocationCode)) {
-            return getAccessionValidationResponse(false, RecapConstants.IMS_LOCACTION_CODE_IS_BLANK);
+            return getAccessionValidationResponse(false, ScsbConstants.IMS_LOCACTION_CODE_IS_BLANK);
         } else {
              imsLocationEntity = imsLocationDetailsRepository.findByImsLocationCode(imsLocationCode);
             if(imsLocationEntity==null) {
-                return getAccessionValidationResponse(false, RecapConstants.INVALID_IMS_LOCACTION_CODE);
+                return getAccessionValidationResponse(false, ScsbConstants.INVALID_IMS_LOCACTION_CODE);
             }
             AccessionValidationResponse accessionValidationResponse = getAccessionValidationResponse(true, "");
             accessionValidationResponse.setImsLocationEntity(imsLocationEntity);

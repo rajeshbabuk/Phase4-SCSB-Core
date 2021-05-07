@@ -8,8 +8,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.jaxb.Bib;
 import org.recap.model.jaxb.BibRecord;
 import org.recap.model.jaxb.Holding;
@@ -240,7 +240,7 @@ public class SCSBToBibEntityConverterUT extends BaseTestCaseUT {
         Mockito.when(commonUtil.buildHoldingsEntity(Mockito.any(),Mockito.any(),Mockito.any(),Mockito.anyString(),Mockito.anyString())).thenReturn(getHoldingsEntity());
         Map<String, Object> map = new HashMap<>();
         BibliographicEntity bibliographicEntity=saveBibSingleHoldingsSingleItem("33433002031718","NA","NYPL",".b100000186");
-        map.put(RecapConstants.BIBLIOGRAPHIC_ENTITY,bibliographicEntity);
+        map.put(ScsbConstants.BIBLIOGRAPHIC_ENTITY,bibliographicEntity);
         Mockito.when(marcUtil.extractXmlAndSetEntityToMap(Mockito.any(),Mockito.any(),Mockito.anyMap(),Mockito.any())).thenReturn(map);
         Map result = scsbToBibEntityConverter.convert(getBibRecords().getBibRecordList().get(0),getInstitutionEntity());
         assertNotNull(result);
@@ -281,9 +281,9 @@ public class SCSBToBibEntityConverterUT extends BaseTestCaseUT {
         HoldingsEntity holdingsEntity = new HoldingsEntity();
         holdingsEntity.setDeleted(false);
         holdingsEntity.setCreatedDate(new Date());
-        holdingsEntity.setCreatedBy(RecapCommonConstants.ACCESSION);
+        holdingsEntity.setCreatedBy(ScsbCommonConstants.ACCESSION);
         holdingsEntity.setLastUpdatedDate(new Date());
-        holdingsEntity.setLastUpdatedBy(RecapCommonConstants.ACCESSION);
+        holdingsEntity.setLastUpdatedBy(ScsbCommonConstants.ACCESSION);
         holdingsEntity.setOwningInstitutionId(3);
         holdingsEntity.setOwningInstitutionHoldingsId("5123222f-2333-413e-8c9c-cb8709f010c3");
         return holdingsEntity;
@@ -303,9 +303,9 @@ public class SCSBToBibEntityConverterUT extends BaseTestCaseUT {
         HoldingsEntity holdingsEntity = new HoldingsEntity();
         holdingsEntity.setDeleted(false);
         holdingsEntity.setCreatedDate(new Date());
-        holdingsEntity.setCreatedBy(RecapCommonConstants.ACCESSION);
+        holdingsEntity.setCreatedBy(ScsbCommonConstants.ACCESSION);
         holdingsEntity.setLastUpdatedDate(new Date());
-        holdingsEntity.setLastUpdatedBy(RecapCommonConstants.ACCESSION);
+        holdingsEntity.setLastUpdatedBy(ScsbCommonConstants.ACCESSION);
         holdingsEntity.setOwningInstitutionId(3);
         holdingsEntity.setOwningInstitutionHoldingsId("5123222f-2333-413e-8c9c-cb8709f010c3");
 

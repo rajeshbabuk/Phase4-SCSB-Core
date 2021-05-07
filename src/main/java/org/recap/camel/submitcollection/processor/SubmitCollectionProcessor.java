@@ -3,8 +3,8 @@ package org.recap.camel.submitcollection.processor;
 import com.amazonaws.services.s3.AmazonS3;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 import org.recap.model.reports.ReportDataRequest;
 import org.recap.service.common.SetupDataService;
@@ -101,8 +101,8 @@ public class SubmitCollectionProcessor {
         try {
             logger.info("Submit Collection : Route started and started processing the records from s3 for submitcollection");
             String inputXml = exchange.getIn().getBody(String.class);
-            xmlFileName = exchange.getIn().getHeader(RecapConstants.CAMEL_FILE_NAME_ONLY).toString();
-            xmlFileName = submitCollectionS3BasePath+ institutionCode+ RecapCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + RecapCommonConstants.PATH_SEPARATOR + xmlFileName;
+            xmlFileName = exchange.getIn().getHeader(ScsbConstants.CAMEL_FILE_NAME_ONLY).toString();
+            xmlFileName = submitCollectionS3BasePath+ institutionCode+ ScsbCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + ScsbCommonConstants.PATH_SEPARATOR + xmlFileName;
             logger.info("Processing xmlFileName----->{}", xmlFileName);
             Integer institutionId = setupDataService.getInstitutionCodeIdMap().get(institutionCode);
             submitCollectionBatchService.process(institutionCode, inputXml, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, xmlFileName, reportRecordNumList, false, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, exchange);
@@ -126,7 +126,7 @@ public class SubmitCollectionProcessor {
                         submitCollectionBatchService.removeSolrIndex(idMapToRemoveIndexList);
                         logger.info("Removed dummy records from solr");
                     } catch (Exception e) {
-                        logger.error(RecapCommonConstants.LOG_ERROR, e);
+                        logger.error(ScsbCommonConstants.LOG_ERROR, e);
                     }
                 }).start();
                 stopWatchRemovingDummy.stop();
@@ -134,7 +134,7 @@ public class SubmitCollectionProcessor {
             }
             ReportDataRequest reportRequest = getReportDataRequest(xmlFileName);
             String generatedReportFileName = submitCollectionReportGenerator.generateReport(reportRequest);
-            producer.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoad(xmlFileName, generatedReportFileName), RecapConstants.EMAIL_BODY_FOR, RecapConstants.SUBMIT_COLLECTION);
+            producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoad(xmlFileName, generatedReportFileName), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION);
             if (awsS3Client.doesObjectExist(bucketName, xmlFileName) && (inputXml != null && !inputXml.equals(""))) {
                 String basepath = xmlFileName.substring(0, xmlFileName.lastIndexOf('/'));
                 String fileName = xmlFileName.substring(xmlFileName.lastIndexOf('/'));
@@ -145,7 +145,7 @@ public class SubmitCollectionProcessor {
             logger.info("Submit Collection : Total time taken for processing through s3---> {} sec", stopWatch.getTotalTimeSeconds());
         } catch (Exception e) {
             logger.info("Caught for institution inside catch block {} ",institutionCode);
-            logger.error(RecapCommonConstants.LOG_ERROR, e);
+            logger.error(ScsbCommonConstants.LOG_ERROR, e);
             exchange.setException(e);
         }
     }
@@ -153,21 +153,21 @@ public class SubmitCollectionProcessor {
     public void caughtException(Exchange exchange) {
         logger.info("inside caught exception..........");
         Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
-        logger.info("Headers - institution - {}, isCgdProtected - {}, cgdType - {} ", exchange.getIn().getHeader(RecapCommonConstants.INSTITUTION),
-                exchange.getIn().getHeader(RecapCommonConstants.IS_CGD_PROTECTED), exchange.getIn().getHeader(RecapConstants.CGG_TYPE));
+        logger.info("Headers - institution - {}, isCgdProtected - {}, cgdType - {} ", exchange.getIn().getHeader(ScsbCommonConstants.INSTITUTION),
+                exchange.getIn().getHeader(ScsbCommonConstants.IS_CGD_PROTECTED), exchange.getIn().getHeader(ScsbConstants.CGG_TYPE));
         if (exception != null) {
             String fileName = (String) exchange.getIn().getHeader(Exchange.FILE_NAME);
             String filePath = (String) exchange.getIn().getHeader(Exchange.FILE_PARENT);
-            String institutionCode1 = (String) exchange.getIn().getHeader(RecapCommonConstants.INSTITUTION);
+            String institutionCode1 = (String) exchange.getIn().getHeader(ScsbCommonConstants.INSTITUTION);
             logger.info("Institution inside caught  - {}", institutionCode1);
             logger.info("Exception occured is - {}", exception.getMessage());
-            producer.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoadForExcepion(institutionCode1, fileName, filePath, exception, exception.getMessage()), RecapConstants.EMAIL_BODY_FOR, RecapConstants.SUBMIT_COLLECTION_EXCEPTION);
+            producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoadForExcepion(institutionCode1, fileName, filePath, exception, exception.getMessage()), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION_EXCEPTION);
         }
     }
 
     private EmailPayLoad getEmailPayLoadForExcepion(String institutionCode, String name, String filePath, Exception exception, String exceptionMessage) {
         EmailPayLoad emailPayLoad = new EmailPayLoad();
-        emailPayLoad.setSubject(RecapConstants.SUBJECT_FOR_SUBMIT_COL_EXCEPTION);
+        emailPayLoad.setSubject(ScsbConstants.SUBJECT_FOR_SUBMIT_COL_EXCEPTION);
         emailPayLoad.setXmlFileName(name);
         logger.info("Institution inside email payload for exception- {}", institutionCode);
         emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.to"));
@@ -183,11 +183,11 @@ public class SubmitCollectionProcessor {
 
     private ReportDataRequest getReportDataRequest(String xmlFileName) {
         ReportDataRequest reportRequest = new ReportDataRequest();
-        logger.info("filename--->{}-{}", RecapCommonConstants.SUBMIT_COLLECTION_REPORT, xmlFileName);
-        reportRequest.setFileName(RecapCommonConstants.SUBMIT_COLLECTION_REPORT + "-" + xmlFileName);
+        logger.info("filename--->{}-{}", ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, xmlFileName);
+        reportRequest.setFileName(ScsbCommonConstants.SUBMIT_COLLECTION_REPORT + "-" + xmlFileName);
         reportRequest.setInstitutionCode(institutionCode.toUpperCase());
-        reportRequest.setReportType(RecapCommonConstants.SUBMIT_COLLECTION_SUMMARY);
-        reportRequest.setTransmissionType(RecapCommonConstants.FTP);
+        reportRequest.setReportType(ScsbCommonConstants.SUBMIT_COLLECTION_SUMMARY);
+        reportRequest.setTransmissionType(ScsbCommonConstants.FTP);
         return reportRequest;
     }
 
@@ -209,7 +209,7 @@ public class SubmitCollectionProcessor {
      */
     public void sendEmailForEmptyDirectory() {
         String s3Path = submitCollectionS3BasePath+ institutionCode + "/cgd_" + cgdType;
-        producer.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoadForNoFiles(institutionCode,s3Path), RecapConstants.EMAIL_BODY_FOR, RecapConstants.SUBMIT_COLLECTION_FOR_NO_FILES);
+        producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoadForNoFiles(institutionCode,s3Path), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION_FOR_NO_FILES);
     }
 
     private EmailPayLoad getEmailPayLoadForNoFiles(String institutionCode, String ftpLocationPath) {

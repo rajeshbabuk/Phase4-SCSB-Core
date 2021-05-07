@@ -3,8 +3,8 @@ package org.recap.controller;
 import com.google.gson.Gson;
 import org.apache.camel.Exchange;
 import org.apache.commons.collections.CollectionUtils;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionModelRequest;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
@@ -85,14 +85,14 @@ public class SharedCollectionRestController {
             return new ResponseEntity<>(accessionResponsesList, getHttpHeaders(), HttpStatus.OK);
         } else {
             logger.info("Total record for Accession : {}",accessionModelRequest.getAccessionRequests().size());
-            AccessionSummary accessionSummary = new AccessionSummary(RecapConstants.ACCESSION_SUMMARY);
+            AccessionSummary accessionSummary = new AccessionSummary(ScsbConstants.ACCESSION_SUMMARY);
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             accessionResponsesList = accessionService.doAccession(accessionModelRequest, accessionSummary,exchange);
             stopWatch.stop();
             accessionSummary.setTimeElapsed(stopWatch.getTotalTimeSeconds() + " Secs");
             logger.info("{}", accessionSummary);
-            accessionService.createSummaryReport(accessionSummary.toString(), RecapConstants.ACCESSION_SUMMARY);
+            accessionService.createSummaryReport(accessionSummary.toString(), ScsbConstants.ACCESSION_SUMMARY);
             responseEntity = new ResponseEntity<>(accessionResponsesList, getHttpHeaders(), HttpStatus.OK);
         }
         return responseEntity;
@@ -109,11 +109,11 @@ public class SharedCollectionRestController {
         String status;
         Gson gson = new Gson();
         List<AccessionModelRequest> accessionModelRequestList=new ArrayList<>();
-        AccessionSummary accessionSummary = new AccessionSummary(RecapConstants.BULK_ACCESSION_SUMMARY);
+        AccessionSummary accessionSummary = new AccessionSummary(ScsbConstants.BULK_ACCESSION_SUMMARY);
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        List<AccessionEntity> accessionEntities = bulkAccessionService.getAccessionEntities(RecapConstants.PENDING);
+        List<AccessionEntity> accessionEntities = bulkAccessionService.getAccessionEntities(ScsbConstants.PENDING);
         accessionEntities.forEach(accessionEntity -> {
             AccessionModelRequest accessionModelRequest = gson.fromJson(accessionEntity.getAccessionRequest(), AccessionModelRequest.class);
             accessionModelRequestList.add(accessionModelRequest);
@@ -122,16 +122,16 @@ public class SharedCollectionRestController {
         if (CollectionUtils.isNotEmpty(accessionRequestList)) {
             logger.info("Total record for Bulk Accession : {}", accessionRequestList.size());
             accessionSummary.setRequestedRecords(accessionRequestList.size());
-            bulkAccessionService.updateStatusForAccessionEntities(accessionEntities, RecapConstants.PROCESSING);
+            bulkAccessionService.updateStatusForAccessionEntities(accessionEntities, ScsbConstants.PROCESSING);
             accessionModelRequestList.forEach(accessionModelRequest -> bulkAccessionService.doAccession(accessionModelRequest, accessionSummary, exchange));
-            status = (accessionSummary.getSuccessRecords() != 0) ? RecapCommonConstants.SUCCESS :RecapCommonConstants.FAILURE;
+            status = (accessionSummary.getSuccessRecords() != 0) ? ScsbCommonConstants.SUCCESS :ScsbCommonConstants.FAILURE;
         } else {
-            status = RecapCommonConstants.ACCESSION_NO_PENDING_REQUESTS;
+            status = ScsbCommonConstants.ACCESSION_NO_PENDING_REQUESTS;
         }
-        bulkAccessionService.updateStatusForAccessionEntities(accessionEntities, RecapCommonConstants.COMPLETE_STATUS);
+        bulkAccessionService.updateStatusForAccessionEntities(accessionEntities, ScsbCommonConstants.COMPLETE_STATUS);
         stopWatch.stop();
         accessionSummary.setTimeElapsed(stopWatch.getTotalTimeSeconds() + " Secs");
-        bulkAccessionService.createSummaryReport(accessionSummary.toString(), RecapConstants.BULK_ACCESSION_SUMMARY);
+        bulkAccessionService.createSummaryReport(accessionSummary.toString(), ScsbConstants.BULK_ACCESSION_SUMMARY);
         logger.info("Total time taken for processing {} records : {} secs", accessionRequestList.size(), stopWatch.getTotalTimeSeconds());
         logger.info(accessionSummary.toString());
         return status;
@@ -140,7 +140,7 @@ public class SharedCollectionRestController {
     private List<AccessionResponse> getAccessionResponses() {
         AccessionResponse accessionResponse = new AccessionResponse();
         accessionResponse.setItemBarcode("");
-        accessionResponse.setMessage(RecapConstants.ONGOING_ACCESSION_LIMIT_EXCEED_MESSAGE + inputLimit);
+        accessionResponse.setMessage(ScsbConstants.ONGOING_ACCESSION_LIMIT_EXCEED_MESSAGE + inputLimit);
         return Collections.singletonList(accessionResponse);
     }
 
@@ -157,10 +157,10 @@ public class SharedCollectionRestController {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         ResponseEntity responseEntity;
-        String inputRecords = (String) requestParameters.get(RecapCommonConstants.INPUT_RECORDS);
-        String institution = (String) requestParameters.get(RecapCommonConstants.INSTITUTION);
+        String inputRecords = (String) requestParameters.get(ScsbCommonConstants.INPUT_RECORDS);
+        String institution = (String) requestParameters.get(ScsbCommonConstants.INSTITUTION);
         Integer institutionId = setupDataService.getInstitutionCodeIdMap().get(institution);
-        Boolean isCGDProtection = Boolean.valueOf((String) requestParameters.get(RecapCommonConstants.IS_CGD_PROTECTED));
+        Boolean isCGDProtection = Boolean.valueOf((String) requestParameters.get(ScsbCommonConstants.IS_CGD_PROTECTED));
 
         List<Integer> reportRecordNumberList = new ArrayList<>();
         Set<Integer> processedBibIdSet = new HashSet<>();
@@ -189,8 +189,8 @@ public class SharedCollectionRestController {
             submitCollectionBatchService.generateSubmitCollectionReportFile(reportRecordNumberList);
             responseEntity = new ResponseEntity(submitCollectionResponseList,getHttpHeaders(), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error(RecapCommonConstants.LOG_ERROR,e);
-            responseEntity = new ResponseEntity(RecapConstants.SUBMIT_COLLECTION_INTERNAL_ERROR,getHttpHeaders(), HttpStatus.OK);
+            logger.error(ScsbCommonConstants.LOG_ERROR,e);
+            responseEntity = new ResponseEntity(ScsbConstants.SUBMIT_COLLECTION_INTERNAL_ERROR,getHttpHeaders(), HttpStatus.OK);
         }
         stopWatch.stop();
         logger.info("Total time taken to process submit collection through rest api--->{} sec",stopWatch.getTotalTimeSeconds());
@@ -199,7 +199,7 @@ public class SharedCollectionRestController {
 
     private HttpHeaders getHttpHeaders() {
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add(RecapCommonConstants.RESPONSE_DATE, new Date().toString());
+        responseHeaders.add(ScsbCommonConstants.RESPONSE_DATE, new Date().toString());
         return responseHeaders;
     }
 }

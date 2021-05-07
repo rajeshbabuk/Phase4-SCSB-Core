@@ -4,8 +4,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.marc4j.marc.Record;
-import org.recap.RecapConstants;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.model.jpa.BibliographicEntity;
 import org.recap.model.jpa.HoldingsEntity;
 import org.recap.model.jpa.ImsLocationEntity;
@@ -88,7 +88,7 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
             }
             Date currentDate = new Date();
             Map<String, Object> bibMap = processAndValidateBibliographicEntity(bibRecord, institutionEntity,currentDate,errorMessage);
-            BibliographicEntity bibliographicEntity = (BibliographicEntity) bibMap.get(RecapConstants.BIBLIOGRAPHIC_ENTITY);
+            BibliographicEntity bibliographicEntity = (BibliographicEntity) bibMap.get(ScsbConstants.BIBLIOGRAPHIC_ENTITY);
             ReportEntity bibReportEntity = (ReportEntity) bibMap.get("bibReportEntity");
             if (bibReportEntity != null) {
                 reportEntities.add(bibReportEntity);
@@ -131,10 +131,10 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
             }
 
             if (processBib) {
-                map.put(RecapConstants.BIBLIOGRAPHIC_ENTITY, bibliographicEntity);
+                map.put(ScsbConstants.BIBLIOGRAPHIC_ENTITY, bibliographicEntity);
             }
         } catch (Exception e) {
-            logger.error(RecapCommonConstants.LOG_ERROR,e);
+            logger.error(ScsbCommonConstants.LOG_ERROR,e);
             errorMessage.append(e.getMessage());
         }
         map.put("errorMessage",errorMessage);
@@ -157,9 +157,9 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
             errorMessage.append(" Owning Institution Id cannot be null");
         }
         bibliographicEntity.setCreatedDate(currentDate);
-        bibliographicEntity.setCreatedBy(RecapConstants.SUBMIT_COLLECTION);
+        bibliographicEntity.setCreatedBy(ScsbConstants.SUBMIT_COLLECTION);
         bibliographicEntity.setLastUpdatedDate(currentDate);
-        bibliographicEntity.setLastUpdatedBy(RecapConstants.SUBMIT_COLLECTION);
+        bibliographicEntity.setLastUpdatedBy(ScsbConstants.SUBMIT_COLLECTION);
         return marcUtil.extractXmlAndSetEntityToMap(bibRecord, errorMessage, map, bibliographicEntity);
     }
 
@@ -167,7 +167,7 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
     ,StringBuilder errorMessage) {
         Map<String, Object> map = new HashMap<>();
         String holdingsContent = new MarcUtil().writeMarcXml(holdingsRecord);
-        HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent,RecapConstants.SUBMIT_COLLECTION);
+        HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent, ScsbConstants.SUBMIT_COLLECTION);
         String owningInstitutionHoldingsId = marcUtil.getDataFieldValue(holdingsRecord, "852", '0');
         return commonUtil.addHoldingsEntityToMap(map, holdingsEntity, owningInstitutionHoldingsId);
     }
@@ -222,9 +222,9 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
         }
 
         itemEntity.setCreatedDate(currentDate);
-        itemEntity.setCreatedBy(RecapConstants.SUBMIT_COLLECTION);
+        itemEntity.setCreatedBy(ScsbConstants.SUBMIT_COLLECTION);
         itemEntity.setLastUpdatedDate(currentDate);
-        itemEntity.setLastUpdatedBy(RecapConstants.SUBMIT_COLLECTION);
+        itemEntity.setLastUpdatedBy(ScsbConstants.SUBMIT_COLLECTION);
 
         map.put("itemEntity", itemEntity);
         return map;

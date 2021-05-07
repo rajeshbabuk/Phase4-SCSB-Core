@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.jpa.BibliographicEntity;
 import org.recap.model.jpa.HoldingsEntity;
@@ -163,8 +163,8 @@ public class AccessionMarcToBibEntityConverterUT extends BaseTestCaseUT {
         Mockito.when( marcUtil.getDataFieldValue(null,"876", 'h')).thenReturn(null);
         Mockito.when( marcUtil.getDataFieldValue(null,"876", 'a')).thenReturn("");
         Map collectionGroupMap=new HashMap();
-        collectionGroupMap.put(RecapCommonConstants.SHARED_CGD,1);
-        collectionGroupMap.put(RecapCommonConstants.NOT_AVAILABLE_CGD,4);
+        collectionGroupMap.put(ScsbCommonConstants.SHARED_CGD,1);
+        collectionGroupMap.put(ScsbCommonConstants.NOT_AVAILABLE_CGD,4);
         Mockito.when(commonUtil.getCollectionGroupMap()).thenReturn(collectionGroupMap);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         Map map = marcToBibEntityConverter.convert(records.get(0), "PUL",accessionRequest,imsLocationEntity);
@@ -199,8 +199,8 @@ public class AccessionMarcToBibEntityConverterUT extends BaseTestCaseUT {
         List<ItemMarcRecord> itemMarcRecordList=new ArrayList<>();
         itemMarcRecordList.add(itemMarcRecord);
         Map collectionGroupMap=new HashMap();
-        collectionGroupMap.put(RecapCommonConstants.SHARED_CGD,1);
-        collectionGroupMap.put(RecapCommonConstants.NOT_AVAILABLE_CGD,4);
+        collectionGroupMap.put(ScsbCommonConstants.SHARED_CGD,1);
+        collectionGroupMap.put(ScsbCommonConstants.NOT_AVAILABLE_CGD,4);
         Mockito.when(commonUtil.getCollectionGroupMap()).thenReturn(collectionGroupMap);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         Map map = marcToBibEntityConverter.convert(records.get(0), "PUL",accessionRequest,imsLocationEntity);
@@ -229,9 +229,9 @@ public class AccessionMarcToBibEntityConverterUT extends BaseTestCaseUT {
         HoldingsEntity holdingsEntity = new HoldingsEntity();
         holdingsEntity.setDeleted(false);
         holdingsEntity.setCreatedDate(new Date());
-        holdingsEntity.setCreatedBy(RecapCommonConstants.ACCESSION);
+        holdingsEntity.setCreatedBy(ScsbCommonConstants.ACCESSION);
         holdingsEntity.setLastUpdatedDate(new Date());
-        holdingsEntity.setLastUpdatedBy(RecapCommonConstants.ACCESSION);
+        holdingsEntity.setLastUpdatedBy(ScsbCommonConstants.ACCESSION);
         holdingsEntity.setOwningInstitutionId(3);
         holdingsEntity.setOwningInstitutionHoldingsId("5123222f-2333-413e-8c9c-cb8709f010c3");
 

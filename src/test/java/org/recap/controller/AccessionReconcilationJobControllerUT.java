@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 
@@ -44,7 +44,7 @@ public class AccessionReconcilationJobControllerUT extends BaseTestCaseUT {
         Mockito.doNothing().when(routeController).startRoute(Mockito.anyString());
         String result = accessionReconcilationJobController.startAccessionReconciliation();
         assertNotNull(result);
-        assertEquals(RecapCommonConstants.SUCCESS,result);
+        assertEquals(ScsbCommonConstants.SUCCESS,result);
     }
 
     private List<String> getInstitutionCodeExceptHTC() {

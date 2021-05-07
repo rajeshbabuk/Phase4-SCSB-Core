@@ -2,7 +2,7 @@ package org.recap.service.accession;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +28,13 @@ public class AccessionJobProcessor {
         logger.info("inside caught exception..........");
         Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         if (exception != null) {
-            producer.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoadForException(exception, exception.getMessage()), RecapConstants.EMAIL_FOR, RecapConstants.ACCESSION_JOB_FAILURE);
+            producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoadForException(exception, exception.getMessage()), ScsbConstants.EMAIL_FOR, ScsbConstants.ACCESSION_JOB_FAILURE);
         }
     }
 
     private EmailPayLoad getEmailPayLoadForException(Exception exception, String exceptionMessage) {
         EmailPayLoad emailPayLoad = new EmailPayLoad();
-        emailPayLoad.setSubject(RecapConstants.ACCESSION_JOB_FAILURE);
+        emailPayLoad.setSubject(ScsbConstants.ACCESSION_JOB_FAILURE);
         emailPayLoad.setTo(emailTo);
         emailPayLoad.setCc(emailCc);
         emailPayLoad.setMessage("An exception has occurred in Ongoing Accession process. \n Exception : " + exception + "\n Exception Message : " + exceptionMessage);

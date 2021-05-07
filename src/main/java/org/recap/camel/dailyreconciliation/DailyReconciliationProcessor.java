@@ -17,8 +17,8 @@ import org.apache.poi.xssf.usermodel.XSSFCreationHelper;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.recap.RecapConstants;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.model.jpa.RequestItemEntity;
 import org.recap.model.csv.DailyReconcilationRecord;
@@ -39,8 +39,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static org.recap.RecapConstants.getGFAStatusAvailableList;
-import static org.recap.RecapConstants.getGFAStatusNotAvailableList;
+import static org.recap.ScsbConstants.getGFAStatusAvailableList;
+import static org.recap.ScsbConstants.getGFAStatusNotAvailableList;
 
 /**
  * The type Daily reconcilation processor.
@@ -82,12 +82,12 @@ public class DailyReconciliationProcessor {
      */
     public void processInput(Exchange exchange) {
         try {
-            String xmlFileName = exchange.getIn().getHeader(RecapConstants.CAMEL_AWS_KEY).toString();
+            String xmlFileName = exchange.getIn().getHeader(ScsbConstants.CAMEL_AWS_KEY).toString();
             logger.info("{} LAS File Processing: {}", imsLocationCode, xmlFileName);
             List<DailyReconcilationRecord> dailyReconcilationRecordList = (List<DailyReconcilationRecord>)exchange.getIn().getBody();
             try (XSSFWorkbook xssfWorkbook = new XSSFWorkbook()) {
-                XSSFSheet lasSheet = xssfWorkbook.createSheet(imsLocationCode + "_" + RecapConstants.DAILY_RR_LAS);
-                xssfWorkbook.setSheetOrder(imsLocationCode + "_" + RecapConstants.DAILY_RR_LAS, 0);
+                XSSFSheet lasSheet = xssfWorkbook.createSheet(imsLocationCode + "_" + ScsbConstants.DAILY_RR_LAS);
+                xssfWorkbook.setSheetOrder(imsLocationCode + "_" + ScsbConstants.DAILY_RR_LAS, 0);
                 int i = 0;
                 setColumnWidthForSheet(lasSheet);
                 CellStyle cellStyle = xssfWorkbook.createCellStyle();
@@ -102,8 +102,8 @@ public class DailyReconciliationProcessor {
                 }
                 logger.info("completed creating las sheet for : {}", imsLocationCode);
                 Sheet readLasSheet = xssfWorkbook.getSheetAt(0);
-                XSSFSheet scsbSheet = xssfWorkbook.createSheet(RecapConstants.DAILY_RR_SCSB);
-                xssfWorkbook.setSheetOrder(RecapConstants.DAILY_RR_SCSB, 1);
+                XSSFSheet scsbSheet = xssfWorkbook.createSheet(ScsbConstants.DAILY_RR_SCSB);
+                xssfWorkbook.setSheetOrder(ScsbConstants.DAILY_RR_SCSB, 1);
                 createHeader(scsbSheet);
                 XSSFCellStyle dateCellStyle = getXssfCellStyleForDate(xssfWorkbook);
                 logger.info("started creating scsb sheet");
@@ -112,15 +112,15 @@ public class DailyReconciliationProcessor {
                 }
                 logger.info("completed creating scsb sheet");
                 compareLasAndScsbSheets(xssfWorkbook,cellStyle);
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(RecapConstants.DAILY_RR_FILE_DATE_FORMAT);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(ScsbConstants.DAILY_RR_FILE_DATE_FORMAT);
                 logger.info("File Path: {}, Ims : {}", filePath, imsLocationCode);
-                FileOutputStream fileOutputStream = new FileOutputStream(filePath + "/" + imsLocationCode + "/" + RecapConstants.DAILY_RR + simpleDateFormat.format(new Date()) + ".xlsx");
+                FileOutputStream fileOutputStream = new FileOutputStream(filePath + "/" + imsLocationCode + "/" + ScsbConstants.DAILY_RR + simpleDateFormat.format(new Date()) + ".xlsx");
                 xssfWorkbook.write(fileOutputStream);
                 fileOutputStream.flush();
                 fileOutputStream.close();
                 logger.info("total number of sheets created {}",xssfWorkbook.getNumberOfSheets());
-                camelContext.getRouteController().startRoute(RecapConstants.DAILY_RR_FS_ROUTE_ID + imsLocationCode);
-                logger.info("started {}", RecapConstants.DAILY_RR_FS_ROUTE_ID + imsLocationCode);
+                camelContext.getRouteController().startRoute(ScsbConstants.DAILY_RR_FS_ROUTE_ID + imsLocationCode);
+                logger.info("started {}", ScsbConstants.DAILY_RR_FS_ROUTE_ID + imsLocationCode);
                 String bucketName = exchange.getIn().getHeader("CamelAwsS3BucketName").toString();
                 if (awsS3Client.doesObjectExist(bucketName, xmlFileName)) {
                     String basepath = xmlFileName.substring(0, xmlFileName.lastIndexOf('/'));
@@ -132,7 +132,7 @@ public class DailyReconciliationProcessor {
             logger.info("{} LAS File Processed: {}",imsLocationCode, xmlFileName);
         }
         catch (Exception e){
-            logger.error(RecapCommonConstants.LOG_ERROR, e);
+            logger.error(ScsbCommonConstants.LOG_ERROR, e);
         }
 
     }
@@ -243,23 +243,23 @@ public class DailyReconciliationProcessor {
         XSSFCreationHelper createHelper = xssfWorkbook.getCreationHelper();
         XSSFCellStyle cellStyle = xssfWorkbook.createCellStyle();
         cellStyle.setAlignment(HorizontalAlignment.LEFT);
-        cellStyle.setDataFormat(createHelper.createDataFormat().getFormat(RecapConstants.DATE_CELL_STYLE_FORMAT));
+        cellStyle.setDataFormat(createHelper.createDataFormat().getFormat(ScsbConstants.DATE_CELL_STYLE_FORMAT));
         return cellStyle;
     }
 
     private void createHeader(XSSFSheet xssfSheet) {
         XSSFRow row = xssfSheet.createRow(0);
-        row.createCell(0).setCellValue(RecapConstants.DAILY_RR_REQUEST_ID);
-        row.createCell(1).setCellValue(RecapConstants.DAILY_RR_BARCODE);
-        row.createCell(2).setCellValue(RecapConstants.DAILY_RR_CUSTOMER_CODE);
-        row.createCell(3).setCellValue(RecapConstants.DAILY_RR_STOP_CODE);
-        row.createCell(4).setCellValue(RecapConstants.DAILY_RR_PATRON_ID);
-        row.createCell(5).setCellValue(RecapConstants.DAILY_RR_CREATED_DATE);
-        row.createCell(6).setCellValue(RecapConstants.DAILY_RR_LAST_UPDATED_DATE);
-        row.createCell(7).setCellValue(RecapConstants.DAILY_RR_REQUESTING_INST);
-        row.createCell(8).setCellValue(RecapConstants.DAILY_RR_OWNING_INSTITUTION);
-        row.createCell(9).setCellValue(RecapConstants.DAILY_RR_DELIVERY_METHOD);
-        row.createCell(10).setCellValue(RecapConstants.DAILY_RR_STATUS);
+        row.createCell(0).setCellValue(ScsbConstants.DAILY_RR_REQUEST_ID);
+        row.createCell(1).setCellValue(ScsbConstants.DAILY_RR_BARCODE);
+        row.createCell(2).setCellValue(ScsbConstants.DAILY_RR_CUSTOMER_CODE);
+        row.createCell(3).setCellValue(ScsbConstants.DAILY_RR_STOP_CODE);
+        row.createCell(4).setCellValue(ScsbConstants.DAILY_RR_PATRON_ID);
+        row.createCell(5).setCellValue(ScsbConstants.DAILY_RR_CREATED_DATE);
+        row.createCell(6).setCellValue(ScsbConstants.DAILY_RR_LAST_UPDATED_DATE);
+        row.createCell(7).setCellValue(ScsbConstants.DAILY_RR_REQUESTING_INST);
+        row.createCell(8).setCellValue(ScsbConstants.DAILY_RR_OWNING_INSTITUTION);
+        row.createCell(9).setCellValue(ScsbConstants.DAILY_RR_DELIVERY_METHOD);
+        row.createCell(10).setCellValue(ScsbConstants.DAILY_RR_STATUS);
         setColumnWidthForSheet(xssfSheet);
     }
 
@@ -284,8 +284,8 @@ public class DailyReconciliationProcessor {
             logger.info("started comparing las and scsb sheets");
             XSSFSheet sheet1 = xssfWorkbook.getSheetAt(0);
             XSSFSheet sheet2 = xssfWorkbook.getSheetAt(1);
-            XSSFSheet sheet3 = xssfWorkbook.createSheet(RecapConstants.DAILY_RR_COMPARISON);
-            xssfWorkbook.setSheetOrder(RecapConstants.DAILY_RR_COMPARISON,2);
+            XSSFSheet sheet3 = xssfWorkbook.createSheet(ScsbConstants.DAILY_RR_COMPARISON);
+            xssfWorkbook.setSheetOrder(ScsbConstants.DAILY_RR_COMPARISON,2);
             createHeaderForCompareSheet(sheet3);
             compareTwoSheets(sheet1, sheet2, sheet3,xssfWorkbook,cellStyle);
             logger.info("completed comparing las and scsb sheets");
@@ -367,18 +367,18 @@ public class DailyReconciliationProcessor {
     private void buidComparisionSheet(XSSFRow row3, XSSFWorkbook xssfWorkbook, String sheet1LasStatus, String[] sheet1, String[] sheet2, boolean equalRow,CellStyle cellStyle) {
         if (equalRow){
             createCellForEqualRow(row3, xssfWorkbook, sheet1LasStatus, cellStyle, sheet1[0], 0, sheet1[1], 1, 2, sheet2[0], 3, sheet2[1], 4, sheet2[2], 5);
-            createCell(xssfWorkbook,row3,cellStyle, RecapConstants.DAILY_RR_MATCHED,6);
+            createCell(xssfWorkbook,row3,cellStyle, ScsbConstants.DAILY_RR_MATCHED,6);
         }
         else {
             createCellForEqualRow(row3, xssfWorkbook, sheet1LasStatus, cellStyle, sheet1[0], 0, sheet1[1], 1, 2, sheet2[0], 3, sheet2[1], 4, sheet2[2], 5);
             if (StringUtils.isBlank(sheet1LasStatus) && StringUtils.isNotBlank(sheet2[2])){
-                createCellForNotEqualCells(xssfWorkbook,row3, RecapConstants.DAILY_RR_LAS_NOT_GIVEN_STATUS,6);
+                createCellForNotEqualCells(xssfWorkbook,row3, ScsbConstants.DAILY_RR_LAS_NOT_GIVEN_STATUS,6);
             }
             else if (StringUtils.isBlank(sheet2[0])&&StringUtils.isBlank(sheet2[1])&&StringUtils.isBlank(sheet2[2])){
-                createCellForNotEqualCells(xssfWorkbook,row3, RecapConstants.DAILY_RR_NOT_IN_SCSB,6);
+                createCellForNotEqualCells(xssfWorkbook,row3, ScsbConstants.DAILY_RR_NOT_IN_SCSB,6);
             }
             else {
-                createCellForNotEqualCells(xssfWorkbook,row3, RecapConstants.DAILY_RR_MISMATCH,6);
+                createCellForNotEqualCells(xssfWorkbook,row3, ScsbConstants.DAILY_RR_MISMATCH,6);
             }
         }
     }
@@ -400,7 +400,7 @@ public class DailyReconciliationProcessor {
         boolean statusFound = false;
         for (String lasAvailableStatus : lasAvailableStatusList) {
             if(StringUtils.startsWithIgnoreCase(sheet1LasStatus,lasAvailableStatus)){
-                sheet1[2] = RecapCommonConstants.AVAILABLE;
+                sheet1[2] = ScsbCommonConstants.AVAILABLE;
                 statusFound = true;
                 break;
             }
@@ -408,7 +408,7 @@ public class DailyReconciliationProcessor {
         if(!statusFound){
             for (String lasNotAvailableStatus : lasNotAvailableStatusList) {
                 if(StringUtils.startsWithIgnoreCase(sheet1LasStatus,lasNotAvailableStatus)){
-                    sheet1[2] = RecapCommonConstants.NOT_AVAILABLE;
+                    sheet1[2] = ScsbCommonConstants.NOT_AVAILABLE;
                     break;
                 }
             }
@@ -451,15 +451,15 @@ public class DailyReconciliationProcessor {
 
     private void createHeaderForCompareSheet(XSSFSheet xssfSheet) {
         XSSFRow row = xssfSheet.createRow(0);
-        row.createCell(0).setCellValue(RecapConstants.DAILY_RR_LAS);
-        row.createCell(3).setCellValue(RecapConstants.DAILY_RR_SCSB);
+        row.createCell(0).setCellValue(ScsbConstants.DAILY_RR_LAS);
+        row.createCell(3).setCellValue(ScsbConstants.DAILY_RR_SCSB);
         XSSFRow row1 = xssfSheet.createRow(1);
-        row1.createCell(0).setCellValue(RecapConstants.DAILY_RR_REQUEST_ID);
-        row1.createCell(1).setCellValue(RecapConstants.DAILY_RR_BARCODE);
-        row1.createCell(2).setCellValue(RecapConstants.DAILY_RR_STATUS);
-        row1.createCell(3).setCellValue(RecapConstants.DAILY_RR_REQUEST_ID);
-        row1.createCell(4).setCellValue(RecapConstants.DAILY_RR_BARCODE);
-        row1.createCell(5).setCellValue(RecapConstants.DAILY_RR_STATUS);
+        row1.createCell(0).setCellValue(ScsbConstants.DAILY_RR_REQUEST_ID);
+        row1.createCell(1).setCellValue(ScsbConstants.DAILY_RR_BARCODE);
+        row1.createCell(2).setCellValue(ScsbConstants.DAILY_RR_STATUS);
+        row1.createCell(3).setCellValue(ScsbConstants.DAILY_RR_REQUEST_ID);
+        row1.createCell(4).setCellValue(ScsbConstants.DAILY_RR_BARCODE);
+        row1.createCell(5).setCellValue(ScsbConstants.DAILY_RR_STATUS);
         xssfSheet.setColumnWidth(0, 3000);
         xssfSheet.setColumnWidth(1, 4000);
         xssfSheet.setColumnWidth(2, 7500);

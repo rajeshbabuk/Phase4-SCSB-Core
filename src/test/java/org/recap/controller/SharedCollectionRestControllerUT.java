@@ -7,8 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.converter.MarcToBibEntityConverter;
 import org.recap.model.accession.AccessionModelRequest;
 import org.recap.model.accession.AccessionRequest;
@@ -213,9 +213,9 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
         Map map = new HashMap();
         map.put(1,"PUL");
         Map<String,Object> requestParameters = new HashedMap();
-        requestParameters.put(RecapCommonConstants.INPUT_RECORDS,updatedMarcXml);
-        requestParameters.put(RecapCommonConstants.INSTITUTION,"PUL");
-        requestParameters.put(RecapCommonConstants.IS_CGD_PROTECTED,"true");
+        requestParameters.put(ScsbCommonConstants.INPUT_RECORDS,updatedMarcXml);
+        requestParameters.put(ScsbCommonConstants.INSTITUTION,"PUL");
+        requestParameters.put(ScsbCommonConstants.IS_CGD_PROTECTED,"true");
         List<Integer> reportRecordNumberList = new ArrayList<>();
         Set<Integer> processedBibIdSet = new HashSet<>();
         List<Map<String, String>> idMapToRemoveIndexList = new ArrayList<>();//Added to remove dummy record in solr
@@ -239,7 +239,7 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
         Map responseMap=new HashMap();
         StringBuilder stringBuilder=new StringBuilder();
         responseMap.put("errorMessage",stringBuilder);
-        responseMap.put(RecapCommonConstants.BIBLIOGRAPHICENTITY,getBibliographicEntityMultiVolume("456"));
+        responseMap.put(ScsbCommonConstants.BIBLIOGRAPHICENTITY,getBibliographicEntityMultiVolume("456"));
         List<BibliographicEntity> updatedBibliographicEntityList = new ArrayList<>();
         BibliographicEntity bibliographicEntity=getBibliographicEntities("456");
         bibliographicEntity.setId(null);
@@ -268,9 +268,9 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
         Map map = new HashMap();
         map.put(1,"PUL");
         Map<String,Object> requestParameters = new HashedMap();
-        requestParameters.put(RecapCommonConstants.INPUT_RECORDS,updatedMarcXml);
-        requestParameters.put(RecapCommonConstants.INSTITUTION,"PUL");
-        requestParameters.put(RecapCommonConstants.IS_CGD_PROTECTED,"true");
+        requestParameters.put(ScsbCommonConstants.INPUT_RECORDS,updatedMarcXml);
+        requestParameters.put(ScsbCommonConstants.INSTITUTION,"PUL");
+        requestParameters.put(ScsbCommonConstants.IS_CGD_PROTECTED,"true");
         List<Integer> reportRecordNumberList = new ArrayList<>();
         Set<Integer> processedBibIdSet = new HashSet<>();
         List<Map<String, String>> idMapToRemoveIndexList = new ArrayList<>();//Added to remove dummy record in solr
@@ -281,7 +281,7 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
         Mockito.when(setupDataService.getInstitutionCodeIdMap()).thenReturn(map);
         Mockito.when(submitCollectionBatchService.process(institution, inputRecords, processedBibIdSet, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, "", reportRecordNumberList, true, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, null)).thenThrow(NullPointerException.class);
         ResponseEntity response = sharedCollectionRestController.submitCollection(requestParameters);
-        assertEquals(RecapConstants.SUBMIT_COLLECTION_INTERNAL_ERROR,response.getBody());
+        assertEquals(ScsbConstants.SUBMIT_COLLECTION_INTERNAL_ERROR,response.getBody());
     }
 
     @Test
@@ -304,10 +304,10 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
     public void accessionExceedLimit() throws Exception{
         List<AccessionRequest> accessionRequestList=new ArrayList<>();
         AccessionRequest accessionRequest = new AccessionRequest();
-        accessionRequest.setOwnerCode("PA");
+        accessionRequest.setCustomerCode("PA");
         accessionRequest.setItemBarcode("32101095533293");
         AccessionRequest accessionRequest1 = new AccessionRequest();
-        accessionRequest1.setOwnerCode("PA");
+        accessionRequest1.setCustomerCode("PA");
         accessionRequest1.setItemBarcode("32101095533294");
         accessionRequestList.add(accessionRequest1);
         AccessionModelRequest accessionModelRequest=new AccessionModelRequest();
@@ -320,20 +320,20 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
     @Test
     public void ongoingAccessionJobNoPending() throws Exception{
         String response = sharedCollectionRestController.ongoingAccessionJob(exchange);
-        assertEquals(RecapCommonConstants.ACCESSION_NO_PENDING_REQUESTS,response);
+        assertEquals(ScsbCommonConstants.ACCESSION_NO_PENDING_REQUESTS,response);
     }
 
     @Test
     public void ongoingAccessionJobFailure() throws Exception{
         Mockito.when(bulkAccessionService.getAccessionRequest(Mockito.anyList())).thenReturn(getAccessionRequests());
         String response = sharedCollectionRestController.ongoingAccessionJob(exchange);
-        assertEquals(RecapCommonConstants.FAILURE,response);
+        assertEquals(ScsbCommonConstants.FAILURE,response);
     }
 
     private List<AccessionRequest> getAccessionRequests() {
         List<AccessionRequest> accessionRequestList = new ArrayList<>();
         AccessionRequest accessionRequest = new AccessionRequest();
-        accessionRequest.setOwnerCode("PA");
+        accessionRequest.setCustomerCode("PA");
         accessionRequest.setItemBarcode("32101095533293");
         accessionRequestList.add(accessionRequest);
         return accessionRequestList;

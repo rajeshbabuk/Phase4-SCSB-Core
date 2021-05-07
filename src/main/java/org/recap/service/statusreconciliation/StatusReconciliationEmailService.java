@@ -3,7 +3,7 @@ package org.recap.service.statusreconciliation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,8 +33,8 @@ public class StatusReconciliationEmailService {
      * @param exchange the exchange
      */
     public void processInput(Exchange exchange) {
-        String fileLocation = (String) exchange.getIn().getHeader(RecapConstants.CAMEL_AWS_KEY);
-        producerTemplate.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoad(fileLocation), RecapConstants.EMAIL_BODY_FOR, RecapConstants.STATUS_RECONCILIATION);
+        String fileLocation = (String) exchange.getIn().getHeader(ScsbConstants.CAMEL_AWS_KEY);
+        producerTemplate.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoad(fileLocation), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.STATUS_RECONCILIATION);
     }
 
     private EmailPayLoad getEmailPayLoad(String fileLocation) {

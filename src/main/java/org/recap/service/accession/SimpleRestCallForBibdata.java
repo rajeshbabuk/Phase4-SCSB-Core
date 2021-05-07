@@ -1,6 +1,6 @@
 package org.recap.service.accession;
 
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.service.partnerservice.NullHostnameVerifier;
 import org.recap.service.partnerservice.SCSBSimpleClientHttpRequestFactory;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class SimpleRestCallForBibdata extends BibDataAbstract{
             ResponseEntity<String> responseEntity = restTmp.exchange(url, HttpMethod.GET, requestEntity, String.class, params);
             bibDataResponse = responseEntity.getBody();
         } catch (Exception e) {
-            response = String.format("[%s] %s. (%s : %s)", itemBarcode, RecapConstants.ITEM_BARCODE_NOT_FOUND, url, e.getMessage());
+            response = String.format("[%s] %s. (%s : %s)", itemBarcode, ScsbConstants.ITEM_BARCODE_NOT_FOUND, url, e.getMessage());
             logger.error(response);
             throw new RuntimeException(response);
         }

@@ -23,7 +23,7 @@ public class SearchItemResultRowUT extends BaseTestCaseUT {
         SearchItemResultRow searchItemResultRow = new SearchItemResultRow();
         searchItemResultRow.setCallNumber("X");
         searchItemResultRow.setChronologyAndEnum("test");
-        searchItemResultRow.setOwnerCode("PB");
+        searchItemResultRow.setCustomerCode("PB");
         searchItemResultRow.setBarcode("3216598422355545");
         searchItemResultRow.setUseRestriction("Others");
         searchItemResultRow.setCollectionGroupDesignation("Open");
@@ -40,7 +40,7 @@ public class SearchItemResultRowUT extends BaseTestCaseUT {
         searchItemResultRow.equals(null);
         assertNotNull(searchItemResultRow.getCallNumber());
         assertNotNull(searchItemResultRow.getChronologyAndEnum());
-        assertNotNull(searchItemResultRow.getOwnerCode());
+        assertNotNull(searchItemResultRow.getCustomerCode());
         assertNotNull(searchItemResultRow.getBarcode());
         assertNotNull(searchItemResultRow.getUseRestriction());
         assertNotNull(searchItemResultRow.getCollectionGroupDesignation());

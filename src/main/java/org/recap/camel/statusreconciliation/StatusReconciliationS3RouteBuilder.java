@@ -4,8 +4,8 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.aws.s3.S3Constants;
 import org.apache.camel.model.dataformat.BindyType;
-import org.recap.RecapConstants;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.model.csv.StatusReconciliationCSVRecord;
 import org.recap.model.csv.StatusReconciliationErrorCSVRecord;
 import org.recap.service.statusreconciliation.StatusReconciliationEmailService;
@@ -38,27 +38,27 @@ public class StatusReconciliationS3RouteBuilder {
                 camelContext.addRoutes(new RouteBuilder() {
                     @Override
                     public void configure() throws Exception {
-                        from(RecapConstants.STATUS_RECONCILIATION_REPORT)
-                                .routeId(RecapConstants.STATUS_RECONCILIATION_REPORT_ID)
-                                .onCompletion().onWhen(header(RecapConstants.FOR).isEqualTo(RecapConstants.STATUS_RECONCILIATION))
+                        from(ScsbConstants.STATUS_RECONCILIATION_REPORT)
+                                .routeId(ScsbConstants.STATUS_RECONCILIATION_REPORT_ID)
+                                .onCompletion().onWhen(header(ScsbConstants.FOR).isEqualTo(ScsbConstants.STATUS_RECONCILIATION))
                                 .log("status reconciliation process finished files generated in S3")
-                                .bean(applicationContext.getBean(StatusReconciliationEmailService.class), RecapConstants.PROCESS_INPUT)
+                                .bean(applicationContext.getBean(StatusReconciliationEmailService.class), ScsbConstants.PROCESS_INPUT)
                                 .end()
                                 .choice()
-                                .when(header(RecapConstants.FOR).isEqualTo(RecapConstants.STATUS_RECONCILIATION))
+                                .when(header(ScsbConstants.FOR).isEqualTo(ScsbConstants.STATUS_RECONCILIATION))
                                 .marshal().bindy(BindyType.Csv, StatusReconciliationCSVRecord.class)
                                 .setHeader(S3Constants.KEY, simple(statusReconciliation + "StatusReconciliation-${date:now:yyyyMMdd_HHmmss}.csv"))
-                                .to(RecapConstants.SCSB_CAMEL_S3_TO_ENDPOINT)
-                                .when(header(RecapConstants.FOR).isEqualTo(RecapConstants.STATUS_RECONCILIATION_FAILURE))
+                                .to(ScsbConstants.SCSB_CAMEL_S3_TO_ENDPOINT)
+                                .when(header(ScsbConstants.FOR).isEqualTo(ScsbConstants.STATUS_RECONCILIATION_FAILURE))
                                 .setHeader(S3Constants.KEY, simple(statusReconciliation + "StatusReconciliationFailure-${date:now:yyyyMMdd_HHmmss}.csv"))
-                                .to(RecapConstants.SCSB_CAMEL_S3_TO_ENDPOINT)
+                                .to(ScsbConstants.SCSB_CAMEL_S3_TO_ENDPOINT)
                                 .marshal().bindy(BindyType.Csv, StatusReconciliationErrorCSVRecord.class)
                                 .log("status reconciliation failure report generated in s3");
                     }
                 });
             }
         } catch (Exception e) {
-            logger.error(RecapCommonConstants.LOG_ERROR, e);
+            logger.error(ScsbCommonConstants.LOG_ERROR, e);
         }
     }
 }

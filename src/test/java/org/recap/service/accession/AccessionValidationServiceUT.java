@@ -9,8 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.TestUtil;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.jaxb.BibRecord;
@@ -80,22 +80,22 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
     public void validateBarcodeOrCustomerCode(){
         Mockito.when(accessionUtil.getOwningInstitution(Mockito.anyString(), Mockito.anyString())).thenReturn("").thenReturn("PUL");
         AccessionValidationService.AccessionValidationResponse invalidBarcodeLength=accessionValidationService.validateBarcodeOrCustomerCode("12345123451234512345123451234512345123451234512345","PA","RECAP");
-        assertEquals(RecapConstants.INVALID_BARCODE_LENGTH,invalidBarcodeLength.getMessage());
+        assertEquals(ScsbConstants.INVALID_BARCODE_LENGTH,invalidBarcodeLength.getMessage());
         assertNull(invalidBarcodeLength.getOwningInstitution());
         assertFalse(invalidBarcodeLength.isValid());
 
         AccessionValidationService.AccessionValidationResponse blankBarcode=accessionValidationService.validateBarcodeOrCustomerCode("","PA", "RECAP");
-        assertEquals(RecapConstants.ITEM_BARCODE_EMPTY,blankBarcode.getMessage());
+        assertEquals(ScsbConstants.ITEM_BARCODE_EMPTY,blankBarcode.getMessage());
         assertNull(blankBarcode.getOwningInstitution());
         assertFalse(blankBarcode.isValid());
 
         AccessionValidationService.AccessionValidationResponse customerCode=accessionValidationService.validateBarcodeOrCustomerCode("123456","PA", "RECAP");
-        assertEquals(RecapCommonConstants.CUSTOMER_CODE_DOESNOT_EXIST,customerCode.getMessage());
+        assertEquals(ScsbCommonConstants.CUSTOMER_CODE_DOESNOT_EXIST,customerCode.getMessage());
         assertNull(customerCode.getOwningInstitution());
         assertFalse(customerCode.isValid());
 
         AccessionValidationService.AccessionValidationResponse customerCodeEmpty=accessionValidationService.validateBarcodeOrCustomerCode("123456","","RECAP");
-        assertEquals(RecapConstants.CUSTOMER_CODE_EMPTY,customerCodeEmpty.getMessage());
+        assertEquals(ScsbConstants.CUSTOMER_CODE_EMPTY,customerCodeEmpty.getMessage());
         assertNull(customerCodeEmpty.getOwningInstitution());
         assertFalse(customerCodeEmpty.isValid());
 
@@ -234,13 +234,13 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
     @Test
     public void validateInvalidImsLocationCode() throws Exception {
         AccessionValidationService.AccessionValidationResponse accessionValidationResponse= accessionValidationService.validateImsLocationCode("test");
-        assertEquals(RecapConstants.INVALID_IMS_LOCACTION_CODE,accessionValidationResponse.getMessage());
+        assertEquals(ScsbConstants.INVALID_IMS_LOCACTION_CODE,accessionValidationResponse.getMessage());
     }
 
     @Test
     public void validateBlankImsLocationCode() throws Exception {
         AccessionValidationService.AccessionValidationResponse accessionValidationResponse= accessionValidationService.validateImsLocationCode("");
-        assertEquals(RecapConstants.IMS_LOCACTION_CODE_IS_BLANK,accessionValidationResponse.getMessage());
+        assertEquals(ScsbConstants.IMS_LOCACTION_CODE_IS_BLANK,accessionValidationResponse.getMessage());
     }
 
     private OwnerCodeEntity getOwnerCodeEntity() {

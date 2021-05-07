@@ -1,8 +1,8 @@
 package org.recap.controller;
 
 import org.apache.camel.CamelContext;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.camel.accessionreconciliation.BarcodeReconciliationRouteBuilder;
 import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
@@ -72,10 +72,10 @@ public class AccessionReconcilationJobController {
         }
         for (String imsLocation : imsLocationCodesExceptUN) {
             for (String institution : allInstitutionCodeExceptHTC) {
-                camelContext.getRouteController().startRoute(imsLocation + institution + RecapConstants.ACCESSION_RECONCILIATION_S3_ROUTE_ID);
+                camelContext.getRouteController().startRoute(imsLocation + institution + ScsbConstants.ACCESSION_RECONCILIATION_S3_ROUTE_ID);
             }
         }
         logger.info("After accession reconciliation process : {}", camelContext.getRoutes().size());
-        return RecapCommonConstants.SUCCESS;
+        return ScsbCommonConstants.SUCCESS;
     }
 }

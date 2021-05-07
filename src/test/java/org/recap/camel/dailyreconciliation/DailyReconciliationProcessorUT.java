@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.csv.DailyReconcilationRecord;
 import org.recap.model.jpa.InstitutionEntity;
 import org.recap.model.jpa.ItemEntity;
@@ -69,8 +69,8 @@ public class DailyReconciliationProcessorUT extends BaseTestCaseUT {
     public void processInput() throws Exception {
         Mockito.when(exchange.getIn()).thenReturn(message);
         List<DailyReconcilationRecord> dailyReconcilationRecords=new ArrayList<>();
-        dailyReconcilationRecords.add(getDailyReconcilationRecord("12345","1",RecapConstants.GFA_STATUS_IN));
-        dailyReconcilationRecords.add(getDailyReconcilationRecord("2345","1",RecapConstants.GFA_STATUS_IN ));
+        dailyReconcilationRecords.add(getDailyReconcilationRecord("12345","1", ScsbConstants.GFA_STATUS_IN));
+        dailyReconcilationRecords.add(getDailyReconcilationRecord("2345","1", ScsbConstants.GFA_STATUS_IN ));
         Mockito.when(message.getBody()).thenReturn(dailyReconcilationRecords);
         Mockito.when(message.getHeader(Mockito.anyString())).thenReturn("CamelAwsS3Key/CamelAwsS3Key/CamelAwsS3Key");
         Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
@@ -84,8 +84,8 @@ public class DailyReconciliationProcessorUT extends BaseTestCaseUT {
     public void processInputRequestIdNull() throws Exception {
         Mockito.when(exchange.getIn()).thenReturn(message);
         List<DailyReconcilationRecord> dailyReconcilationRecords=new ArrayList<>();
-        dailyReconcilationRecords.add(getDailyReconcilationRecord("12345",null,RecapConstants.GFA_STATUS_IN));
-        dailyReconcilationRecords.add(getDailyReconcilationRecord("2345",null,RecapConstants.GFA_STATUS_IN ));
+        dailyReconcilationRecords.add(getDailyReconcilationRecord("12345",null, ScsbConstants.GFA_STATUS_IN));
+        dailyReconcilationRecords.add(getDailyReconcilationRecord("2345",null, ScsbConstants.GFA_STATUS_IN ));
         List<ItemEntity> itemEntityList=new ArrayList<>();
         itemEntityList.add(getItemEntity());
         Mockito.when(itemDetailsRepository.findByBarcode(Mockito.anyString())).thenReturn(itemEntityList);
@@ -104,8 +104,8 @@ public class DailyReconciliationProcessorUT extends BaseTestCaseUT {
     public void processInputRequestId() throws Exception {
         Mockito.when(exchange.getIn()).thenReturn(message);
         List<DailyReconcilationRecord> dailyReconcilationRecords=new ArrayList<>();
-        dailyReconcilationRecords.add(getDailyReconcilationRecord("12345",null, RecapConstants.GFA_STATUS_SCH_ON_REFILE_WORK_ORDER));
-        dailyReconcilationRecords.add(getDailyReconcilationRecord("23451",null,RecapConstants.GFA_STATUS_SCH_ON_REFILE_WORK_ORDER));
+        dailyReconcilationRecords.add(getDailyReconcilationRecord("12345",null, ScsbConstants.GFA_STATUS_SCH_ON_REFILE_WORK_ORDER));
+        dailyReconcilationRecords.add(getDailyReconcilationRecord("23451",null, ScsbConstants.GFA_STATUS_SCH_ON_REFILE_WORK_ORDER));
         Mockito.when(message.getBody()).thenReturn(dailyReconcilationRecords);
         Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
         Mockito.when(itemDetailsRepository.findByBarcode(Mockito.anyString())).thenReturn(Arrays.asList(getItemEntity()));
@@ -126,7 +126,7 @@ public class DailyReconciliationProcessorUT extends BaseTestCaseUT {
 
     private DailyReconcilationRecord getDailyReconcilationRecord(String barcode,String requestId,String status) {
         DailyReconcilationRecord dailyReconcilationRecord=new DailyReconcilationRecord();
-        dailyReconcilationRecord.setOwnerCode("PA");
+        dailyReconcilationRecord.setCustomerCode("PA");
         dailyReconcilationRecord.setRequestId(requestId);
         dailyReconcilationRecord.setBarcode(barcode);
         dailyReconcilationRecord.setStopCode("PA");

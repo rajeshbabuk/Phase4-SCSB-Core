@@ -2,8 +2,8 @@ package org.recap.converter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.jaxb.BibRecord;
 import org.recap.model.jaxb.Holding;
@@ -58,10 +58,10 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
             Map<String, Object> bibMap = processAndValidateBibliographicEntity(bibRecord, owningInstitutionId, currentDate,errorMessage);
             BibliographicEntity bibliographicEntity = (BibliographicEntity) bibMap.get("bibliographicEntity");
 
-            map.put(RecapCommonConstants.FAILED_BIB_COUNT, bibMap.get(RecapCommonConstants.FAILED_BIB_COUNT));
-            map.put(RecapCommonConstants.SUCCESS_BIB_COUNT , bibMap.get(RecapCommonConstants.SUCCESS_BIB_COUNT));
-            map.put(RecapCommonConstants.REASON_FOR_BIB_FAILURE , bibMap.get(RecapCommonConstants.REASON_FOR_BIB_FAILURE));
-            map.put(RecapCommonConstants.EXIST_BIB_COUNT , bibMap.get(RecapCommonConstants.EXIST_BIB_COUNT));
+            map.put(ScsbCommonConstants.FAILED_BIB_COUNT, bibMap.get(ScsbCommonConstants.FAILED_BIB_COUNT));
+            map.put(ScsbCommonConstants.SUCCESS_BIB_COUNT , bibMap.get(ScsbCommonConstants.SUCCESS_BIB_COUNT));
+            map.put(ScsbCommonConstants.REASON_FOR_BIB_FAILURE , bibMap.get(ScsbCommonConstants.REASON_FOR_BIB_FAILURE));
+            map.put(ScsbCommonConstants.EXIST_BIB_COUNT , bibMap.get(ScsbCommonConstants.EXIST_BIB_COUNT));
 
             List<Holdings> holdingsList = bibRecord.getHoldings();
             if (errorMessage.length()==0) {
@@ -100,20 +100,20 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
                                     Map<String, Object> itemMap = processAndValidateItemEntity(bibliographicEntity, owningInstitutionId, holdingsCallNumber, holdingsCallNumberType, itemRecordType,accessionRequest,currentDate,errorMessage,imsLocationEntity);
 
                                     if (itemMap != null) {
-                                        if(itemMap.containsKey(RecapCommonConstants.FAILED_ITEM_COUNT)){
-                                            failedItemCount = failedItemCount + (int) itemMap.get(RecapCommonConstants.FAILED_ITEM_COUNT);
+                                        if(itemMap.containsKey(ScsbCommonConstants.FAILED_ITEM_COUNT)){
+                                            failedItemCount = failedItemCount + (int) itemMap.get(ScsbCommonConstants.FAILED_ITEM_COUNT);
                                         }
-                                        if(itemMap.containsKey(RecapCommonConstants.ITEMBARCODE)){
-                                            map.put(RecapCommonConstants.ITEMBARCODE, itemMap.get(RecapCommonConstants.ITEMBARCODE));
+                                        if(itemMap.containsKey(ScsbCommonConstants.ITEMBARCODE)){
+                                            map.put(ScsbCommonConstants.ITEMBARCODE, itemMap.get(ScsbCommonConstants.ITEMBARCODE));
                                         }
-                                        if(itemMap.containsKey(RecapCommonConstants.REASON_FOR_ITEM_FAILURE)){
-                                            String reason = (String)itemMap.get(RecapCommonConstants.REASON_FOR_ITEM_FAILURE);
+                                        if(itemMap.containsKey(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE)){
+                                            String reason = (String)itemMap.get(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE);
                                             if(!StringUtils.isEmpty(reason)){
                                                 if(StringUtils.isEmpty(reasonForFailureItem)){
-                                                    reasonForFailureItem = (String) itemMap.get(RecapCommonConstants.REASON_FOR_ITEM_FAILURE);
+                                                    reasonForFailureItem = (String) itemMap.get(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE);
                                                 }else{
                                                     StringBuilder stringBuilder = new StringBuilder();
-                                                    stringBuilder.append(itemMap.get(RecapCommonConstants.REASON_FOR_ITEM_FAILURE));
+                                                    stringBuilder.append(itemMap.get(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE));
                                                     stringBuilder.append(",");
                                                     stringBuilder.append(reasonForFailureItem);
                                                     reasonForFailureItem = stringBuilder.toString();
@@ -121,8 +121,8 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
 
                                             }
                                         }
-                                        if(itemMap.containsKey(RecapCommonConstants.SUCCESS_ITEM_COUNT)){
-                                            successItemCount = successItemCount + (int) itemMap.get(RecapCommonConstants.SUCCESS_ITEM_COUNT);
+                                        if(itemMap.containsKey(ScsbCommonConstants.SUCCESS_ITEM_COUNT)){
+                                            successItemCount = successItemCount + (int) itemMap.get(ScsbCommonConstants.SUCCESS_ITEM_COUNT);
                                         }
                                         ItemEntity itemEntity = (ItemEntity) itemMap.get("itemEntity");
                                         if (errorMessage.length()==0) {
@@ -132,8 +132,8 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
                                             holdingsEntity.getItemEntities().add(itemEntity);
                                             itemEntities.add(itemEntity);
                                         }
-                                        if(RecapCommonConstants.INCOMPLETE_STATUS.equalsIgnoreCase(itemEntity.getCatalogingStatus())){
-                                            incompleteResponse = RecapCommonConstants.INCOMPLETE_STATUS;
+                                        if(ScsbCommonConstants.INCOMPLETE_STATUS.equalsIgnoreCase(itemEntity.getCatalogingStatus())){
+                                            incompleteResponse = ScsbCommonConstants.INCOMPLETE_STATUS;
                                         }
                                     }
                                 }
@@ -145,14 +145,14 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
                 }
             }
             if (errorMessage.length()==0) {
-                map.put(RecapCommonConstants.BIBLIOGRAPHICENTITY, bibliographicEntity);
+                map.put(ScsbCommonConstants.BIBLIOGRAPHICENTITY, bibliographicEntity);
             }
-            map.put(RecapCommonConstants.FAILED_ITEM_COUNT,failedItemCount);
-            map.put(RecapCommonConstants.SUCCESS_ITEM_COUNT,successItemCount);
-            map.put(RecapCommonConstants.REASON_FOR_ITEM_FAILURE,reasonForFailureItem);
-            map.put(RecapConstants.INCOMPLETE_RESPONSE,incompleteResponse);
+            map.put(ScsbCommonConstants.FAILED_ITEM_COUNT,failedItemCount);
+            map.put(ScsbCommonConstants.SUCCESS_ITEM_COUNT,successItemCount);
+            map.put(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE,reasonForFailureItem);
+            map.put(ScsbConstants.INCOMPLETE_RESPONSE,incompleteResponse);
         } catch (Exception e) {
-            logger.error(RecapCommonConstants.LOG_ERROR,e);
+            logger.error(ScsbCommonConstants.LOG_ERROR,e);
             errorMessage.append(e.getMessage());
         }
 
@@ -193,9 +193,9 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
         }
         bibliographicEntity.setDeleted(false);
         bibliographicEntity.setCreatedDate(currentDate);
-        bibliographicEntity.setCreatedBy(RecapCommonConstants.ACCESSION);
+        bibliographicEntity.setCreatedBy(ScsbCommonConstants.ACCESSION);
         bibliographicEntity.setLastUpdatedDate(currentDate);
-        bibliographicEntity.setLastUpdatedBy(RecapCommonConstants.ACCESSION);
+        bibliographicEntity.setLastUpdatedBy(ScsbCommonConstants.ACCESSION);
 
         ContentType bibContent = bibRecord.getBib().getContent();
         CollectionType bibContentCollection = bibContent.getCollection();
@@ -228,11 +228,11 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
         if(errorMessage.toString().length()==0){
             successBibCount = successBibCount+1;
         }
-        map.put(RecapCommonConstants.FAILED_BIB_COUNT , failedBibCount);
-        map.put(RecapCommonConstants.REASON_FOR_BIB_FAILURE , reasonForFailureBib);
-        map.put(RecapCommonConstants.BIBLIOGRAPHICENTITY, bibliographicEntity);
-        map.put(RecapCommonConstants.SUCCESS_BIB_COUNT,successBibCount);
-        map.put(RecapCommonConstants.EXIST_BIB_COUNT,exitsBibCount);
+        map.put(ScsbCommonConstants.FAILED_BIB_COUNT , failedBibCount);
+        map.put(ScsbCommonConstants.REASON_FOR_BIB_FAILURE , reasonForFailureBib);
+        map.put(ScsbCommonConstants.BIBLIOGRAPHICENTITY, bibliographicEntity);
+        map.put(ScsbCommonConstants.SUCCESS_BIB_COUNT,successBibCount);
+        map.put(ScsbCommonConstants.EXIST_BIB_COUNT,exitsBibCount);
         return map;
     }
 
@@ -248,7 +248,7 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
     private Map<String, Object> processAndValidateHoldingsEntity(BibliographicEntity bibliographicEntity, Holding holding, CollectionType holdingContentCollection,Date currentDate,StringBuilder errorMessage) {
         Map<String, Object> map = new HashMap<>();
         String holdingsContent = holdingContentCollection.serialize(holdingContentCollection);
-        HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent,RecapCommonConstants.ACCESSION);
+        HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent,ScsbCommonConstants.ACCESSION);
         String owningInstitutionHoldingsId = holding.getOwningInstitutionHoldingsId();
         return commonUtil.addHoldingsEntityToMap(map, holdingsEntity, owningInstitutionHoldingsId);
     }
@@ -276,9 +276,9 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
         int successItemCount = 0;
         boolean isComplete = true;
         String reasonForFailureItem = "";
-        map.put(RecapCommonConstants.FAILED_ITEM_COUNT,failedItemCount);
-        map.put(RecapCommonConstants.SUCCESS_ITEM_COUNT,successItemCount);
-        map.put(RecapCommonConstants.REASON_FOR_ITEM_FAILURE,reasonForFailureItem);
+        map.put(ScsbCommonConstants.FAILED_ITEM_COUNT,failedItemCount);
+        map.put(ScsbCommonConstants.SUCCESS_ITEM_COUNT,successItemCount);
+        map.put(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE,reasonForFailureItem);
         String itemBarcode = getMarcUtil().getDataFieldValueForRecordType(itemRecordType, "876", null, null, "p");
         if (accessionRequest.getItemBarcode().equals(itemBarcode)) {//This is to avoid creation of multiple items when response from partner service is having 1Bib 1Hold n items, accession should be done for one item which comes in the request and should not be done for other items which is linked with the same bib
             if (StringUtils.isNotBlank(itemBarcode)) {
@@ -308,9 +308,9 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
             }
             itemEntity.setDeleted(false);
             itemEntity.setCreatedDate(currentDate);
-            itemEntity.setCreatedBy(RecapCommonConstants.ACCESSION);
+            itemEntity.setCreatedBy(ScsbCommonConstants.ACCESSION);
             itemEntity.setLastUpdatedDate(currentDate);
-            itemEntity.setLastUpdatedBy(RecapCommonConstants.ACCESSION);
+            itemEntity.setLastUpdatedBy(ScsbCommonConstants.ACCESSION);
 
             itemEntity.setImsLocationEntity(imsLocationEntity);
             itemEntity.setImsLocationId(imsLocationEntity.getId());
@@ -337,26 +337,26 @@ public class AccessionSCSBToBibEntityConverter extends AccessionXmlConverterAbst
 
             if(isComplete){
                 itemEntity.setItemAvailabilityStatusId(commonUtil.getItemStatusMap().get("Available"));
-                bibliographicEntity.setCatalogingStatus(RecapCommonConstants.COMPLETE_STATUS);
-                itemEntity.setCatalogingStatus(RecapCommonConstants.COMPLETE_STATUS);
+                bibliographicEntity.setCatalogingStatus(ScsbCommonConstants.COMPLETE_STATUS);
+                itemEntity.setCatalogingStatus(ScsbCommonConstants.COMPLETE_STATUS);
             } else {
                 itemEntity.setItemAvailabilityStatusId(commonUtil.getItemStatusMap().get("Not Available"));
-                bibliographicEntity.setCatalogingStatus(RecapCommonConstants.INCOMPLETE_STATUS);
-                itemEntity.setCatalogingStatus(RecapCommonConstants.INCOMPLETE_STATUS);
+                bibliographicEntity.setCatalogingStatus(ScsbCommonConstants.INCOMPLETE_STATUS);
+                itemEntity.setCatalogingStatus(ScsbCommonConstants.INCOMPLETE_STATUS);
             }
             if (errorMessage.toString().length() > 1) {
-                if(map.containsKey(RecapCommonConstants.FAILED_ITEM_COUNT)){
-                    failedItemCount = ((int) map.get(RecapCommonConstants.FAILED_ITEM_COUNT)) + 1;
-                    map.put(RecapCommonConstants.FAILED_ITEM_COUNT,failedItemCount);
+                if(map.containsKey(ScsbCommonConstants.FAILED_ITEM_COUNT)){
+                    failedItemCount = ((int) map.get(ScsbCommonConstants.FAILED_ITEM_COUNT)) + 1;
+                    map.put(ScsbCommonConstants.FAILED_ITEM_COUNT,failedItemCount);
                 }
-                if(map.containsKey(RecapCommonConstants.REASON_FOR_ITEM_FAILURE)){
+                if(map.containsKey(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE)){
                     reasonForFailureItem = errorMessage.toString();
-                    map.put(RecapCommonConstants.REASON_FOR_ITEM_FAILURE,reasonForFailureItem);
+                    map.put(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE,reasonForFailureItem);
                 }
             }else{
-                if(map.containsKey(RecapCommonConstants.SUCCESS_ITEM_COUNT)){
-                    successItemCount = (int) map.get(RecapCommonConstants.SUCCESS_ITEM_COUNT) + 1;
-                    map.put(RecapCommonConstants.SUCCESS_ITEM_COUNT,successItemCount);
+                if(map.containsKey(ScsbCommonConstants.SUCCESS_ITEM_COUNT)){
+                    successItemCount = (int) map.get(ScsbCommonConstants.SUCCESS_ITEM_COUNT) + 1;
+                    map.put(ScsbCommonConstants.SUCCESS_ITEM_COUNT,successItemCount);
                 }
             }
             map.put("itemEntity", itemEntity);

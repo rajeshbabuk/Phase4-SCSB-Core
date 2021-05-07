@@ -3,8 +3,8 @@ package org.recap.camel;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.commons.io.FileUtils;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,15 +59,15 @@ public class EmailRouteBuilder {
                     loadEmailBodyTemplateForNoData();
                     loadEmailBodyTemplateForSubmitCollectionEmptyDirectory();
                     loadEmailBodyTemplateForExceptionInSubmitCollection();
-                    emailBodyDeletedRecords=loadEmailStatus(RecapConstants.DELETED_RECORDS_EMAIL_TEMPLATE);
+                    emailBodyDeletedRecords=loadEmailStatus(ScsbConstants.DELETED_RECORDS_EMAIL_TEMPLATE);
 
-                    from(RecapConstants.EMAIL_Q)
-                            .routeId(RecapConstants.EMAIL_ROUTE_ID)
+                    from(ScsbConstants.EMAIL_Q)
+                            .routeId(ScsbConstants.EMAIL_ROUTE_ID)
                             .setHeader("emailPayLoad").body(EmailPayLoad.class)
                             .onCompletion().log("Email has been sent successfully.")
                             .end()
                             .choice()
-                                .when(header(RecapConstants.EMAIL_BODY_FOR).isEqualTo(RecapConstants.SUBMIT_COLLECTION))
+                                .when(header(ScsbConstants.EMAIL_BODY_FOR).isEqualTo(ScsbConstants.SUBMIT_COLLECTION))
                                     .setHeader(subjectHeader, simple(emailPayLoadSubject))
                                     .setBody(simple(emailBodyForSubmitCollection))
                                     .setHeader("from", simple(from))
@@ -75,14 +75,14 @@ public class EmailRouteBuilder {
                                     .setHeader("cc", simple(emailPayLoadcc))
                                     .log("email sent for submit collection")
                                     .to(smtps + smtpServer + userName + username + password + emailPassword)
-                                .when(header(RecapConstants.EMAIL_BODY_FOR).isEqualTo(RecapConstants.SUBMIT_COLLECTION_FOR_NO_FILES))
+                                .when(header(ScsbConstants.EMAIL_BODY_FOR).isEqualTo(ScsbConstants.SUBMIT_COLLECTION_FOR_NO_FILES))
                                     .setHeader(subjectHeader, simple(emailPayLoadSubject))
                                     .setBody(simple(emailBodyForSubmitCollectionEmptyDirectory))
                                     .setHeader("from", simple(from))
                                     .setHeader("to", simple(emailPayLoadTo))
                                     .log("email sent for submit collection for no files")
                                     .to(smtps + smtpServer + userName + username + password + emailPassword)
-                                .when(header(RecapConstants.EMAIL_BODY_FOR).isEqualTo(RecapConstants.REQUEST_ACCESSION_RECONCILIATION_MAIL_QUEUE))
+                                .when(header(ScsbConstants.EMAIL_BODY_FOR).isEqualTo(ScsbConstants.REQUEST_ACCESSION_RECONCILIATION_MAIL_QUEUE))
                                     .log("email for accession Reconciliation")
                                     .setHeader(subjectHeader, simple("Barcode Reconciliation Report"))
                                     .setBody(simple(emailPayLoadMessage))
@@ -90,14 +90,14 @@ public class EmailRouteBuilder {
                                     .setHeader("to", simple(emailPayLoadTo))
                                     .setHeader("cc", simple(emailPayLoadcc))
                                     .to(smtps + smtpServer + userName + username + password + emailPassword)
-                                .when(header(RecapConstants.EMAIL_BODY_FOR).isEqualTo(RecapConstants.DELETED_MAIL_QUEUE))
+                                .when(header(ScsbConstants.EMAIL_BODY_FOR).isEqualTo(ScsbConstants.DELETED_MAIL_QUEUE))
                                     .setHeader(subjectHeader, simple(emailPayLoadSubject))
                                     .setBody(simple(emailBodyDeletedRecords))
                                     .setHeader("from", simple(from))
                                     .setHeader("to", simple(emailPayLoadTo))
                                     .log("Email Send for Deleted Records")
                                     .to(smtps + smtpServer + userName + username + password + emailPassword)
-                                .when(header(RecapConstants.EMAIL_BODY_FOR).isEqualTo(RecapConstants.STATUS_RECONCILIATION))
+                                .when(header(ScsbConstants.EMAIL_BODY_FOR).isEqualTo(ScsbConstants.STATUS_RECONCILIATION))
                                     .log("email for status Reconciliation")
                                     .setHeader(subjectHeader, simple("\"Out\" Status Reconciliation Report"))
                                     .setBody(simple(emailPayLoadMessage))
@@ -105,21 +105,21 @@ public class EmailRouteBuilder {
                                     .setHeader("to", simple(emailPayLoadTo))
                                     .setHeader("cc", simple(emailPayLoadcc))
                                     .to(smtps + smtpServer + userName + username + password + emailPassword)
-                               .when(header(RecapConstants.EMAIL_BODY_FOR).isEqualTo(RecapConstants.DAILY_RECONCILIATION))
+                               .when(header(ScsbConstants.EMAIL_BODY_FOR).isEqualTo(ScsbConstants.DAILY_RECONCILIATION))
                                     .log("email for Daily Reconciliation")
                                     .setHeader(subjectHeader, simple("Daily Reconciliation Report"))
                                     .setBody(simple(emailPayLoadMessage))
                                     .setHeader("from", simple(from))
                                     .setHeader("to", simple(emailPayLoadTo))
                                     .to(smtps + smtpServer + userName + username + password + emailPassword)
-                                .when(header(RecapConstants.EMAIL_BODY_FOR).isEqualTo(RecapConstants.REQUEST_INITIAL_DATA_LOAD))
+                                .when(header(ScsbConstants.EMAIL_BODY_FOR).isEqualTo(ScsbConstants.REQUEST_INITIAL_DATA_LOAD))
                                     .setHeader(subjectHeader, simple(emailPayLoadSubject))
                                     .setBody(simple(emailPayLoadMessage))
                                     .setHeader("from", simple(from))
                                     .setHeader("to", simple(emailPayLoadTo))
                                     .log("Email for request initial data load")
                                     .to(smtps + smtpServer + userName + username + password + emailPassword)
-                                .when(header(RecapConstants.EMAIL_BODY_FOR).isEqualTo(RecapConstants.SUBMIT_COLLECTION_EXCEPTION))
+                                .when(header(ScsbConstants.EMAIL_BODY_FOR).isEqualTo(ScsbConstants.SUBMIT_COLLECTION_EXCEPTION))
                                     .setHeader(subjectHeader, simple(emailPayLoadSubject))
                                     .setBody(simple(emailBodyForExceptionInSubmitColletion))
                                     .setHeader("from", simple(from))
@@ -134,15 +134,15 @@ public class EmailRouteBuilder {
                 }
 
                 private void loadEmailBodyTemplateForNoData() {
-                    emailBodyForSubmitCollection = getEmailBodyString(RecapConstants.SUBMIT_COLLECTION_EMAIL_BODY_VM).toString();
+                    emailBodyForSubmitCollection = getEmailBodyString(ScsbConstants.SUBMIT_COLLECTION_EMAIL_BODY_VM).toString();
                 }
 
                 private void loadEmailBodyTemplateForSubmitCollectionEmptyDirectory() {
-                    emailBodyForSubmitCollectionEmptyDirectory = getEmailBodyString(RecapConstants.SUBMIT_COLLECTION_EMAIL_BODY_FOR_EMPTY_DIRECTORY_VM).toString();
+                    emailBodyForSubmitCollectionEmptyDirectory = getEmailBodyString(ScsbConstants.SUBMIT_COLLECTION_EMAIL_BODY_FOR_EMPTY_DIRECTORY_VM).toString();
                 }
 
                 private void loadEmailBodyTemplateForExceptionInSubmitCollection() {
-                    emailBodyForExceptionInSubmitColletion = getEmailBodyString(RecapConstants.SUBMIT_COLLECTION_EXCEPTION_BODY_VM).toString();
+                    emailBodyForExceptionInSubmitColletion = getEmailBodyString(ScsbConstants.SUBMIT_COLLECTION_EXCEPTION_BODY_VM).toString();
                 }
 
                 private void loadEmailPassword() {
@@ -151,7 +151,7 @@ public class EmailRouteBuilder {
                         try {
                             emailPassword = FileUtils.readFileToString(file, StandardCharsets.UTF_8).trim();
                         } catch (IOException e) {
-                            logger.error(RecapCommonConstants.LOG_ERROR,e);
+                            logger.error(ScsbCommonConstants.LOG_ERROR,e);
                         }
                     }
                 }
@@ -161,7 +161,7 @@ public class EmailRouteBuilder {
                 }
             });
         } catch (Exception e) {
-            logger.error(RecapCommonConstants.REQUEST_EXCEPTION,e);
+            logger.error(ScsbCommonConstants.REQUEST_EXCEPTION,e);
         }
     }
 }

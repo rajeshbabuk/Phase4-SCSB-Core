@@ -3,8 +3,8 @@ package org.recap.camel.accessionreconciliation;
 import com.amazonaws.services.s3.AmazonS3;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
-import org.recap.RecapConstants;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbConstants;
+import org.recap.ScsbCommonConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,17 +78,17 @@ public class AccessionReconciliationProcessor {
         for (BarcodeReconcilitaionReport barcodeReconcilitaionReport : barcodeReconcilitaionReportArrayList) {
            barcodesAndCustomerCodes.put(barcodeReconcilitaionReport.getBarcode(),barcodeReconcilitaionReport.getCustomerCode());
         }
-        Integer index = (Integer) exchange.getProperty(RecapConstants.CAMEL_SPLIT_INDEX);
+        Integer index = (Integer) exchange.getProperty(ScsbConstants.CAMEL_SPLIT_INDEX);
         HttpEntity httpEntity = new HttpEntity(barcodesAndCustomerCodes);
-        ResponseEntity<Map> responseEntity = restTemplate.exchange(solrSolrClientUrl+ RecapConstants.ACCESSION_RECONCILATION_SOLR_CLIENT_URL, HttpMethod.POST, httpEntity,Map.class);
+        ResponseEntity<Map> responseEntity = restTemplate.exchange(solrSolrClientUrl+ ScsbConstants.ACCESSION_RECONCILATION_SOLR_CLIENT_URL, HttpMethod.POST, httpEntity,Map.class);
         Map<String,String> body = responseEntity.getBody();
         String barcodesAndCustomerCodesForReportFile = body.entrySet().stream().map(Object::toString).collect(Collectors.joining("\n")).replaceAll("=","\t");
         byte[] barcodesAndCustomerCodesForReportFileBytes =barcodesAndCustomerCodesForReportFile.getBytes(StandardCharsets.UTF_8);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(RecapConstants.BARCODE_RECONCILIATION_FILE_DATE_FORMAT);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(ScsbConstants.BARCODE_RECONCILIATION_FILE_DATE_FORMAT);
         try {
-            String line= RecapConstants.NEW_LINE;
+            String line= ScsbConstants.NEW_LINE;
             byte[] newLine=line.getBytes(StandardCharsets.UTF_8);
-            Path filePath = Paths.get(accessionFilePath+RecapCommonConstants.PATH_SEPARATOR+imsLocationCode+RecapCommonConstants.PATH_SEPARATOR+institutionCode+RecapCommonConstants.PATH_SEPARATOR+ RecapConstants.ACCESSION_RECONCILATION_FILE_NAME+imsLocationCode+institutionCode+simpleDateFormat.format(new Date())+".csv");
+            Path filePath = Paths.get(accessionFilePath+ScsbCommonConstants.PATH_SEPARATOR+imsLocationCode+ScsbCommonConstants.PATH_SEPARATOR+institutionCode+ScsbCommonConstants.PATH_SEPARATOR+ ScsbConstants.ACCESSION_RECONCILATION_FILE_NAME+imsLocationCode+institutionCode+simpleDateFormat.format(new Date())+".csv");
             if (!filePath.toFile().exists()) {
                 Files.createDirectories(filePath.getParent());
                 Files.createFile(filePath);
@@ -99,7 +99,7 @@ public class AccessionReconciliationProcessor {
             }
             if(index == 0){
                 ArrayList<String> headerSet = new ArrayList<>();
-                headerSet.add(RecapConstants.ACCESSION_RECONCILIATION_HEADER+ RecapConstants.TAB+ RecapConstants.CUSTOMER_CODE_HEADER);
+                headerSet.add(ScsbConstants.ACCESSION_RECONCILIATION_HEADER+ ScsbConstants.TAB+ ScsbConstants.CUSTOMER_CODE_HEADER);
                 Files.write(filePath,headerSet, StandardOpenOption.APPEND);
             }
             else if (index > 0 && body.size()>0 && noOfLinesInFile>1){
@@ -110,10 +110,10 @@ public class AccessionReconciliationProcessor {
             }
         }
         catch (Exception e){
-            logger.error(RecapCommonConstants.LOG_ERROR ,e);
+            logger.error(ScsbCommonConstants.LOG_ERROR ,e);
         }
         startFileSystemRoutesForAccessionReconciliation(exchange,index);
-        String xmlFileName = exchange.getIn().getHeader(RecapConstants.CAMEL_AWS_KEY).toString();
+        String xmlFileName = exchange.getIn().getHeader(ScsbConstants.CAMEL_AWS_KEY).toString();
         String bucketName = exchange.getIn().getHeader("CamelAwsS3BucketName").toString();
         if (awsS3Client.doesObjectExist(bucketName, xmlFileName)) {
             String basepath = xmlFileName.substring(0, xmlFileName.lastIndexOf('/'));
@@ -124,13 +124,13 @@ public class AccessionReconciliationProcessor {
     }
 
     private void startFileSystemRoutesForAccessionReconciliation(Exchange exchange,Integer index) {
-        if ((boolean)exchange.getProperty(RecapConstants.CAMEL_SPLIT_COMPLETE)){
+        if ((boolean)exchange.getProperty(ScsbConstants.CAMEL_SPLIT_COMPLETE)){
             logger.info("split last index-->{}",index);
             try {
-                logger.info("Starting {}{}{}",imsLocationCode, institutionCode, RecapConstants.ACCESSION_RECONCILIATION_FS_ROUTE_ID);
-                camelContext.getRouteController().startRoute(imsLocationCode+institutionCode+RecapConstants.ACCESSION_RECONCILIATION_FS_ROUTE_ID);
+                logger.info("Starting {}{}{}",imsLocationCode, institutionCode, ScsbConstants.ACCESSION_RECONCILIATION_FS_ROUTE_ID);
+                camelContext.getRouteController().startRoute(imsLocationCode+institutionCode+ ScsbConstants.ACCESSION_RECONCILIATION_FS_ROUTE_ID);
             } catch (Exception e) {
-                logger.error(RecapCommonConstants.LOG_ERROR, e);
+                logger.error(ScsbCommonConstants.LOG_ERROR, e);
             }
         }
     }

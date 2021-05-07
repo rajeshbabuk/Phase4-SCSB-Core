@@ -5,8 +5,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.ILSConfigProperties;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
@@ -71,7 +71,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         List<Map<String, String>> responseMaps=new ArrayList<>();
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setOwnerCode("PA");
+        accessionRequest.setCustomerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         List<ItemEntity> itemEntities=new ArrayList<>();
         ItemEntity itemEntity=new ItemEntity();
@@ -82,8 +82,8 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         itemEntity.setInstitutionEntity(institutionEntity);
         itemEntities.add(itemEntity);
         Mockito.when(itemDetailsRepository.findByBarcodeAndCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(itemEntities);
-        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
-        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
         Mockito.doCallRealMethod().when(accessionUtil).setAccessionResponse(Mockito.anySet(),Mockito.anyString(),Mockito.anyString());
         ReflectionTestUtils.setField(accessionUtil,"itemChangeLogDetailsRepository",itemChangeLogDetailsRepository);
         Mockito.doCallRealMethod().when(accessionUtil).saveItemChangeLogEntity(Mockito.anyString(),Mockito.anyString(),Mockito.anyList());
@@ -99,7 +99,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         List<Map<String, String>> responseMaps=new ArrayList<>();
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setOwnerCode("PA");
+        accessionRequest.setCustomerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         List<ItemEntity> itemEntities=new ArrayList<>();
         ItemEntity itemEntity=new ItemEntity();
@@ -110,8 +110,8 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         itemEntity.setInstitutionEntity(institutionEntity);
         itemEntities.add(itemEntity);
         Mockito.when(itemDetailsRepository.findByBarcodeAndCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(itemEntities);
-        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
-        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
         Mockito.doCallRealMethod().when(accessionUtil).setAccessionResponse(Mockito.anySet(),Mockito.anyString(),Mockito.anyString());
         ReflectionTestUtils.setField(accessionUtil,"itemChangeLogDetailsRepository",itemChangeLogDetailsRepository);
         Mockito.doCallRealMethod().when(accessionUtil).saveItemChangeLogEntity(Mockito.anyString(),Mockito.anyString(),Mockito.anyList());
@@ -127,7 +127,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         List<Map<String, String>> responseMaps=new ArrayList<>();
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setOwnerCode("PA");
+        accessionRequest.setCustomerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         List<ItemEntity> itemEntities=new ArrayList<>();
         ItemEntity itemEntity=new ItemEntity();
@@ -143,8 +143,8 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         itemEntity.setHoldingsEntities(Arrays.asList(holdingsEntity));
         itemEntities.add(itemEntity);
         Mockito.when(itemDetailsRepository.findByBarcodeAndCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(itemEntities);
-        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
-        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         Object accessionResponse=accessionProcessService.processRecords(accessionResponses,responseMaps,accessionRequest,reportDataEntitys,"PUL",true,imsLocationEntity);
         assertEquals(accessionResponses,accessionResponse);
@@ -156,7 +156,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         List<Map<String, String>> responseMaps=new ArrayList<>();
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setOwnerCode("PA");
+        accessionRequest.setCustomerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         List<ItemEntity> itemEntities=new ArrayList<>();
         ItemEntity itemEntity=new ItemEntity();
@@ -166,8 +166,8 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         itemEntity.setInstitutionEntity(institutionEntity);
         itemEntities.add(itemEntity);
         Mockito.when(itemDetailsRepository.findByBarcodeAndCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(itemEntities);
-        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
-        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         Object accessionResponse=accessionProcessService.processRecords(accessionResponses,responseMaps,accessionRequest,reportDataEntitys,"PUL",true,imsLocationEntity);
         assertEquals(accessionResponses,accessionResponse);
@@ -178,14 +178,14 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         Set<AccessionResponse> accessionResponses=new HashSet<>();
         List<Map<String, String>> responseMaps=new ArrayList<>();
         Map<String, String> responseMap1=new HashMap<>();
-        responseMap1.put(RecapCommonConstants.REASON_FOR_BIB_FAILURE,RecapCommonConstants.REASON_FOR_BIB_FAILURE);
+        responseMap1.put(ScsbCommonConstants.REASON_FOR_BIB_FAILURE,ScsbCommonConstants.REASON_FOR_BIB_FAILURE);
         Map<String, String> responseMap=new HashMap<>();
-        responseMap.put(RecapCommonConstants.REASON_FOR_ITEM_FAILURE,RecapCommonConstants.REASON_FOR_ITEM_FAILURE);
+        responseMap.put(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE,ScsbCommonConstants.REASON_FOR_ITEM_FAILURE);
         responseMaps.add(responseMap);
         responseMaps.add(responseMap1);
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setOwnerCode("PA");
+        accessionRequest.setCustomerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         InstitutionEntity institutionEntity=new InstitutionEntity();
         institutionEntity.setInstitutionCode("PUL");
@@ -194,8 +194,8 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         itemEntity.setBarcode("12345");
         itemEntity.setInstitutionEntity(institutionEntity);
         Mockito.when(itemDetailsRepository.findByBarcodeAndCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(itemEntities);
-        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
-        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
         ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
         ilsConfigProperties.setBibDataFormat("test");
         ilsConfigProperties.setIlsRefileEndpointProtocol("REST");
@@ -240,14 +240,14 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         Set<AccessionResponse> accessionResponses=new HashSet<>();
         List<Map<String, String>> responseMaps=new ArrayList<>();
         Map<String, String> responseMap1=new HashMap<>();
-        responseMap1.put(RecapCommonConstants.REASON_FOR_BIB_FAILURE,RecapCommonConstants.REASON_FOR_BIB_FAILURE);
+        responseMap1.put(ScsbCommonConstants.REASON_FOR_BIB_FAILURE,ScsbCommonConstants.REASON_FOR_BIB_FAILURE);
         Map<String, String> responseMap=new HashMap<>();
-        responseMap.put(RecapCommonConstants.REASON_FOR_ITEM_FAILURE,RecapCommonConstants.REASON_FOR_ITEM_FAILURE);
+        responseMap.put(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE,ScsbCommonConstants.REASON_FOR_ITEM_FAILURE);
         responseMaps.add(responseMap);
         responseMaps.add(responseMap1);
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setOwnerCode("PA");
+        accessionRequest.setCustomerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         InstitutionEntity institutionEntity=new InstitutionEntity();
         institutionEntity.setInstitutionCode("PUL");
@@ -256,8 +256,8 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         itemEntity.setBarcode("12345");
         itemEntity.setInstitutionEntity(institutionEntity);
         Mockito.when(itemDetailsRepository.findByBarcodeAndCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(itemEntities);
-        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
-        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
         ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
         ilsConfigProperties.setBibDataFormat("test");
         ilsConfigProperties.setIlsRefileEndpointProtocol("test");
@@ -279,7 +279,7 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         List<Map<String, String>> responseMaps=new ArrayList<>();
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setOwnerCode("PA");
+        accessionRequest.setCustomerCode("PA");
         List<ReportDataEntity> reportDataEntitys=new ArrayList<>();
         InstitutionEntity institutionEntity=new InstitutionEntity();
         institutionEntity.setInstitutionCode("PUL");
@@ -288,8 +288,8 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         itemEntity.setBarcode("12345");
         itemEntity.setInstitutionEntity(institutionEntity);
         Mockito.when(itemDetailsRepository.findByBarcodeAndCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(itemEntities);
-        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
-        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
         ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
         ilsConfigProperties.setBibDataFormat("test");
         Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties).thenThrow(NullPointerException.class);
@@ -306,11 +306,11 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
 
     @Test
     public void processException(){
-        String[] errors={RecapConstants.ITEM_BARCODE_NOT_FOUND,RecapConstants.MARC_FORMAT_PARSER_ERROR};
+        String[] errors={ScsbConstants.ITEM_BARCODE_NOT_FOUND, ScsbConstants.MARC_FORMAT_PARSER_ERROR};
         for (String error: errors) {
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("12345");
-        accessionRequest.setOwnerCode("PA");
+        accessionRequest.setCustomerCode("PA");
         Mockito.when(ex.getMessage()).thenReturn(error);
             ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
             accessionProcessService.processException(new HashSet<>(),accessionRequest,new ArrayList<>(),"PUL",imsLocationEntity,ex);
@@ -332,8 +332,8 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         itemEntity.setBarcode("12345");
         itemEntity.setInstitutionEntity(institutionEntity);
         Mockito.when(itemDetailsRepository.findByBarcodeAndCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(itemEntities);
-        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
-        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
         ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
         ilsConfigProperties.setBibDataFormat("test");
         Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties).thenThrow(NullPointerException.class);
@@ -364,8 +364,8 @@ public class AccessionProcessServiceUT extends BaseTestCaseUT {
         itemEntity.setBarcode("12345");
         itemEntity.setInstitutionEntity(institutionEntity);
         Mockito.when(itemDetailsRepository.findByBarcodeAndCustomerCode(Mockito.anyString(),Mockito.anyString())).thenReturn(itemEntities);
-        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
-        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(RecapCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.reAccessionItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.indexReaccessionedItem(Mockito.anyList())).thenReturn(ScsbCommonConstants.SUCCESS);
         ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
         ilsConfigProperties.setBibDataFormat("test");
         Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties).thenThrow(NullPointerException.class);

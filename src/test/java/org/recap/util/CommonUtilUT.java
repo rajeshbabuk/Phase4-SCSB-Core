@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
 import org.recap.model.jaxb.marc.BibRecords;
@@ -285,10 +285,10 @@ public class CommonUtilUT extends BaseTestCaseUT {
         Set<AccessionResponse> accessionResponsesList=new HashSet<>();
         List<ReportDataEntity> reportDataEntityList=new ArrayList<>();
         AccessionRequest accessionRequest=new AccessionRequest();
-        Mockito.when(accessionUtil.updateData(Mockito.any(),Mockito.anyString(),Mockito.anyList(),Mockito.any(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any())).thenReturn(RecapCommonConstants.SUCCESS);
+        Mockito.when(accessionUtil.updateData(Mockito.any(),Mockito.anyString(),Mockito.anyList(),Mockito.any(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any())).thenReturn(ScsbCommonConstants.SUCCESS);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         String updatedDataResponse=commonUtil.getUpdatedDataResponse(accessionResponsesList,responseMapList,"",reportDataEntityList,accessionRequest,true,1,record,imsLocationEntity);
-        assertEquals(RecapCommonConstants.SUCCESS,updatedDataResponse);
+        assertEquals(ScsbCommonConstants.SUCCESS,updatedDataResponse);
     }
 
     @Test

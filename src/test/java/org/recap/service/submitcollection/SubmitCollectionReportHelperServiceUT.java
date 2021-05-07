@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.jpa.BibliographicEntity;
 import org.recap.model.jpa.HoldingsEntity;
 import org.recap.model.jpa.InstitutionEntity;
@@ -311,7 +311,7 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
 
     private Map getItemStatusIdCodeMap() {
         Map<Integer,String> itemStatusIdCodeMap = new HashMap();
-        itemStatusIdCodeMap.put(1,RecapConstants.ITEM_STATUS_AVAILABLE);
+        itemStatusIdCodeMap.put(1, ScsbConstants.ITEM_STATUS_AVAILABLE);
         return itemStatusIdCodeMap;
     }
 
