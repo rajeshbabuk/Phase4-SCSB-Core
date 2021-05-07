@@ -13,8 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.camel.accessionreconciliation.AccessionReconciliationProcessor;
 import org.recap.camel.accessionreconciliation.BarcodeReconcilitaionReport;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,10 +71,10 @@ public class AccessionReconciliationProcessorUT extends BaseTestCaseUT {
     public void finall() throws IOException {
         ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "solrSolrClientUrl", solrSolrClientUrl);
         ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "accessionFilePath", accessionFilePath);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(RecapConstants.BARCODE_RECONCILIATION_FILE_DATE_FORMAT);
-        Path filePathPul = Paths.get(accessionFilePath+ RecapCommonConstants.PATH_SEPARATOR+"pul"+RecapCommonConstants.PATH_SEPARATOR+ RecapConstants.ACCESSION_RECONCILATION_FILE_NAME+"pul"+simpleDateFormat.format(new Date())+".csv");
-        Path filePathCul = Paths.get(accessionFilePath+ RecapCommonConstants.PATH_SEPARATOR+"cul"+RecapCommonConstants.PATH_SEPARATOR+ RecapConstants.ACCESSION_RECONCILATION_FILE_NAME+"cul"+simpleDateFormat.format(new Date())+".csv");
-        Path filePathNypl = Paths.get(accessionFilePath+ RecapCommonConstants.PATH_SEPARATOR+"nypl"+RecapCommonConstants.PATH_SEPARATOR+ RecapConstants.ACCESSION_RECONCILATION_FILE_NAME+"nypl"+simpleDateFormat.format(new Date())+".csv");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(ScsbConstants.BARCODE_RECONCILIATION_FILE_DATE_FORMAT);
+        Path filePathPul = Paths.get(accessionFilePath+ ScsbCommonConstants.PATH_SEPARATOR+"pul"+ScsbCommonConstants.PATH_SEPARATOR+ ScsbConstants.ACCESSION_RECONCILATION_FILE_NAME+"pul"+simpleDateFormat.format(new Date())+".csv");
+        Path filePathCul = Paths.get(accessionFilePath+ ScsbCommonConstants.PATH_SEPARATOR+"cul"+ScsbCommonConstants.PATH_SEPARATOR+ ScsbConstants.ACCESSION_RECONCILATION_FILE_NAME+"cul"+simpleDateFormat.format(new Date())+".csv");
+        Path filePathNypl = Paths.get(accessionFilePath+ ScsbCommonConstants.PATH_SEPARATOR+"nypl"+ScsbCommonConstants.PATH_SEPARATOR+ ScsbConstants.ACCESSION_RECONCILATION_FILE_NAME+"nypl"+simpleDateFormat.format(new Date())+".csv");
         boolean deletedPul = Files.deleteIfExists(filePathPul);
         Assert.assertTrue(deletedPul);
         boolean deletedCul = Files.deleteIfExists(filePathCul);
@@ -92,7 +92,7 @@ public class AccessionReconciliationProcessorUT extends BaseTestCaseUT {
         barcodeReconcilitaionReports.add(0,barcodeReconcilitaionReport);
         CamelContext ctx = new DefaultCamelContext();
         Exchange ex = getExchange(barcodeReconcilitaionReports, ctx);
-        ex.setProperty(RecapConstants.CAMEL_SPLIT_INDEX,1);
+        ex.setProperty(ScsbConstants.CAMEL_SPLIT_INDEX,1);
         Map<String, Boolean> map = new HashMap<>();
         map.put("accessionReconcilationService", true);
         ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "institutionCode", "pul");
@@ -101,7 +101,7 @@ public class AccessionReconciliationProcessorUT extends BaseTestCaseUT {
         HashMap<String,String> barcodesAndOwnerCodes=new HashMap<>();
         barcodesAndOwnerCodes.put(barcodeReconcilitaionReport.getBarcode(),barcodeReconcilitaionReport.getCustomerCode());
         HttpEntity httpEntity = new HttpEntity(barcodesAndOwnerCodes);
-        Mockito.when(restTemplate.exchange(solrSolrClientUrl+ RecapConstants.ACCESSION_RECONCILATION_SOLR_CLIENT_URL, HttpMethod.POST, httpEntity,Map.class)).thenReturn(responseEntity);
+        Mockito.when(restTemplate.exchange(solrSolrClientUrl+ ScsbConstants.ACCESSION_RECONCILATION_SOLR_CLIENT_URL, HttpMethod.POST, httpEntity,Map.class)).thenReturn(responseEntity);
         Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
         mockedAccessionReconciliationProcessor.processInput(ex);
     }
@@ -115,7 +115,7 @@ public class AccessionReconciliationProcessorUT extends BaseTestCaseUT {
         barcodeReconcilitaionReports.add(0,barcodeReconcilitaionReport);
         CamelContext ctx = new DefaultCamelContext();
         Exchange ex = getExchange(barcodeReconcilitaionReports, ctx);
-        ex.setProperty(RecapConstants.CAMEL_SPLIT_INDEX,0);
+        ex.setProperty(ScsbConstants.CAMEL_SPLIT_INDEX,0);
         Map<String, Boolean> map = new HashMap<>();
         map.put("accessionReconcilationService", true);
         ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "institutionCode", "cul");
@@ -123,7 +123,7 @@ public class AccessionReconciliationProcessorUT extends BaseTestCaseUT {
         HashMap<String,String> barcodesAndOwnerCodes=new HashMap<>();
         barcodesAndOwnerCodes.put(barcodeReconcilitaionReport.getBarcode(),barcodeReconcilitaionReport.getCustomerCode());
         HttpEntity httpEntity = new HttpEntity(barcodesAndOwnerCodes);
-        Mockito.when(restTemplate.exchange(solrSolrClientUrl+ RecapConstants.ACCESSION_RECONCILATION_SOLR_CLIENT_URL, HttpMethod.POST, httpEntity,Map.class)).thenReturn(responseEntity);
+        Mockito.when(restTemplate.exchange(solrSolrClientUrl+ ScsbConstants.ACCESSION_RECONCILATION_SOLR_CLIENT_URL, HttpMethod.POST, httpEntity,Map.class)).thenReturn(responseEntity);
         Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
         Mockito.when(awsS3Client.doesObjectExist(Mockito.anyString(),Mockito.anyString())).thenReturn(true);
         Mockito.when(awsS3Client.doesBucketExistV2(Mockito.anyString())).thenReturn(true);
@@ -138,7 +138,7 @@ public class AccessionReconciliationProcessorUT extends BaseTestCaseUT {
         ex.setMessage(in);
         ex.setIn(in);
 
-        ex.setProperty(RecapConstants.CAMEL_SPLIT_COMPLETE,true);
+        ex.setProperty(ScsbConstants.CAMEL_SPLIT_COMPLETE,true);
         in.setHeader("CamelAwsS3Key", simple("CamelAwsS3Key/CamelAwsS3Key/CamelAwsS3Key"));
         in.setHeader("CamelAwsS3BucketName", simple("CamelAwsS3BucketName"));
         in.setBody(barcodeReconcilitaionReports);

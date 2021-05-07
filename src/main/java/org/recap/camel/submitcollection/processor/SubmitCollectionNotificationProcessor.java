@@ -1,7 +1,7 @@
 package org.recap.camel.submitcollection.processor;
 
 import org.apache.camel.ProducerTemplate;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 
 /**
@@ -12,7 +12,7 @@ public class SubmitCollectionNotificationProcessor {
     private ProducerTemplate producer;
 
     public void sendSubmitCollectionNotification(){
-        producer.sendBodyAndHeader(RecapConstants.EMAIL_Q, getEmailPayLoad(), RecapConstants.EMAIL_BODY_FOR, RecapConstants.SUBMIT_COLLECTION);
+        producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoad(), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION);
     }
 
     private EmailPayLoad getEmailPayLoad(){

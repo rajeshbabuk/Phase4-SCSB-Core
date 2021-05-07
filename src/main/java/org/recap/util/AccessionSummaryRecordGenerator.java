@@ -1,7 +1,7 @@
 package org.recap.util;
 
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.csv.AccessionSummaryRecord;
 import org.recap.model.jpa.ReportDataEntity;
 import org.recap.model.jpa.ReportEntity;
@@ -35,23 +35,23 @@ public class AccessionSummaryRecordGenerator {
 
         for(ReportEntity reportEntity : reportEntityList){
             for(ReportDataEntity reportDataEntity : reportEntity.getReportDataEntities()){
-                if(reportDataEntity.getHeaderName().equalsIgnoreCase(RecapCommonConstants.BIB_SUCCESS_COUNT)){
+                if(reportDataEntity.getHeaderName().equalsIgnoreCase(ScsbCommonConstants.BIB_SUCCESS_COUNT)){
                     bibSuccessCount = bibSuccessCount + Integer.parseInt(reportDataEntity.getHeaderValue());
                 }
-                if(reportDataEntity.getHeaderName().equalsIgnoreCase(RecapCommonConstants.ITEM_SUCCESS_COUNT)){
+                if(reportDataEntity.getHeaderName().equalsIgnoreCase(ScsbCommonConstants.ITEM_SUCCESS_COUNT)){
                     itemSuccessCount = itemSuccessCount + Integer.parseInt(reportDataEntity.getHeaderValue());
                 }
-                if(reportDataEntity.getHeaderName().equalsIgnoreCase(RecapCommonConstants.BIB_FAILURE_COUNT)){
+                if(reportDataEntity.getHeaderName().equalsIgnoreCase(ScsbCommonConstants.BIB_FAILURE_COUNT)){
                     bibFailureCount = Integer.parseInt(reportDataEntity.getHeaderValue());
                 }
-                if(reportDataEntity.getHeaderName().equalsIgnoreCase(RecapCommonConstants.ITEM_FAILURE_COUNT)){
+                if(reportDataEntity.getHeaderName().equalsIgnoreCase(ScsbCommonConstants.ITEM_FAILURE_COUNT)){
                     itemFailureCount = Integer.parseInt(reportDataEntity.getHeaderValue());
                 }
-                if(reportDataEntity.getHeaderName().equalsIgnoreCase(RecapCommonConstants.NUMBER_OF_BIB_MATCHES)){
+                if(reportDataEntity.getHeaderName().equalsIgnoreCase(ScsbCommonConstants.NUMBER_OF_BIB_MATCHES)){
                     existingBibCount = existingBibCount + Integer.parseInt(reportDataEntity.getHeaderValue());
                 }
-                addToDocFailureReasonCountMap(bibFailureCount, bibFailureReasonCountMap, reportDataEntity, RecapConstants.FAILURE_BIB_REASON);
-                addToDocFailureReasonCountMap(itemFailureCount, itemFailureReasonCountMap, reportDataEntity, RecapConstants.FAILURE_ITEM_REASON);
+                addToDocFailureReasonCountMap(bibFailureCount, bibFailureReasonCountMap, reportDataEntity, ScsbConstants.FAILURE_BIB_REASON);
+                addToDocFailureReasonCountMap(itemFailureCount, itemFailureReasonCountMap, reportDataEntity, ScsbConstants.FAILURE_ITEM_REASON);
             }
         }
 

@@ -3,8 +3,8 @@ package org.recap.controller;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
-import org.recap.RecapConstants;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.model.csv.StatusReconciliationCSVRecord;
 import org.recap.model.csv.StatusReconciliationErrorCSVRecord;
 import org.recap.model.jpa.ItemEntity;
@@ -146,8 +146,8 @@ public class StatusReconciliationController {
      */
     @GetMapping(value = "/itemStatusReconciliation")
     public ResponseEntity<String> itemStatusReconciliation() {
-        ItemStatusEntity itemStatusEntity = getItemStatusDetailsRepository().findByStatusCode(RecapConstants.ITEM_STATUS_NOT_AVAILABLE);
-        List<String> requestStatusCodes = Arrays.asList(RecapCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, RecapCommonConstants.REQUEST_STATUS_EDD, RecapCommonConstants.REQUEST_STATUS_CANCELED, RecapCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
+        ItemStatusEntity itemStatusEntity = getItemStatusDetailsRepository().findByStatusCode(ScsbConstants.ITEM_STATUS_NOT_AVAILABLE);
+        List<String> requestStatusCodes = Arrays.asList(ScsbCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, ScsbCommonConstants.REQUEST_STATUS_EDD, ScsbCommonConstants.REQUEST_STATUS_CANCELED, ScsbCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
         List<RequestStatusEntity> requestStatusEntityList = getRequestItemStatusDetailsRepository().findByRequestStatusCodeIn(requestStatusCodes);
         List<Integer> requestStatusIds = requestStatusEntityList.stream().map(RequestStatusEntity::getId).collect(Collectors.toList());
         log.info("status reconciliation request ids : {} ", requestStatusIds);
@@ -165,10 +165,10 @@ public class StatusReconciliationController {
                 statusReconciliationCSVRecordList.addAll(statusReconciliationService.itemStatusComparison(itemEntityChunkList, statusReconciliationErrorCSVRecords));
                 log.info("status reconciliation page num: {} and records {} processed", pageNum, from + getBatchSize());
             }
-            getProducer().sendBodyAndHeader(RecapConstants.STATUS_RECONCILIATION_REPORT, statusReconciliationCSVRecordList, RecapConstants.FOR, RecapConstants.STATUS_RECONCILIATION);
-            getProducer().sendBodyAndHeader(RecapConstants.STATUS_RECONCILIATION_REPORT, statusReconciliationErrorCSVRecords, RecapConstants.FOR, RecapConstants.STATUS_RECONCILIATION_FAILURE);
+            getProducer().sendBodyAndHeader(ScsbConstants.STATUS_RECONCILIATION_REPORT, statusReconciliationCSVRecordList, ScsbConstants.FOR, ScsbConstants.STATUS_RECONCILIATION);
+            getProducer().sendBodyAndHeader(ScsbConstants.STATUS_RECONCILIATION_REPORT, statusReconciliationErrorCSVRecords, ScsbConstants.FOR, ScsbConstants.STATUS_RECONCILIATION_FAILURE);
         }
-        return new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK);
+        return new ResponseEntity<>(ScsbCommonConstants.SUCCESS, HttpStatus.OK);
     }
 
     /**

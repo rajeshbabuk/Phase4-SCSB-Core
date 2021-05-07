@@ -6,8 +6,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionModelRequest;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
@@ -96,7 +96,7 @@ public class AccessionServiceUT extends BaseTestCaseUT {
 
     @Test
     public void prepareSummary() {
-        String[] messages={RecapCommonConstants.SUCCESS, RecapConstants.ITEM_ALREADY_ACCESSIONED,RecapConstants.ACCESSION_DUMMY_RECORD,RecapConstants.EXCEPTION,RecapConstants.INVALID_BARCODE_LENGTH,RecapConstants.OWNING_INST_EMPTY,RecapConstants.ITEM_BARCODE_EMPTY,RecapConstants.CUSTOMER_CODE_EMPTY,RecapCommonConstants.CUSTOMER_CODE_DOESNOT_EXIST,"test",RecapConstants.INVALID_IMS_LOCACTION_CODE,RecapConstants.IMS_LOCACTION_CODE_IS_BLANK};
+        String[] messages={ScsbCommonConstants.SUCCESS, ScsbConstants.ITEM_ALREADY_ACCESSIONED, ScsbConstants.ACCESSION_DUMMY_RECORD, ScsbConstants.EXCEPTION, ScsbConstants.INVALID_BARCODE_LENGTH, ScsbConstants.OWNING_INST_EMPTY, ScsbConstants.ITEM_BARCODE_EMPTY, ScsbConstants.CUSTOMER_CODE_EMPTY,ScsbCommonConstants.CUSTOMER_CODE_DOESNOT_EXIST,"test", ScsbConstants.INVALID_IMS_LOCACTION_CODE, ScsbConstants.IMS_LOCACTION_CODE_IS_BLANK};
         for (String message:messages) {
             AccessionSummary accessionSummary=new AccessionSummary(message);
         AccessionResponse accessionResponse=new AccessionResponse();

@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.jaxb.marc.BibRecords;
 import org.recap.model.jaxb.marc.DataFieldType;
 import org.recap.model.jaxb.marc.RecordType;
@@ -440,14 +440,14 @@ public class MarcUtilUT extends BaseTestCaseUT {
         List<Record> records = marcUtil.convertMarcXmlToRecord(marcXML);
         ReflectionTestUtils.setField(marcUtil,"inputLimit",0);
         String extractXmlAndSetEntityToMap= marcUtil.convertAndValidateXml(marcXML,true,records);
-        assertTrue(extractXmlAndSetEntityToMap.contains(RecapConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE));
+        assertTrue(extractXmlAndSetEntityToMap.contains(ScsbConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE));
     }
 
     @Test
     public void convertAndValidateXmlInvalid(){
         List<Record> records = marcUtil.convertMarcXmlToRecord(marcXML);
         String extractXmlAndSetEntityToMap= marcUtil.convertAndValidateXml(marcXML,true,records);
-        assertTrue(extractXmlAndSetEntityToMap.contains(RecapConstants.INVALID_MARC_XML_FORMAT_MESSAGE));
+        assertTrue(extractXmlAndSetEntityToMap.contains(ScsbConstants.INVALID_MARC_XML_FORMAT_MESSAGE));
     }
 
 

@@ -2,8 +2,8 @@ package org.recap.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.marc.Record;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
 import org.recap.model.gfa.ScsbLasItemStatusCheckModel;
@@ -86,7 +86,7 @@ public class CommonUtil {
         submitCollectionReportInfo.setCustomerCode(incomingItemEntity.getCustomerCode());
         submitCollectionReportInfo.setOwningInstitution(owningInstitution);
         String existingOwningInstitutionHoldingsId = getExistingItemEntityOwningInstItemId(fetchedBibliographicEntity,incomingItemEntity);
-        submitCollectionReportInfo.setMessage(RecapConstants.SUBMIT_COLLECTION_FAILED_RECORD+" - Owning institution holdings id mismatch - incoming owning institution holdings id " +incomingHoldingItemMapEntry.getKey()+ ", existing owning institution item id "+incomingItemEntity.getOwningInstitutionItemId()
+        submitCollectionReportInfo.setMessage(ScsbConstants.SUBMIT_COLLECTION_FAILED_RECORD+" - Owning institution holdings id mismatch - incoming owning institution holdings id " +incomingHoldingItemMapEntry.getKey()+ ", existing owning institution item id "+incomingItemEntity.getOwningInstitutionItemId()
                 +", existing owning institution holdings id "+existingOwningInstitutionHoldingsId+", existing owning institution bib id "+fetchedBibliographicEntity.getOwningInstitutionBibId());
         failureSubmitCollectionReportInfoList.add(submitCollectionReportInfo);
     }
@@ -96,7 +96,7 @@ public class CommonUtil {
         submitCollectionReportInfo.setItemBarcode(incomingItemEntity.getBarcode());
         submitCollectionReportInfo.setCustomerCode(incomingItemEntity.getCustomerCode());
         submitCollectionReportInfo.setOwningInstitution(owningInstitution);
-        submitCollectionReportInfo.setMessage(RecapConstants.SUBMIT_COLLECTION_FAILED_RECORD+" - "+"Unable to update dummy record, CGD is unavailable in the incoming xml record - incoming owning institution bib id - "+incomingBibliographicEntity.getOwningInstitutionBibId()
+        submitCollectionReportInfo.setMessage(ScsbConstants.SUBMIT_COLLECTION_FAILED_RECORD+" - "+"Unable to update dummy record, CGD is unavailable in the incoming xml record - incoming owning institution bib id - "+incomingBibliographicEntity.getOwningInstitutionBibId()
                 +", incoming owning institution item id - "+incomingItemEntity.getOwningInstitutionItemId());
         failureSubmitCollectionReportInfoList.add(submitCollectionReportInfo);
     }
@@ -155,7 +155,7 @@ public class CommonUtil {
                     itemStatusMap.put(itemStatusEntity.getStatusCode(), itemStatusEntity.getId());
                 }
             } catch (Exception e) {
-                logger.error(RecapCommonConstants.LOG_ERROR,e);
+                logger.error(ScsbCommonConstants.LOG_ERROR,e);
             }
         }
         return itemStatusMap;
@@ -176,7 +176,7 @@ public class CommonUtil {
                     collectionGroupMap.put(collectionGroupEntity.getCollectionGroupCode(), collectionGroupEntity.getId());
                 }
             } catch (Exception e) {
-                logger.error(RecapCommonConstants.LOG_ERROR,e);
+                logger.error(ScsbCommonConstants.LOG_ERROR,e);
             }
         }
         return collectionGroupMap;
@@ -197,7 +197,7 @@ public class CommonUtil {
                     institutionEntityMap.put(institutionEntity.getInstitutionCode(), institutionEntity.getId());
                 }
             } catch (Exception e) {
-                logger.error(RecapCommonConstants.LOG_ERROR,e);
+                logger.error(ScsbCommonConstants.LOG_ERROR,e);
             }
         }
         return institutionEntityMap;
@@ -210,11 +210,11 @@ public class CommonUtil {
      * @param userName   the user name
      */
     public void rollbackUpdateItemAvailabilityStatus(ItemEntity itemEntity, String userName) {
-        ItemStatusEntity itemStatusEntity = itemStatusDetailsRepository.findByStatusCode(RecapCommonConstants.AVAILABLE);
+        ItemStatusEntity itemStatusEntity = itemStatusDetailsRepository.findByStatusCode(ScsbCommonConstants.AVAILABLE);
         itemEntity.setItemAvailabilityStatusId(itemStatusEntity.getId()); // Available
         itemEntity.setLastUpdatedBy(getUser(userName));
         itemDetailsRepository.save(itemEntity);
-        saveItemChangeLogEntity(itemEntity.getId(), getUser(userName), RecapConstants.REQUEST_ITEM_AVAILABILITY_STATUS_UPDATE, RecapConstants.REQUEST_ITEM_AVAILABILITY_STATUS_DATA_ROLLBACK);
+        saveItemChangeLogEntity(itemEntity.getId(), getUser(userName), ScsbConstants.REQUEST_ITEM_AVAILABILITY_STATUS_UPDATE, ScsbConstants.REQUEST_ITEM_AVAILABILITY_STATUS_DATA_ROLLBACK);
     }
 
     /**
@@ -259,7 +259,7 @@ public class CommonUtil {
         try {
              bibRecords = extractBibRecords(unmarshal);
         } catch (JAXBException e) {
-            logger.error(RecapCommonConstants.LOG_ERROR,e);
+            logger.error(ScsbCommonConstants.LOG_ERROR,e);
         }
         return bibRecords;
     }
@@ -315,7 +315,7 @@ public class CommonUtil {
                 out.append("\n");
             }
         } catch (IOException e) {
-            logger.error(RecapCommonConstants.LOG_ERROR, e);
+            logger.error(ScsbCommonConstants.LOG_ERROR, e);
         }
         return out;
     }

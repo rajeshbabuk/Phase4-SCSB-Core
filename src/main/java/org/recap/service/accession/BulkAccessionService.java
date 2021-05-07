@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.apache.camel.Exchange;
 import org.apache.commons.collections.CollectionUtils;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionModelRequest;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
@@ -75,12 +75,12 @@ public class BulkAccessionService extends AccessionService{
             accessionModelRequest.setAccessionRequests(trimmedAccessionRequests);
             accessionEntity.setAccessionRequest(convertJsonToString(accessionModelRequest));
             accessionEntity.setCreatedDate(new Date());
-            accessionEntity.setAccessionStatus(RecapConstants.PENDING);
+            accessionEntity.setAccessionStatus(ScsbConstants.PENDING);
             accessionDetailsRepository.save(accessionEntity);
-            status = RecapConstants.ACCESSION_SAVE_SUCCESS_STATUS;
+            status = ScsbConstants.ACCESSION_SAVE_SUCCESS_STATUS;
         } catch (Exception ex) {
-            logger.error(RecapCommonConstants.LOG_ERROR, ex);
-            status = RecapConstants.ACCESSION_SAVE_FAILURE_STATUS + RecapCommonConstants.EXCEPTION_MSG + " : " + ex.getMessage();
+            logger.error(ScsbCommonConstants.LOG_ERROR, ex);
+            status = ScsbConstants.ACCESSION_SAVE_FAILURE_STATUS + ScsbCommonConstants.EXCEPTION_MSG + " : " + ex.getMessage();
         }
         return status;
     }
@@ -107,7 +107,7 @@ public class BulkAccessionService extends AccessionService{
             try {
                 accessionModelRequestList.forEach(accessionModelRequest -> accessionRequestList.addAll(accessionModelRequest.getAccessionRequests()));
             } catch(Exception e) {
-                logger.error(RecapCommonConstants.LOG_ERROR, e);
+                logger.error(ScsbCommonConstants.LOG_ERROR, e);
             }
         }
         return accessionRequestList;
@@ -178,7 +178,7 @@ public class BulkAccessionService extends AccessionService{
                         }
 
                     } catch (Exception e) {
-                        logger.error(RecapCommonConstants.LOG_ERROR, e);
+                        logger.error(ScsbCommonConstants.LOG_ERROR, e);
                         exhange.setException(e);
                     }
                 }
@@ -197,7 +197,7 @@ public class BulkAccessionService extends AccessionService{
                         Object o = submit.get();
                         prepareSummary(accessionSummary, o);
                     } catch (Exception e) {
-                        logger.error(RecapCommonConstants.LOG_ERROR, e);
+                        logger.error(ScsbCommonConstants.LOG_ERROR, e);
                         exhange.setException(e);
                         accessionSummary.addException(1);
                     }
@@ -233,7 +233,7 @@ public class BulkAccessionService extends AccessionService{
         try {
             strJson = objectMapper.writeValueAsString(objJson);
         } catch (JsonProcessingException ex) {
-            logger.error(RecapCommonConstants.LOG_ERROR, ex);
+            logger.error(ScsbCommonConstants.LOG_ERROR, ex);
         }
         return strJson;
     }
@@ -248,7 +248,7 @@ public class BulkAccessionService extends AccessionService{
                 .collect(Collectors.toSet())
                 .forEach(accessionRequest -> {
                     String owningInstitution = accessionUtil.getOwningInstitution(accessionRequest.getCustomerCode(),imsLocationCode);
-                    List<ReportDataEntity> reportDataEntityList = accessionUtil.createReportDataEntityList(accessionRequest, RecapConstants.DUPLICATE_BARCODE_ENTRY);
+                    List<ReportDataEntity> reportDataEntityList = accessionUtil.createReportDataEntityList(accessionRequest, ScsbConstants.DUPLICATE_BARCODE_ENTRY);
                     accessionUtil.saveReportEntity(owningInstitution, reportDataEntityList);
                 });
     }

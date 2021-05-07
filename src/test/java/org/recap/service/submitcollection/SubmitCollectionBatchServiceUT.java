@@ -1,9 +1,6 @@
 
 package org.recap.service.submitcollection;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.marc4j.marc.Leader;
 import org.marc4j.marc.Record;
@@ -11,8 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.converter.MarcToBibEntityConverter;
 import org.recap.converter.SCSBToBibEntityConverter;
 import org.recap.model.jaxb.Bib;
@@ -26,12 +23,9 @@ import org.recap.model.jpa.ItemEntity;
 import org.recap.model.report.SubmitCollectionReportInfo;
 import org.recap.util.CommonUtil;
 import org.recap.util.MarcUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -225,7 +219,7 @@ public class SubmitCollectionBatchServiceUT extends BaseTestCaseUT {
         Map responseMap=new HashMap();
         StringBuilder stringBuilder=new StringBuilder();
         responseMap.put("errorMessage",stringBuilder);
-        responseMap.put(RecapCommonConstants.BIBLIOGRAPHICENTITY,getBibliographicEntityMultiVolume("456"));
+        responseMap.put(ScsbCommonConstants.BIBLIOGRAPHICENTITY,getBibliographicEntityMultiVolume("456"));
         List<BibliographicEntity> updatedBibliographicEntityList = new ArrayList<>();
         BibliographicEntity bibliographicEntity=getBibliographicEntities("456");
         bibliographicEntity.setId(null);
@@ -249,9 +243,9 @@ public class SubmitCollectionBatchServiceUT extends BaseTestCaseUT {
         Set<String> updatedDummyRecordOwnInstBibIdSet = new HashSet<>();
         InstitutionEntity institutionEntity = new InstitutionEntity();
         List<Record> recordList = new ArrayList<>();
-        Mockito.when(marcUtil.convertAndValidateXml(inputRecords, checkLimit, recordList)).thenReturn(RecapConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE);
+        Mockito.when(marcUtil.convertAndValidateXml(inputRecords, checkLimit, recordList)).thenReturn(ScsbConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE);
         String result = submitCollectionBatchService.processMarc(inputRecords, processedBibIds,submitCollectionReportInfoMap,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,checkLimit,isCGDProtection,institutionEntity,updatedDummyRecordOwnInstBibIdSet);
-        assertEquals(RecapConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE,result);
+        assertEquals(ScsbConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE,result);
     }
 
     @Test
@@ -273,7 +267,7 @@ public class SubmitCollectionBatchServiceUT extends BaseTestCaseUT {
         ReflectionTestUtils.setField(submitCollectionBatchService,"inputLimit",0);
         Mockito.when(commonUtil.extractBibRecords(Mockito.anyString())).thenReturn(bibRecords);
         String result =  submitCollectionBatchService.processSCSB(inputRecords,processedBibIds,submitCollectionReportInfoMap,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,checkLimit,isCGDProtected,institutionEntity,updatedDummyRecordOwnInstBibIdSet);
-        assertEquals(RecapConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE+ " " + 0,result);
+        assertEquals(ScsbConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE+ " " + 0,result);
 
     }
 
@@ -407,7 +401,7 @@ public class SubmitCollectionBatchServiceUT extends BaseTestCaseUT {
         Set<String> updatedDummyRecordOwnInstBibIdSet = new HashSet<>();
         Mockito.when(commonUtil.extractBibRecords(Mockito.anyString())).thenThrow(JAXBException.class);
         String result = submitCollectionBatchService.processSCSB(inputRecords, processedBibIds,submitCollectionReportInfoMap,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,true,true,getInstitutionEntity(),updatedDummyRecordOwnInstBibIdSet);
-        assertEquals(RecapConstants.INVALID_SCSB_XML_FORMAT_MESSAGE,result);
+        assertEquals(ScsbConstants.INVALID_SCSB_XML_FORMAT_MESSAGE,result);
     }
 
 

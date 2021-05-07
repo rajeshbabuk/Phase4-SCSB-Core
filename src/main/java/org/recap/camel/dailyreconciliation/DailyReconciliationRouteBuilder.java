@@ -7,7 +7,7 @@ import org.apache.camel.component.aws.s3.S3Constants;
 import org.apache.camel.model.dataformat.BindyType;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.camel.route.StartRouteProcessor;
 import org.recap.camel.route.StopRouteProcessor;
 import org.recap.model.csv.DailyReconcilationRecord;
@@ -49,8 +49,8 @@ public class DailyReconciliationRouteBuilder extends RouteBuilder {
          * Predicate to identify is the input file is gz
          */
         Predicate gzipFile = exchange -> {
-            if (exchange.getIn().getHeader(RecapConstants.CAMEL_AWS_KEY) != null) {
-                String fileName = exchange.getIn().getHeader(RecapConstants.CAMEL_AWS_KEY).toString();
+            if (exchange.getIn().getHeader(ScsbConstants.CAMEL_AWS_KEY) != null) {
+                String fileName = exchange.getIn().getHeader(ScsbConstants.CAMEL_AWS_KEY).toString();
                 return StringUtils.equalsIgnoreCase("gz", FilenameUtils.getExtension(fileName));
             } else {
                 return false;
@@ -58,7 +58,7 @@ public class DailyReconciliationRouteBuilder extends RouteBuilder {
         };
 
         from("aws-s3://{{scsbBucketName}}?prefix=" + dailyReconciliationS3 + imsLocation + "/{{s3DataFeedFileNamePrefix}}&deleteAfterRead=false&sendEmptyMessageWhenIdle=true&autocloseBody=false&region={{awsRegion}}&accessKey=RAW({{awsAccessKey}})&secretKey=RAW({{awsAccessSecretKey}})")
-                .routeId(RecapConstants.DAILY_RR_S3_ROUTE_ID + imsLocation)
+                .routeId(ScsbConstants.DAILY_RR_S3_ROUTE_ID + imsLocation)
                 .noAutoStartup()
                 .log("Daily Reconciliation started for IMS Location : " + imsLocation)
                 .choice()
@@ -66,35 +66,35 @@ public class DailyReconciliationRouteBuilder extends RouteBuilder {
                         .unmarshal()
                         .gzipDeflater()
                         .log("Unzip process completed for daily reconciliation file for IMS Location : " + imsLocation)
-                        .process(new StartRouteProcessor(RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation))
-                        .to(RecapConstants.DIRECT + RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
+                        .process(new StartRouteProcessor(ScsbConstants.PROCESS_DAILY_RECONCILIATION + imsLocation))
+                        .to(ScsbConstants.DIRECT + ScsbConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
                     .when(body().isNull())
-                        .process(new StopRouteProcessor(RecapConstants.DAILY_RR_S3_ROUTE_ID + imsLocation))
+                        .process(new StopRouteProcessor(ScsbConstants.DAILY_RR_S3_ROUTE_ID + imsLocation))
                         .log("No File To Process Daily Reconciliation for Ims Location " + imsLocation)
                     .otherwise()
-                        .process(new StartRouteProcessor(RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation))
-                        .to(RecapConstants.DIRECT + RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
+                        .process(new StartRouteProcessor(ScsbConstants.PROCESS_DAILY_RECONCILIATION + imsLocation))
+                        .to(ScsbConstants.DIRECT + ScsbConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
                 .endChoice();
 
-        from(RecapConstants.DIRECT + RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
-                .routeId(RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
+        from(ScsbConstants.DIRECT + ScsbConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
+                .routeId(ScsbConstants.PROCESS_DAILY_RECONCILIATION + imsLocation)
                 .noAutoStartup()
                 .unmarshal().bindy(BindyType.Csv, DailyReconcilationRecord.class)
-                .bean(applicationContext.getBean(DailyReconciliationProcessor.class, imsLocation), RecapConstants.PROCESS_INPUT)
+                .bean(applicationContext.getBean(DailyReconciliationProcessor.class, imsLocation), ScsbConstants.PROCESS_INPUT)
                 .end()
                 .onCompletion()
-                    .process(new StopRouteProcessor(RecapConstants.PROCESS_DAILY_RECONCILIATION + imsLocation));
+                    .process(new StopRouteProcessor(ScsbConstants.PROCESS_DAILY_RECONCILIATION + imsLocation));
 
-        from(RecapConstants.DAILY_RR_FS_FILE + dailyReconciliationFilePath + "/" + imsLocation + RecapConstants.DAILY_RR_FS_OPTIONS)
-                .routeId(RecapConstants.DAILY_RR_FS_ROUTE_ID + imsLocation)
+        from(ScsbConstants.DAILY_RR_FS_FILE + dailyReconciliationFilePath + "/" + imsLocation + ScsbConstants.DAILY_RR_FS_OPTIONS)
+                .routeId(ScsbConstants.DAILY_RR_FS_ROUTE_ID + imsLocation)
                 .noAutoStartup()
                 .setHeader(S3Constants.CONTENT_LENGTH, simple("${in.header.CamelFileLength}"))
                 .setHeader(S3Constants.KEY, simple(dailyReconciliationFtpProcessed + imsLocation + "/DailyReconciliation_" + imsLocation +"_${date:now:yyyyMMdd_HHmmss}.xlsx"))
-                .to(RecapConstants.SCSB_CAMEL_S3_TO_ENDPOINT)
+                .to(ScsbConstants.SCSB_CAMEL_S3_TO_ENDPOINT)
                 .onCompletion()
                     .log("Email service started for daily reconciliation for IMS Location : " + imsLocation)
                     .bean(applicationContext.getBean(DailyReconciliationEmailService.class, imsLocation))
-                    .process(new StopRouteProcessor(RecapConstants.DAILY_RR_FS_ROUTE_ID + imsLocation))
+                    .process(new StopRouteProcessor(ScsbConstants.DAILY_RR_FS_ROUTE_ID + imsLocation))
                     .log("Daily Reconciliation completed for IMS Location: " + imsLocation);
     }
 }

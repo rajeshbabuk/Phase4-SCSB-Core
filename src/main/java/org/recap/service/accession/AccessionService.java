@@ -3,8 +3,8 @@ package org.recap.service.accession;
 import org.apache.camel.Exchange;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionModelRequest;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
@@ -114,29 +114,29 @@ public class AccessionService {
     }
 
     protected void addCountToSummary(AccessionSummary accessionSummary, String message) {
-        if(message.contains(RecapCommonConstants.SUCCESS)) {
+        if(message.contains(ScsbCommonConstants.SUCCESS)) {
             accessionSummary.addSuccessRecord(1);
-        }else if(message.contains(RecapConstants.ITEM_ALREADY_ACCESSIONED)) {
+        }else if(message.contains(ScsbConstants.ITEM_ALREADY_ACCESSIONED)) {
             accessionSummary.addAlreadyAccessioned(1);
-        } else if(message.contains(RecapConstants.ACCESSION_DUMMY_RECORD)) {
+        } else if(message.contains(ScsbConstants.ACCESSION_DUMMY_RECORD)) {
             accessionSummary.addDummyRecords(1);
-        } else if(message.contains(RecapConstants.EXCEPTION)) {
+        } else if(message.contains(ScsbConstants.EXCEPTION)) {
             accessionSummary.addException(1);
-        } else if(StringUtils.equalsIgnoreCase(RecapConstants.INVALID_BARCODE_LENGTH, message)) {
+        } else if(StringUtils.equalsIgnoreCase(ScsbConstants.INVALID_BARCODE_LENGTH, message)) {
             accessionSummary.addInvalidLenghBarcode(1);
-        } else if(StringUtils.equalsIgnoreCase(RecapConstants.OWNING_INST_EMPTY, message)) {
+        } else if(StringUtils.equalsIgnoreCase(ScsbConstants.OWNING_INST_EMPTY, message)) {
             accessionSummary.addEmptyOwningInst(1);
-        } else if(StringUtils.equalsIgnoreCase(RecapConstants.ITEM_BARCODE_EMPTY, message)) {
+        } else if(StringUtils.equalsIgnoreCase(ScsbConstants.ITEM_BARCODE_EMPTY, message)) {
             accessionSummary.addEmptyBarcodes(1);
-        } else if(StringUtils.equalsIgnoreCase(RecapConstants.CUSTOMER_CODE_EMPTY, message)) {
+        } else if(StringUtils.equalsIgnoreCase(ScsbConstants.CUSTOMER_CODE_EMPTY, message)) {
             accessionSummary.addEmptyCustomerCode(1);
-        }  else if(StringUtils.equalsIgnoreCase(RecapCommonConstants.CUSTOMER_CODE_DOESNOT_EXIST, message)) {
+        }  else if(StringUtils.equalsIgnoreCase(ScsbCommonConstants.CUSTOMER_CODE_DOESNOT_EXIST, message)) {
             accessionSummary.addCustomerCodeDoesNotExist(1);
         }
-        else if(StringUtils.equalsIgnoreCase(RecapConstants.INVALID_IMS_LOCACTION_CODE, message)){
+        else if(StringUtils.equalsIgnoreCase(ScsbConstants.INVALID_IMS_LOCACTION_CODE, message)){
             accessionSummary.addInvalidImsLocation(1);
         }
-        else if(StringUtils.equalsIgnoreCase(RecapConstants.IMS_LOCACTION_CODE_IS_BLANK, message)){
+        else if(StringUtils.equalsIgnoreCase(ScsbConstants.IMS_LOCACTION_CODE_IS_BLANK, message)){
             accessionSummary.addEmptyImsLocation(1);
         }
         else {

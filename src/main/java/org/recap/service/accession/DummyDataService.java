@@ -1,7 +1,7 @@
 package org.recap.service.accession;
 
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.jpa.*;
 import org.recap.repository.jpa.CollectionGroupDetailsRepository;
 import org.recap.repository.jpa.ItemStatusDetailsRepository;
@@ -58,26 +58,26 @@ public class DummyDataService {
         BibliographicEntity bibliographicEntity = new BibliographicEntity();
         Date currentDate = new Date();
         try {
-            updateBibWithDummyDetails(owningInstitutionId, bibliographicEntity, currentDate,RecapCommonConstants.ACCESSION, getDummyOwningInstId());
+            updateBibWithDummyDetails(owningInstitutionId, bibliographicEntity, currentDate,ScsbCommonConstants.ACCESSION, getDummyOwningInstId());
 
-            HoldingsEntity holdingsEntity = getHoldingsWithDummyDetails(owningInstitutionId, currentDate,RecapCommonConstants.ACCESSION, getDummyOwningInstId());
+            HoldingsEntity holdingsEntity = getHoldingsWithDummyDetails(owningInstitutionId, currentDate,ScsbCommonConstants.ACCESSION, getDummyOwningInstId());
 
             ItemEntity itemEntity = new ItemEntity();
-            itemEntity.setCallNumberType(RecapConstants.DUMMY_CALL_NUMBER_TYPE);
-            itemEntity.setCallNumber(RecapCommonConstants.DUMMYCALLNUMBER);
+            itemEntity.setCallNumberType(ScsbConstants.DUMMY_CALL_NUMBER_TYPE);
+            itemEntity.setCallNumber(ScsbCommonConstants.DUMMYCALLNUMBER);
             itemEntity.setCreatedDate(currentDate);
-            itemEntity.setCreatedBy(RecapCommonConstants.ACCESSION);
+            itemEntity.setCreatedBy(ScsbCommonConstants.ACCESSION);
             itemEntity.setLastUpdatedDate(currentDate);
-            itemEntity.setLastUpdatedBy(RecapCommonConstants.ACCESSION);
+            itemEntity.setLastUpdatedBy(ScsbCommonConstants.ACCESSION);
             itemEntity.setBarcode(itemBarcode);
             itemEntity.setOwningInstitutionItemId(getDummyOwningInstId());
             itemEntity.setOwningInstitutionId(owningInstitutionId);
-            itemEntity.setCollectionGroupId(getCollectionGroupMap().get(RecapCommonConstants.NOT_AVAILABLE_CGD));
+            itemEntity.setCollectionGroupId(getCollectionGroupMap().get(ScsbCommonConstants.NOT_AVAILABLE_CGD));
             itemEntity.setCustomerCode(customerCode);
-            itemEntity.setItemAvailabilityStatusId(getItemStatusMap().get(RecapCommonConstants.NOT_AVAILABLE));
+            itemEntity.setItemAvailabilityStatusId(getItemStatusMap().get(ScsbCommonConstants.NOT_AVAILABLE));
             itemEntity.setDeleted(false);
             itemEntity.setHoldingsEntities(Collections.singletonList(holdingsEntity));
-            itemEntity.setCatalogingStatus(RecapCommonConstants.INCOMPLETE_STATUS);
+            itemEntity.setCatalogingStatus(ScsbCommonConstants.INCOMPLETE_STATUS);
             itemEntity.setImsLocationId(imsLocationEntity.getId());
             itemEntity.setImsLocationEntity(imsLocationEntity);
             List<ItemEntity> itemEntityList = new ArrayList<>();
@@ -87,14 +87,14 @@ public class DummyDataService {
             bibliographicEntity.setHoldingsEntities(Collections.singletonList(holdingsEntity));
             bibliographicEntity.setItemEntities(Collections.singletonList(itemEntity));
         } catch (Exception e) {
-            logger.error(RecapCommonConstants.LOG_ERROR,e);
+            logger.error(ScsbCommonConstants.LOG_ERROR,e);
         }
         return bibliographicRepositoryDAO.saveOrUpdate(bibliographicEntity);
     }
 
     public HoldingsEntity getHoldingsWithDummyDetails(Integer owningInstitutionId, Date currentDate, String createdBy, String owningInstitutionHoldingsId) {
         HoldingsEntity holdingsEntity = new HoldingsEntity();
-        holdingsEntity.setContent(getXmlContent(RecapConstants.DUMMY_HOLDING_CONTENT_XML).getBytes());
+        holdingsEntity.setContent(getXmlContent(ScsbConstants.DUMMY_HOLDING_CONTENT_XML).getBytes());
         holdingsEntity.setCreatedDate(currentDate);
         holdingsEntity.setCreatedBy(createdBy);
         holdingsEntity.setLastUpdatedDate(currentDate);
@@ -107,14 +107,14 @@ public class DummyDataService {
     public void updateBibWithDummyDetails(Integer owningInstitutionId, BibliographicEntity bibliographicEntity, Date currentDate,
                                           String createdBy, String owningInstitutionBibId
     ) {
-        bibliographicEntity.setContent(getXmlContent(RecapConstants.DUMMY_BIB_CONTENT_XML).getBytes());
+        bibliographicEntity.setContent(getXmlContent(ScsbConstants.DUMMY_BIB_CONTENT_XML).getBytes());
         bibliographicEntity.setCreatedDate(currentDate);
         bibliographicEntity.setCreatedBy(createdBy);
         bibliographicEntity.setLastUpdatedBy(createdBy);
         bibliographicEntity.setLastUpdatedDate(currentDate);
         bibliographicEntity.setOwningInstitutionId(owningInstitutionId);
         bibliographicEntity.setOwningInstitutionBibId(owningInstitutionBibId);
-        bibliographicEntity.setCatalogingStatus(RecapCommonConstants.INCOMPLETE_STATUS);
+        bibliographicEntity.setCatalogingStatus(ScsbCommonConstants.INCOMPLETE_STATUS);
     }
 
     private synchronized Map<String, Integer> getCollectionGroupMap() {
@@ -127,7 +127,7 @@ public class DummyDataService {
                     collectionGroupMap.put(collectionGroupEntity.getCollectionGroupCode(), collectionGroupEntity.getId());
                 }
             } catch (Exception e) {
-                logger.error(RecapConstants.EXCEPTION,e);
+                logger.error(ScsbConstants.EXCEPTION,e);
             }
         }
         return collectionGroupMap;
@@ -142,7 +142,7 @@ public class DummyDataService {
                     itemStatusMap.put(itemStatusEntity.getStatusCode(), itemStatusEntity.getId());
                 }
             } catch (Exception e) {
-                logger.error(RecapConstants.EXCEPTION,e);
+                logger.error(ScsbConstants.EXCEPTION,e);
             }
         }
         return itemStatusMap;

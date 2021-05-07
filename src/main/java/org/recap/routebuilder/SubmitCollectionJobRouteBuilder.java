@@ -1,11 +1,11 @@
 package org.recap.routebuilder;
 
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.controller.SubmitCollectionJobController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +32,8 @@ public class SubmitCollectionJobRouteBuilder {
             camelContext.addRoutes(new RouteBuilder() {
                 @Override
                 public void configure() throws Exception {
-                    from(RecapCommonConstants.SUBMIT_COLLECTION_JOB_INITIATE_QUEUE)
-                            .routeId(RecapConstants.SUBMIT_COLLECTION_JOB_INITIATE_ROUTE_ID)
+                    from(ScsbCommonConstants.SUBMIT_COLLECTION_JOB_INITIATE_QUEUE)
+                            .routeId(ScsbConstants.SUBMIT_COLLECTION_JOB_INITIATE_ROUTE_ID)
                             .process(new Processor() {
                                 @Override
                                 public void process(Exchange exchange) throws Exception {
@@ -45,12 +45,12 @@ public class SubmitCollectionJobRouteBuilder {
                                 }
                             })
                             .onCompletion()
-                            .to(RecapCommonConstants.SUBMIT_COLLECTION_JOB_COMPLETION_OUTGOING_QUEUE)
+                            .to(ScsbCommonConstants.SUBMIT_COLLECTION_JOB_COMPLETION_OUTGOING_QUEUE)
                             .end();
                 }
             });
         } catch (Exception ex) {
-            logger.error(RecapCommonConstants.LOG_ERROR, ex);
+            logger.error(ScsbCommonConstants.LOG_ERROR, ex);
         }
     }
 }

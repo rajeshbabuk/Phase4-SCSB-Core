@@ -3,7 +3,7 @@ package org.recap.service;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.model.jpa.RequestItemEntity;
 import org.recap.repository.jpa.RequestItemDetailsRepository;
 import org.recap.util.SecurityUtil;
@@ -62,7 +62,7 @@ public class EncryptEmailAddressService {
                     logger.info("Total number of request item entities saved in db : {}",requestItemEntityListToSave.size());
                 }
             }catch (Exception e){
-                logger.error(RecapCommonConstants.LOG_ERROR,e);
+                logger.error(ScsbCommonConstants.LOG_ERROR,e);
                 return "Error occurred"+e.getMessage();
             }
         }

@@ -2,7 +2,7 @@ package org.recap.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -58,7 +58,7 @@ public class RestTemplateConfig {
             } else {
                 log.info("rest client exception", exception.getMessage());
             }
-            String response = RecapConstants.ITEM_BARCODE_NOT_FOUND + url + exception.getMessage();
+            String response = ScsbConstants.ITEM_BARCODE_NOT_FOUND + url + exception.getMessage();
 
             throw new RuntimeException(response);
         }

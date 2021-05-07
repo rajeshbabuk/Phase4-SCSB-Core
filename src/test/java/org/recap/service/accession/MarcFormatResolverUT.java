@@ -6,8 +6,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.ILSConfigProperties;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
@@ -72,10 +72,10 @@ public class MarcFormatResolverUT extends BaseTestCaseUT {
         records.add(record);
         records.add(record);
         Mockito.when(accessionValidationService.validateBoundWithMarcRecordFromIls(Mockito.anyList(),Mockito.any(),Mockito.any())).thenReturn(true);
-        Mockito.when(commonUtil.getUpdatedDataResponse(Mockito.anySet(),Mockito.anyList(),Mockito.anyString(),Mockito.anyList(),Mockito.any(),Mockito.anyBoolean(),Mockito.anyInt(),Mockito.any(),Mockito.any())).thenReturn(RecapCommonConstants.SUCCESS);
+        Mockito.when(commonUtil.getUpdatedDataResponse(Mockito.anySet(),Mockito.anyList(),Mockito.anyString(),Mockito.anyList(),Mockito.any(),Mockito.anyBoolean(),Mockito.anyInt(),Mockito.any(),Mockito.any())).thenReturn(ScsbCommonConstants.SUCCESS);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         String response=mockMarcFormatResolver.processXml(getAccessionResponses(),records,responseMapList,"PUL",reportDataEntityList,accessionRequest,imsLocationEntity);
-        assertEquals(RecapCommonConstants.SUCCESS,response);
+        assertEquals(ScsbCommonConstants.SUCCESS,response);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class MarcFormatResolverUT extends BaseTestCaseUT {
         Mockito.when(accessionValidationService.validateBoundWithMarcRecordFromIls(Mockito.anyList(),Mockito.any(),Mockito.any())).thenReturn(false);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         String response=mockMarcFormatResolver.processXml(getAccessionResponses(),records,responseMapList,"PUL",reportDataEntityList,accessionRequest,imsLocationEntity);
-        assertEquals(RecapConstants.INVALID_BOUNDWITH_RECORD,response);
+        assertEquals(ScsbConstants.INVALID_BOUNDWITH_RECORD,response);
     }
 
     @Test
@@ -130,9 +130,9 @@ public class MarcFormatResolverUT extends BaseTestCaseUT {
         ilsConfigProperties.setIlsBibdataApiParameter("test");
         Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties);
         Mockito.when(bibDataFactory.getAuth(Mockito.anyString())).thenReturn(bibDataForAccessionInterface);
-        Mockito.when(bibDataForAccessionInterface.getBibData(Mockito.anyString(),Mockito.anyString(),Mockito.anyString(),Mockito.anyString())).thenReturn(RecapCommonConstants.SUCCESS);
+        Mockito.when(bibDataForAccessionInterface.getBibData(Mockito.anyString(),Mockito.anyString(),Mockito.anyString(),Mockito.anyString())).thenReturn(ScsbCommonConstants.SUCCESS);
         String getBibData=mockMarcFormatResolver.getBibData("123456","CU","CUL");
-        assertEquals(RecapCommonConstants.SUCCESS,getBibData);
+        assertEquals(ScsbCommonConstants.SUCCESS,getBibData);
     }
 
     @Test

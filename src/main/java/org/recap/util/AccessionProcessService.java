@@ -2,8 +2,8 @@ package org.recap.util;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.ILSConfigProperties;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
@@ -76,9 +76,9 @@ public class AccessionProcessService {
             boolean isDeaccessionedItem = isItemDeaccessioned(itemEntityList);
             if (isDeaccessionedItem) { // If deacccessioned item make it available
                 String response = accessionUtil.reAccessionItem(itemEntityList);
-                if (response.equals(RecapCommonConstants.SUCCESS)) {
+                if (response.equals(ScsbCommonConstants.SUCCESS)) {
                     response = accessionUtil.indexReaccessionedItem(itemEntityList);
-                    accessionUtil.saveItemChangeLogEntity(RecapConstants.REACCESSION, RecapConstants.ITEM_ISDELETED_TRUE_TO_FALSE, itemEntityList);
+                    accessionUtil.saveItemChangeLogEntity(ScsbConstants.REACCESSION, ScsbConstants.ITEM_ISDELETED_TRUE_TO_FALSE, itemEntityList);
                     reAccessionedCheckin(itemEntityList);
                 }
                 accessionUtil.setAccessionResponse(accessionResponses, itemBarcode, response);
@@ -88,9 +88,9 @@ public class AccessionProcessService {
                 if (CollectionUtils.isNotEmpty(itemEntityList.get(0).getBibliographicEntities())) {
                     String itemAreadyAccessionedOwnInstBibId = itemEntityList.get(0).getBibliographicEntities() != null ? itemEntityList.get(0).getBibliographicEntities().get(0).getOwningInstitutionBibId() : " ";
                     String itemAreadyAccessionedOwnInstHoldingId = itemEntityList.get(0).getHoldingsEntities() != null ? itemEntityList.get(0).getHoldingsEntities().get(0).getOwningInstitutionHoldingsId() : " ";
-                    itemAreadyAccessionedMessage = RecapConstants.ITEM_ALREADY_ACCESSIONED + RecapConstants.OWN_INST_BIB_ID + itemAreadyAccessionedOwnInstBibId + RecapConstants.OWN_INST_HOLDING_ID + itemAreadyAccessionedOwnInstHoldingId + RecapConstants.OWN_INST_ITEM_ID + itemEntityList.get(0).getOwningInstitutionItemId();
+                    itemAreadyAccessionedMessage = ScsbConstants.ITEM_ALREADY_ACCESSIONED + ScsbConstants.OWN_INST_BIB_ID + itemAreadyAccessionedOwnInstBibId + ScsbConstants.OWN_INST_HOLDING_ID + itemAreadyAccessionedOwnInstHoldingId + ScsbConstants.OWN_INST_ITEM_ID + itemEntityList.get(0).getOwningInstitutionItemId();
                 } else {
-                    itemAreadyAccessionedMessage = RecapConstants.ITEM_ALREADY_ACCESSIONED;
+                    itemAreadyAccessionedMessage = ScsbConstants.ITEM_ALREADY_ACCESSIONED;
                 }
                 accessionUtil.setAccessionResponse(accessionResponses, itemBarcode, itemAreadyAccessionedMessage);
                 reportDataEntitys.addAll(accessionUtil.createReportDataEntityList(accessionRequest, itemAreadyAccessionedMessage));
@@ -218,28 +218,28 @@ public class AccessionProcessService {
         String reasonForFailureItem = "";
 
         for (Map responseMap : responseMapList) {
-            successBibCount = successBibCount + (responseMap.get(RecapCommonConstants.SUCCESS_BIB_COUNT) != null ? (Integer) responseMap.get(RecapCommonConstants.SUCCESS_BIB_COUNT) : 0);
-            failedBibCount = failedBibCount + (responseMap.get(RecapCommonConstants.FAILED_BIB_COUNT) != null ? (Integer) responseMap.get(RecapCommonConstants.FAILED_BIB_COUNT) : 0);
+            successBibCount = successBibCount + (responseMap.get(ScsbCommonConstants.SUCCESS_BIB_COUNT) != null ? (Integer) responseMap.get(ScsbCommonConstants.SUCCESS_BIB_COUNT) : 0);
+            failedBibCount = failedBibCount + (responseMap.get(ScsbCommonConstants.FAILED_BIB_COUNT) != null ? (Integer) responseMap.get(ScsbCommonConstants.FAILED_BIB_COUNT) : 0);
             if (failedBibCount == 0) {
-                if (StringUtils.isEmpty((String) responseMap.get(RecapCommonConstants.REASON_FOR_ITEM_FAILURE))) {
+                if (StringUtils.isEmpty((String) responseMap.get(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE))) {
                     successItemCount = 1;
                 } else {
                     failedItemCount = 1;
                 }
             }
-            exitsBibCount = exitsBibCount + (responseMap.get(RecapCommonConstants.EXIST_BIB_COUNT) != null ? (Integer) responseMap.get(RecapCommonConstants.EXIST_BIB_COUNT) : 0);
+            exitsBibCount = exitsBibCount + (responseMap.get(ScsbCommonConstants.EXIST_BIB_COUNT) != null ? (Integer) responseMap.get(ScsbCommonConstants.EXIST_BIB_COUNT) : 0);
 
-            if (!StringUtils.isEmpty((String) responseMap.get(RecapCommonConstants.REASON_FOR_BIB_FAILURE)) && !reasonForFailureBib.contains(responseMap.get(RecapCommonConstants.REASON_FOR_BIB_FAILURE).toString())) {
+            if (!StringUtils.isEmpty((String) responseMap.get(ScsbCommonConstants.REASON_FOR_BIB_FAILURE)) && !reasonForFailureBib.contains(responseMap.get(ScsbCommonConstants.REASON_FOR_BIB_FAILURE).toString())) {
                 StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append(responseMap.get(RecapCommonConstants.REASON_FOR_BIB_FAILURE));
+                stringBuilder.append(responseMap.get(ScsbCommonConstants.REASON_FOR_BIB_FAILURE));
                 stringBuilder.append(",");
                 stringBuilder.append(reasonForFailureBib);
                 reasonForFailureBib = stringBuilder.toString();
             }
-            if ((!StringUtils.isEmpty((String) responseMap.get(RecapCommonConstants.REASON_FOR_ITEM_FAILURE))) && StringUtils.isEmpty(reasonForFailureBib) &&
-                    !reasonForFailureItem.contains((String) responseMap.get(RecapCommonConstants.REASON_FOR_ITEM_FAILURE))) {
+            if ((!StringUtils.isEmpty((String) responseMap.get(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE))) && StringUtils.isEmpty(reasonForFailureBib) &&
+                    !reasonForFailureItem.contains((String) responseMap.get(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE))) {
                 StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.append(responseMap.get(RecapCommonConstants.REASON_FOR_ITEM_FAILURE));
+                stringBuilder.append(responseMap.get(ScsbCommonConstants.REASON_FOR_ITEM_FAILURE));
                 stringBuilder.append(",");
                 stringBuilder.append(reasonForFailureItem);
                 reasonForFailureItem = stringBuilder.toString();
@@ -249,38 +249,38 @@ public class AccessionProcessService {
         List<ReportEntity> reportEntityList = new ArrayList<>();
         List<ReportDataEntity> reportDataEntities = new ArrayList<>();
         ReportEntity reportEntity = new ReportEntity();
-        reportEntity.setFileName(RecapCommonConstants.ACCESSION_REPORT);
-        reportEntity.setType(RecapCommonConstants.ACCESSION_SUMMARY_REPORT);
+        reportEntity.setFileName(ScsbCommonConstants.ACCESSION_REPORT);
+        reportEntity.setType(ScsbCommonConstants.ACCESSION_SUMMARY_REPORT);
         reportEntity.setCreatedDate(new Date());
         reportEntity.setInstitutionName(owningInstitution);
 
         ReportDataEntity successBibCountReportDataEntity = new ReportDataEntity();
-        successBibCountReportDataEntity.setHeaderName(RecapCommonConstants.BIB_SUCCESS_COUNT);
+        successBibCountReportDataEntity.setHeaderName(ScsbCommonConstants.BIB_SUCCESS_COUNT);
         successBibCountReportDataEntity.setHeaderValue(String.valueOf(successBibCount));
         reportDataEntities.add(successBibCountReportDataEntity);
 
         ReportDataEntity successItemCountReportDataEntity = new ReportDataEntity();
-        successItemCountReportDataEntity.setHeaderName(RecapCommonConstants.ITEM_SUCCESS_COUNT);
+        successItemCountReportDataEntity.setHeaderName(ScsbCommonConstants.ITEM_SUCCESS_COUNT);
         successItemCountReportDataEntity.setHeaderValue(String.valueOf(successItemCount));
         reportDataEntities.add(successItemCountReportDataEntity);
 
         ReportDataEntity existsBibCountReportDataEntity = new ReportDataEntity();
-        existsBibCountReportDataEntity.setHeaderName(RecapCommonConstants.NUMBER_OF_BIB_MATCHES);
+        existsBibCountReportDataEntity.setHeaderName(ScsbCommonConstants.NUMBER_OF_BIB_MATCHES);
         existsBibCountReportDataEntity.setHeaderValue(String.valueOf(exitsBibCount));
         reportDataEntities.add(existsBibCountReportDataEntity);
 
         ReportDataEntity failedBibCountReportDataEntity = new ReportDataEntity();
-        failedBibCountReportDataEntity.setHeaderName(RecapCommonConstants.BIB_FAILURE_COUNT);
+        failedBibCountReportDataEntity.setHeaderName(ScsbCommonConstants.BIB_FAILURE_COUNT);
         failedBibCountReportDataEntity.setHeaderValue(String.valueOf(failedBibCount));
         reportDataEntities.add(failedBibCountReportDataEntity);
 
         ReportDataEntity failedItemCountReportDataEntity = new ReportDataEntity();
-        failedItemCountReportDataEntity.setHeaderName(RecapCommonConstants.ITEM_FAILURE_COUNT);
+        failedItemCountReportDataEntity.setHeaderName(ScsbCommonConstants.ITEM_FAILURE_COUNT);
         failedItemCountReportDataEntity.setHeaderValue(String.valueOf(failedItemCount));
         reportDataEntities.add(failedItemCountReportDataEntity);
 
         ReportDataEntity reasonForBibFailureReportDataEntity = new ReportDataEntity();
-        reasonForBibFailureReportDataEntity.setHeaderName(RecapConstants.FAILURE_BIB_REASON);
+        reasonForBibFailureReportDataEntity.setHeaderName(ScsbConstants.FAILURE_BIB_REASON);
         if (reasonForFailureBib.startsWith("\n")) {
             reasonForFailureBib = reasonForFailureBib.substring(1, reasonForFailureBib.length() - 1);
         }
@@ -290,7 +290,7 @@ public class AccessionProcessService {
         reportDataEntities.add(reasonForBibFailureReportDataEntity);
 
         ReportDataEntity reasonForItemFailureReportDataEntity = new ReportDataEntity();
-        reasonForItemFailureReportDataEntity.setHeaderName(RecapConstants.FAILURE_ITEM_REASON);
+        reasonForItemFailureReportDataEntity.setHeaderName(ScsbConstants.FAILURE_ITEM_REASON);
         if (reasonForFailureItem.startsWith("\n")) {
             reasonForFailureItem = reasonForFailureItem.substring(1, reasonForFailureItem.length() - 1);
         }
@@ -307,15 +307,15 @@ public class AccessionProcessService {
     public void processException(Set<AccessionResponse> accessionResponsesList, AccessionRequest accessionRequest,
                                  List<ReportDataEntity> reportDataEntityList, String owningInstitution,ImsLocationEntity imsLocationEntity ,Exception ex) {
         String response = ex.getMessage();
-        if (StringUtils.contains(response, RecapConstants.ITEM_BARCODE_NOT_FOUND)) {
-            logger.error(RecapCommonConstants.LOG_ERROR, response);
-        } else if (StringUtils.contains(response, RecapConstants.MARC_FORMAT_PARSER_ERROR)) {
-            logger.error(RecapCommonConstants.LOG_ERROR, response);
-            response = RecapConstants.INVALID_MARC_XML_ERROR_MSG;
-            logger.error(RecapConstants.EXCEPTION, ex);
+        if (StringUtils.contains(response, ScsbConstants.ITEM_BARCODE_NOT_FOUND)) {
+            logger.error(ScsbCommonConstants.LOG_ERROR, response);
+        } else if (StringUtils.contains(response, ScsbConstants.MARC_FORMAT_PARSER_ERROR)) {
+            logger.error(ScsbCommonConstants.LOG_ERROR, response);
+            response = ScsbConstants.INVALID_MARC_XML_ERROR_MSG;
+            logger.error(ScsbConstants.EXCEPTION, ex);
         } else {
-            response = RecapConstants.EXCEPTION + response;
-            logger.error(RecapConstants.EXCEPTION, ex);
+            response = ScsbConstants.EXCEPTION + response;
+            logger.error(ScsbConstants.EXCEPTION, ex);
         }
         //Create dummy record
         response = accessionUtil.createDummyRecordIfAny(response, owningInstitution, reportDataEntityList, accessionRequest,imsLocationEntity);
@@ -339,9 +339,9 @@ public class AccessionProcessService {
             ILSConfigProperties ilsConfigProperties = propertyUtil.getILSConfigProperties(owningInstitutionId);
             if ("REST".equalsIgnoreCase(ilsConfigProperties.getIlsRefileEndpointProtocol())) {
                 HttpEntity request = new HttpEntity<>(getHttpHeadersAuth());
-                UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(scsbUrl + RecapConstants.SERVICEPATH.REFILE_ITEM_IN_ILS);
-                builder.queryParam(RecapCommonConstants.ITEMBARCODE, itemBarcode);
-                builder.queryParam(RecapConstants.OWNING_INST, owningInstitutionId);
+                UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(scsbUrl + ScsbConstants.SERVICEPATH.REFILE_ITEM_IN_ILS);
+                builder.queryParam(ScsbCommonConstants.ITEMBARCODE, itemBarcode);
+                builder.queryParam(ScsbConstants.OWNING_INST, owningInstitutionId);
                 StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
                 ResponseEntity<ItemRefileResponse> responseEntity = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.POST, request, ItemRefileResponse.class);
@@ -352,13 +352,13 @@ public class AccessionProcessService {
                 HttpEntity request = new HttpEntity<>(itemRequestInfo, getHttpHeadersAuth());
                 StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
-                ResponseEntity<ItemCheckinResponse> responseEntity = restTemplate.exchange(scsbUrl + RecapConstants.SERVICEPATH.CHECKIN_ITEM, HttpMethod.POST, request, ItemCheckinResponse.class);
+                ResponseEntity<ItemCheckinResponse> responseEntity = restTemplate.exchange(scsbUrl + ScsbConstants.SERVICEPATH.CHECKIN_ITEM, HttpMethod.POST, request, ItemCheckinResponse.class);
                 stopWatch.stop();
                 logger.info("Time taken to checkin item barcode {} in {} : {}", itemBarcode, owningInstitutionId, stopWatch.getTotalTimeSeconds());
                 logger.info("Checkin response for item barcode {} : {}", itemBarcode, null != responseEntity.getBody() ? responseEntity.getBody().getScreenMessage() : null);
             }
         } catch (Exception ex) {
-            logger.error(RecapConstants.EXCEPTION, ex);
+            logger.error(ScsbConstants.EXCEPTION, ex);
         }
     }
 
@@ -374,7 +374,7 @@ public class AccessionProcessService {
     private HttpHeaders getHttpHeadersAuth() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(RecapCommonConstants.API_KEY, SwaggerAPIProvider.getInstance().getSwaggerApiKey());
+        headers.set(ScsbCommonConstants.API_KEY, SwaggerAPIProvider.getInstance().getSwaggerApiKey());
         return headers;
     }
 
@@ -402,7 +402,7 @@ public class AccessionProcessService {
                     institutionEntityMap.put(institutionEntity.getInstitutionCode(), institutionEntity.getId());
                 }
             } catch (Exception e) {
-                logger.error(RecapConstants.EXCEPTION,e);
+                logger.error(ScsbConstants.EXCEPTION,e);
             }
         }
         return institutionEntityMap;

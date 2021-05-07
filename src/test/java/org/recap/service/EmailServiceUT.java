@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -22,7 +22,7 @@ public class EmailServiceUT extends BaseTestCaseUT {
 
     @Test
     public void sendEmail(){
-        emailService.sendEmail("","12345", RecapConstants.DELETED_MAIL_TO,"");
+        emailService.sendEmail("","12345", ScsbConstants.DELETED_MAIL_TO,"");
         emailService.sendEmail("","12345", "","");
         assertNotNull(emailService);
     }

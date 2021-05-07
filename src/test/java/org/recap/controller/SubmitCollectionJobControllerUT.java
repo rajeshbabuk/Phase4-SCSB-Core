@@ -12,8 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.camel.submitcollection.SubmitCollectionPollingS3RouteBuilder;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 
@@ -57,15 +57,15 @@ public class SubmitCollectionJobControllerUT extends BaseTestCaseUT {
         message.setBody("SUBMIT COLLECTION");
         exchange.setIn(message);
         Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
-        Mockito.doNothing().when(routeController).startRoute("PUL"+RecapConstants.CGD_PROTECTED_ROUTE_ID);
-        Mockito.when(camelContext.getEndpoint(RecapConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_TO)).thenReturn(endpoint);
+        Mockito.doNothing().when(routeController).startRoute("PUL"+ ScsbConstants.CGD_PROTECTED_ROUTE_ID);
+        Mockito.when(camelContext.getEndpoint(ScsbConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_TO)).thenReturn(endpoint);
         Mockito.when(endpoint.createPollingConsumer()).thenReturn(pollingConsumer);
         Mockito.when(pollingConsumer.receive()).thenReturn(exchange);
         Mockito.when(exchange.getIn()).thenReturn(message);
         List<String> allInstitutionCodeExceptHTC= Arrays.asList("PUL","CUL","NYPL");
         Mockito.when(institutionDetailsRepository.findAllInstitutionCodeExceptHTC()).thenReturn(allInstitutionCodeExceptHTC);
         String result = submitCollectionJobController.startSubmitCollection();
-        assertEquals(RecapCommonConstants.SUCCESS,result);
+        assertEquals(ScsbCommonConstants.SUCCESS,result);
     }
     @Test
     public void startSubmitCollectionException() throws Exception{
@@ -73,14 +73,14 @@ public class SubmitCollectionJobControllerUT extends BaseTestCaseUT {
         message.setBody("SUBMIT COLLECTION");
         exchange.setIn(message);
         Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
-        Mockito.doNothing().when(routeController).startRoute("PUL"+RecapConstants.CGD_PROTECTED_ROUTE_ID);
-        Mockito.when(camelContext.getEndpoint(RecapConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_TO)).thenReturn(endpoint);
+        Mockito.doNothing().when(routeController).startRoute("PUL"+ ScsbConstants.CGD_PROTECTED_ROUTE_ID);
+        Mockito.when(camelContext.getEndpoint(ScsbConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_TO)).thenReturn(endpoint);
         Mockito.when(endpoint.createPollingConsumer()).thenThrow(NullPointerException.class);
         Mockito.when(pollingConsumer.receive()).thenReturn(exchange);
         Mockito.when(exchange.getIn()).thenReturn(message);
         List<String> allInstitutionCodeExceptHTC= Arrays.asList("PUL","CUL","NYPL");
         Mockito.when(institutionDetailsRepository.findAllInstitutionCodeExceptHTC()).thenReturn(allInstitutionCodeExceptHTC);
         String result = submitCollectionJobController.startSubmitCollection();
-        assertEquals(RecapCommonConstants.SUCCESS,result);
+        assertEquals(ScsbCommonConstants.SUCCESS,result);
     }
 }

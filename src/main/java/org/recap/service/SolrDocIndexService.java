@@ -1,8 +1,8 @@
 package org.recap.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +36,11 @@ public class SolrDocIndexService {
         try {
             RestTemplate restTemplate = new RestTemplate();
             HttpEntity requestEntity = new HttpEntity<>(restHeaderService.getHttpHeaders());
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(scsbSolrDocUrl + RecapConstants.UPDATE_ITEM_STATUS_SOLR).queryParam(RecapConstants.UPDATE_ITEM_STATUS_SOLR_PARAM_ITEM_ID, itemEntity.getBarcode());
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(scsbSolrDocUrl + ScsbConstants.UPDATE_ITEM_STATUS_SOLR).queryParam(ScsbConstants.UPDATE_ITEM_STATUS_SOLR_PARAM_ITEM_ID, itemEntity.getBarcode());
             ResponseEntity<String> responseEntity = restTemplate.exchange(builder.build().encode().toUri(), HttpMethod.GET, requestEntity, String.class);
             log.info(responseEntity.getBody());
         } catch (Exception e) {
-            log.error(RecapCommonConstants.REQUEST_EXCEPTION, e);
+            log.error(ScsbCommonConstants.REQUEST_EXCEPTION, e);
         }
     }
 }

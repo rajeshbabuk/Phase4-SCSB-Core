@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.service.authorization.OauthTokenApiService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -48,13 +48,13 @@ public class SimpleRestCallForBibdataUT extends BaseTestCaseUT {
         Mockito.doNothing().when(factory).setConnectTimeout(Mockito.anyInt());
         Mockito.doNothing().when(factory).setReadTimeout(Mockito.anyInt());
         Mockito.when(oauthTokenApiService.generateAccessToken(Mockito.anyString(),Mockito.anyString(),Mockito.anyString())).thenReturn("test");
-        ResponseEntity<String> responseEntity=new ResponseEntity<>(RecapCommonConstants.SUCCESS, HttpStatus.OK);
+        ResponseEntity<String> responseEntity=new ResponseEntity<>(ScsbCommonConstants.SUCCESS, HttpStatus.OK);
         HttpEntity requestEntity = new HttpEntity(getHttpHeaders());
         Mockito.when(restTemplate.exchange("url", HttpMethod.GET, requestEntity, String.class, getParamsMap("123456"))).thenReturn(responseEntity);
         Mockito.when(simpleRestCallForBibdata.getHttpHeaders()).thenCallRealMethod();
         Mockito.when(simpleRestCallForBibdata.getBibData("123456","PA","PUL","url")).thenCallRealMethod();
         String bibDataResponse=simpleRestCallForBibdata.getBibData("123456","PA","PUL","url");
-        assertEquals(RecapCommonConstants.SUCCESS,bibDataResponse);
+        assertEquals(ScsbCommonConstants.SUCCESS,bibDataResponse);
     }
 
     @Test

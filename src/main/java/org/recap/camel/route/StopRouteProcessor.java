@@ -3,7 +3,7 @@ package org.recap.camel.route;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.slf4j.Logger;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -33,7 +33,7 @@ public class StopRouteProcessor implements Processor {
                     logger.info("Stop Route {}" , routeId);
                 } catch (Exception e) {
                     logger.error("Exception while stop route : {}" , routeId);
-                    logger.error(RecapCommonConstants.LOG_ERROR , e);
+                    logger.error(ScsbCommonConstants.LOG_ERROR , e);
                 }
             }
 

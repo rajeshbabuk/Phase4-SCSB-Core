@@ -5,7 +5,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.TestUtil;
 import org.recap.model.csv.StatusReconciliationCSVRecord;
 import org.recap.model.csv.StatusReconciliationErrorCSVRecord;
@@ -96,7 +96,7 @@ public class StatusReconciliationServiceUT extends BaseTestCaseUT {
         ReflectionTestUtils.setField(mockStatusReconciliationService,"itemStatusDetailsRepository",itemStatusDetailsRepository);
         Mockito.when(mockStatusReconciliationService.itemStatusComparison(itemEntityChunkList,statusReconciliationErrorCSVRecordList)).thenCallRealMethod();
         List<ItemChangeLogEntity> itemChangeLogEntityList=new ArrayList<>();
-        List<String> requestStatusCodes = Arrays.asList(RecapCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, RecapCommonConstants.REQUEST_STATUS_EDD, RecapCommonConstants.REQUEST_STATUS_CANCELED, RecapCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
+        List<String> requestStatusCodes = Arrays.asList(ScsbCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, ScsbCommonConstants.REQUEST_STATUS_EDD, ScsbCommonConstants.REQUEST_STATUS_CANCELED, ScsbCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
         List<RequestStatusEntity> requestStatusEntityList=new ArrayList<>();
         requestStatusEntityList.add(requestStatusEntity);
         Mockito.when(requestItemDetailsRepository.getRequestItemEntitiesBasedOnDayLimit(Mockito.anyInt(),Mockito.anyList(),Mockito.anyInt())).thenReturn(Arrays.asList(1,2,3));
@@ -106,7 +106,7 @@ public class StatusReconciliationServiceUT extends BaseTestCaseUT {
         requestItemEntityList.add(requestItemEntity);
         Mockito.when(requestItemDetailsRepository.findByIdIn(Mockito.anyList())).thenReturn(requestItemEntityList);
         Mockito.when(requestItemEntity.getRequestStatusEntity()).thenReturn(requestStatusEntity);
-        Mockito.when(requestStatusEntity.getRequestStatusCode()).thenReturn(RecapCommonConstants.REQUEST_STATUS_CANCELED);
+        Mockito.when(requestStatusEntity.getRequestStatusCode()).thenReturn(ScsbCommonConstants.REQUEST_STATUS_CANCELED);
         Mockito.when(requestItemEntity.getNotes()).thenReturn("Cancel requested");
         Mockito.when(requestItemEntity.getId()).thenReturn(1);
         List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList=mockStatusReconciliationService.itemStatusComparison(itemEntityChunkList,statusReconciliationErrorCSVRecordList);
@@ -137,7 +137,7 @@ public class StatusReconciliationServiceUT extends BaseTestCaseUT {
         ReflectionTestUtils.setField(mockStatusReconciliationService,"itemStatusDetailsRepository",itemStatusDetailsRepository);
         Mockito.when(mockStatusReconciliationService.itemStatusComparison(itemEntityChunkList,statusReconciliationErrorCSVRecordList)).thenCallRealMethod();
         List<ItemChangeLogEntity> itemChangeLogEntityList=new ArrayList<>();
-        List<String> requestStatusCodes = Arrays.asList(RecapCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, RecapCommonConstants.REQUEST_STATUS_EDD, RecapCommonConstants.REQUEST_STATUS_CANCELED, RecapCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
+        List<String> requestStatusCodes = Arrays.asList(ScsbCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, ScsbCommonConstants.REQUEST_STATUS_EDD, ScsbCommonConstants.REQUEST_STATUS_CANCELED, ScsbCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
         List<RequestStatusEntity> requestStatusEntityList=new ArrayList<>();
         requestStatusEntityList.add(requestStatusEntity);
         Mockito.when(requestItemDetailsRepository.getRequestItemEntitiesBasedOnDayLimit(Mockito.anyInt(),Mockito.anyList(),Mockito.anyInt())).thenReturn(Arrays.asList(1,2,3));
@@ -180,7 +180,7 @@ public class StatusReconciliationServiceUT extends BaseTestCaseUT {
         ReflectionTestUtils.setField(mockStatusReconciliationService,"solrDocIndexService",solrDocIndexService);
         Mockito.when(mockStatusReconciliationService.itemStatusComparison(itemEntityChunkList,statusReconciliationErrorCSVRecordList)).thenCallRealMethod();
         List<ItemChangeLogEntity> itemChangeLogEntityList=new ArrayList<>();
-        List<String> requestStatusCodes = Arrays.asList(RecapCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, RecapCommonConstants.REQUEST_STATUS_EDD, RecapCommonConstants.REQUEST_STATUS_CANCELED, RecapCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
+        List<String> requestStatusCodes = Arrays.asList(ScsbCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, ScsbCommonConstants.REQUEST_STATUS_EDD, ScsbCommonConstants.REQUEST_STATUS_CANCELED, ScsbCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
         List<RequestStatusEntity> requestStatusEntityList=new ArrayList<>();
         requestStatusEntityList.add(requestStatusEntity);
         Mockito.when(requestItemDetailsRepository.getRequestItemEntitiesBasedOnDayLimit(Mockito.anyInt(),Mockito.anyList(),Mockito.anyInt())).thenReturn(Arrays.asList(1,2,3));
@@ -220,7 +220,7 @@ public class StatusReconciliationServiceUT extends BaseTestCaseUT {
         ReflectionTestUtils.setField(mockStatusReconciliationService,"itemStatusDetailsRepository",itemStatusDetailsRepository);
         Mockito.when(mockStatusReconciliationService.itemStatusComparison(itemEntityChunkList,statusReconciliationErrorCSVRecordList)).thenCallRealMethod();
         List<ItemChangeLogEntity> itemChangeLogEntityList=new ArrayList<>();
-        List<String> requestStatusCodes = Arrays.asList(RecapCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, RecapCommonConstants.REQUEST_STATUS_EDD, RecapCommonConstants.REQUEST_STATUS_CANCELED, RecapCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
+        List<String> requestStatusCodes = Arrays.asList(ScsbCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, ScsbCommonConstants.REQUEST_STATUS_EDD, ScsbCommonConstants.REQUEST_STATUS_CANCELED, ScsbCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
         List<RequestStatusEntity> requestStatusEntityList=new ArrayList<>();
         requestStatusEntityList.add(requestStatusEntity);
         Mockito.when(requestItemDetailsRepository.getRequestItemEntitiesBasedOnDayLimit(Mockito.anyInt(),Mockito.anyList(),Mockito.anyInt())).thenReturn(Arrays.asList(1,2,3));
@@ -230,10 +230,10 @@ public class StatusReconciliationServiceUT extends BaseTestCaseUT {
         requestItemEntityList.add(requestItemEntity);
         Mockito.when(requestItemDetailsRepository.findByIdIn(Mockito.anyList())).thenReturn(requestItemEntityList);
         Mockito.when(requestItemEntity.getRequestStatusEntity()).thenReturn(requestStatusEntity);
-        Mockito.when(requestStatusEntity.getRequestStatusCode()).thenReturn(RecapCommonConstants.REQUEST_STATUS_CANCELED);
+        Mockito.when(requestStatusEntity.getRequestStatusCode()).thenReturn(ScsbCommonConstants.REQUEST_STATUS_CANCELED);
         Mockito.when(requestItemEntity.getNotes()).thenReturn("test");
         Mockito.when(requestItemEntity.getId()).thenReturn(1);
-        Mockito.when(requestItemStatusDetailsRepository.findByRequestStatusCode(RecapCommonConstants.REQUEST_STATUS_REFILED)).thenReturn(byRequestStatusCode);
+        Mockito.when(requestItemStatusDetailsRepository.findByRequestStatusCode(ScsbCommonConstants.REQUEST_STATUS_REFILED)).thenReturn(byRequestStatusCode);
         Mockito.when(byRequestStatusCode.getId()).thenReturn(1);
         List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList=mockStatusReconciliationService.itemStatusComparison(itemEntityChunkList,statusReconciliationErrorCSVRecordList);
         ReflectionTestUtils.invokeMethod(mockStatusReconciliationService,"processMismatchStatus",statusReconciliationCSVRecordList,itemChangeLogEntityList,"IN",itemEntity);

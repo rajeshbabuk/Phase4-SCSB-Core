@@ -4,8 +4,8 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
-import org.recap.RecapCommonConstants;
-import org.recap.RecapConstants;
+import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.camel.submitcollection.SubmitCollectionPollingS3RouteBuilder;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.slf4j.Logger;
@@ -48,8 +48,8 @@ public class SubmitCollectionJobController {
         List<String> allInstitutionCodeExceptHTC = institutionDetailsRepository.findAllInstitutionCodeExceptHTC();
         Optional<String> institution = allInstitutionCodeExceptHTC.stream().findFirst();
         submitCollectionPollingFtpRouteBuilder.createRoutesForSubmitCollection();
-        camelContext.getRouteController().startRoute((institution.isPresent() ? institution.get() : "") + RecapConstants.CGD_PROTECTED_ROUTE_ID);
-        Endpoint endpoint = camelContext.getEndpoint(RecapConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_TO);
+        camelContext.getRouteController().startRoute((institution.isPresent() ? institution.get() : "") + ScsbConstants.CGD_PROTECTED_ROUTE_ID);
+        Endpoint endpoint = camelContext.getEndpoint(ScsbConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_TO);
         PollingConsumer consumer = null;
         try {
             consumer = endpoint.createPollingConsumer();
@@ -59,7 +59,7 @@ public class SubmitCollectionJobController {
             submitCollectionPollingFtpRouteBuilder.removeRoutesForSubmitCollection();
         }
         catch (Exception e){
-            logger.error(RecapCommonConstants.LOG_ERROR, e);
+            logger.error(ScsbCommonConstants.LOG_ERROR, e);
         }
         finally {
             if(consumer != null) {
@@ -67,6 +67,6 @@ public class SubmitCollectionJobController {
             }
         }
         logger.info("Submit Collection Job ends");
-        return RecapCommonConstants.SUCCESS;
+        return ScsbCommonConstants.SUCCESS;
     }
 }

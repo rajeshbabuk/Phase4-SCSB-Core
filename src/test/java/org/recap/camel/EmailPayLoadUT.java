@@ -8,10 +8,10 @@ public class EmailPayLoadUT extends BaseTestCaseUT {
     public  void testEmailPayLoad(){
         EmailPayLoad emailPayLoad = new EmailPayLoad();
         emailPayLoad.setItemBarcode("123456");
-        emailPayLoad.setOwnerCode("PA");
+        emailPayLoad.setCustomerCode("PA");
         emailPayLoad.getItemBarcode();
         emailPayLoad.getPatronBarcode();
-        emailPayLoad.getOwnerCode();
+        emailPayLoad.getCustomerCode();
         emailPayLoad.getMessageDisplay();
         emailPayLoad.getSubject();
         emailPayLoad.getLocation();

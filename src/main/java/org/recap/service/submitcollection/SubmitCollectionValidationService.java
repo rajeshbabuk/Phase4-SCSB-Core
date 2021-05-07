@@ -1,8 +1,8 @@
 package org.recap.service.submitcollection;
 
 import org.apache.commons.collections.map.HashedMap;
-import org.recap.RecapConstants;
-import org.recap.RecapCommonConstants;
+import org.recap.ScsbConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.model.jpa.BibliographicEntity;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.model.report.SubmitCollectionReportInfo;
@@ -74,9 +74,9 @@ public class SubmitCollectionValidationService {
         Boolean isValidToProcess = true;
         Boolean isValid;
 
-        List<SubmitCollectionReportInfo> successSubmitCollectionReportInfoList = submitCollectionReportInfoMap.get(RecapConstants.SUBMIT_COLLECTION_SUCCESS_LIST);
-        List<SubmitCollectionReportInfo> rejectedSubmitCollectionReportInfoList = submitCollectionReportInfoMap.get(RecapConstants.SUBMIT_COLLECTION_REJECTION_LIST);
-        List<SubmitCollectionReportInfo> failureSubmitCollectionReportInfoList = submitCollectionReportInfoMap.get(RecapConstants.SUBMIT_COLLECTION_FAILURE_LIST);
+        List<SubmitCollectionReportInfo> successSubmitCollectionReportInfoList = submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_SUCCESS_LIST);
+        List<SubmitCollectionReportInfo> rejectedSubmitCollectionReportInfoList = submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_REJECTION_LIST);
+        List<SubmitCollectionReportInfo> failureSubmitCollectionReportInfoList = submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST);
         Map<String,Map<String,ItemEntity>> fetchedHoldingItemMap = submitCollectionHelperService.getHoldingItemIdMap(fetchedBibliographicEntity);
         Map<String,Map<String,ItemEntity>> incomingHoldingItemMap = submitCollectionHelperService.getHoldingItemIdMap(incomingBibliographicEntity);
         String owningInstitution = setupDataService.getInstitutionIdCodeMap().get(fetchedBibliographicEntity.getOwningInstitutionId());
@@ -113,9 +113,9 @@ public class SubmitCollectionValidationService {
                 }
             }
         }
-        submitCollectionReportInfoMap.put(RecapConstants.SUBMIT_COLLECTION_SUCCESS_LIST,successSubmitCollectionReportInfoList);
-        submitCollectionReportInfoMap.put(RecapConstants.SUBMIT_COLLECTION_FAILURE_LIST,failureSubmitCollectionReportInfoList);
-        submitCollectionReportInfoMap.put(RecapConstants.SUBMIT_COLLECTION_REJECTION_LIST,rejectedSubmitCollectionReportInfoList);
+        submitCollectionReportInfoMap.put(ScsbConstants.SUBMIT_COLLECTION_SUCCESS_LIST,successSubmitCollectionReportInfoList);
+        submitCollectionReportInfoMap.put(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST,failureSubmitCollectionReportInfoList);
+        submitCollectionReportInfoMap.put(ScsbConstants.SUBMIT_COLLECTION_REJECTION_LIST,rejectedSubmitCollectionReportInfoList);
         return isValidToProcess;
 
     }
@@ -159,7 +159,7 @@ public class SubmitCollectionValidationService {
      */
     public boolean isAvailableItem(Integer itemAvailabilityStatusId){
         String itemStatusCode = setupDataService.getItemStatusIdCodeMap().get(itemAvailabilityStatusId);
-        return (itemStatusCode.equalsIgnoreCase(RecapConstants.ITEM_STATUS_AVAILABLE));
+        return (itemStatusCode.equalsIgnoreCase(ScsbConstants.ITEM_STATUS_AVAILABLE));
     }
 
     private Map<String,ItemEntity> getItemIdEntityMap(BibliographicEntity bibliographicEntity){
@@ -192,7 +192,7 @@ public class SubmitCollectionValidationService {
                     } else { //Owning inst bib id mismatch for non dummy record
                         boolean isBarcodeAlreadyAdded = submitCollectionReportHelperService.isBarcodeAlreadyAdded(incomingItemEntity.getBarcode(),submitCollectionReportInfoMap);
                         if (!isBarcodeAlreadyAdded) {
-                            submitCollectionReportHelperService.setSubmitCollectionReportInfoForOwningInstitutionBibIdMismatchForBoundWith(notMatchedIncomingOwnInstBibId, notMatchedFetchedOwnInstBibId,incomingItemEntity,fetchedItemEntity, submitCollectionReportInfoMap.get(RecapConstants.SUBMIT_COLLECTION_FAILURE_LIST));
+                            submitCollectionReportHelperService.setSubmitCollectionReportInfoForOwningInstitutionBibIdMismatchForBoundWith(notMatchedIncomingOwnInstBibId, notMatchedFetchedOwnInstBibId,incomingItemEntity,fetchedItemEntity, submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST));
                         }
                         isValidRecordToProcess &= false;
                     }
@@ -231,12 +231,12 @@ public class SubmitCollectionValidationService {
             }
         } else if(!existingBibsNotInIncomingBibs.isEmpty()){//if incoming does not have the existing bibinfo then error message is thrown
             StringBuilder message = new StringBuilder();
-            message.append(RecapConstants.SUBMIT_COLLECTION_FAILED_RECORD).append(RecapCommonConstants.HYPHEN).append("Incoming bound-with item does not have matching bib that are available in the " +
+            message.append(ScsbConstants.SUBMIT_COLLECTION_FAILED_RECORD).append(ScsbCommonConstants.HYPHEN).append("Incoming bound-with item does not have matching bib that are available in the " +
                     "existing record, bib id(s) that are not linked with incoming item ").append(existingBibsNotInIncomingBibs.stream().collect(Collectors.joining(",")));
             String barcode = existingBibliographicEntityList.get(0).getItemEntities().get(0).getBarcode();
             String customerCode = existingBibliographicEntityList.get(0).getItemEntities().get(0).getCustomerCode();
             String owningInstitution = owningInstitutionCode;
-            submitCollectionReportHelperService.setSubmitCollectionReportInfo(submitCollectionReportInfoMap.get(RecapConstants.SUBMIT_COLLECTION_FAILURE_LIST),
+            submitCollectionReportHelperService.setSubmitCollectionReportInfo(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST),
                     barcode,customerCode,owningInstitution,message.toString());
             isValidRecordToProcess &= false;
         } else if(holdingsIdUniqueList.size() > 1 &&
@@ -250,7 +250,7 @@ public class SubmitCollectionValidationService {
         String multipleHoldingIds = holdingsIdUniqueList.stream().collect(Collectors.joining(","));
         for (Map.Entry<String, String> owningBibIdOwnInstHoldingsIdEntry : owningBibIdOwnInstHoldingsIdMap.entrySet()) {
             StringBuilder message = new StringBuilder();
-            message.append(RecapConstants.SUBMIT_COLLECTION_FAILED_RECORD).append(RecapCommonConstants.HYPHEN).append("Incoming bound-with item has multiple owning institution holdings id attached to it, " +
+            message.append(ScsbConstants.SUBMIT_COLLECTION_FAILED_RECORD).append(ScsbCommonConstants.HYPHEN).append("Incoming bound-with item has multiple owning institution holdings id attached to it, " +
                     "multiple owning institution holdings are ").append(multipleHoldingIds).append(" - incoming owning institution holdings id ")
                     .append(owningBibIdOwnInstHoldingsIdEntry.getValue()).append(", incoming owning institution item id ")
                     .append(incomingBibliographicEntityList.get(0).getItemEntities().get(0).getOwningInstitutionItemId()).append(", ")
@@ -278,7 +278,7 @@ public class SubmitCollectionValidationService {
         Map<String,String> owningBibIdOwnInstHoldingsIdMap = getOwningBibIdOwnInstHoldingsIdIfAnyHoldingMismatch(incomingBibliographicEntityList,holdingsIdUniqueList);
         if(!isItemAvailable) {
             StringBuilder message = new StringBuilder();
-            message.append(RecapConstants.SUBMIT_COLLECTION_FAILED_RECORD).append(RecapCommonConstants.HYPHEN).append("Incoming record has reduced bib, but the bibs are not unlinked since the item is unavailable ");
+            message.append(ScsbConstants.SUBMIT_COLLECTION_FAILED_RECORD).append(ScsbCommonConstants.HYPHEN).append("Incoming record has reduced bib, but the bibs are not unlinked since the item is unavailable ");
             setSubmitCollectionReportInfo(submitCollectionReportInfoMap, existingBibliographicEntityList, message);
             isValidRecordToProcess &= false;
         }else if(!matchedOwningInstBibIdList.isEmpty() && incomingBibsNotInExistingBibs.isEmpty() && holdingsIdUniqueList.size() == 1) {
@@ -291,7 +291,7 @@ public class SubmitCollectionValidationService {
             }
         } else if(!incomingBibsNotInExistingBibs.isEmpty()){//if incoming does not have the existing bibinfo then error message is thrown
             StringBuilder message = new StringBuilder();
-            message.append(RecapConstants.SUBMIT_COLLECTION_FAILED_RECORD).append(RecapCommonConstants.HYPHEN).append("Incoming bound-with item with less bibs than the existing bibs which does not have matching bib that are available in the " +
+            message.append(ScsbConstants.SUBMIT_COLLECTION_FAILED_RECORD).append(ScsbCommonConstants.HYPHEN).append("Incoming bound-with item with less bibs than the existing bibs which does not have matching bib that are available in the " +
                     "existing record, bib id(s) that are not linked with incoming item ").append(incomingBibsNotInExistingBibs.stream().collect(Collectors.joining(",")));
             setSubmitCollectionReportInfo(submitCollectionReportInfoMap, existingBibliographicEntityList, message);
             isValidRecordToProcess &= false;
@@ -306,7 +306,7 @@ public class SubmitCollectionValidationService {
         String barcode = existingBibliographicEntityList.get(0).getItemEntities().get(0).getBarcode();
         String customerCode = existingBibliographicEntityList.get(0).getItemEntities().get(0).getCustomerCode();
         String owningInstitution = existingBibliographicEntityList.get(0).getItemEntities().get(0).getInstitutionEntity().getInstitutionCode();
-        submitCollectionReportHelperService.setSubmitCollectionReportInfo(submitCollectionReportInfoMap.get(RecapConstants.SUBMIT_COLLECTION_FAILURE_LIST),
+        submitCollectionReportHelperService.setSubmitCollectionReportInfo(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST),
                 barcode, customerCode, owningInstitution, message.toString());
     }
 

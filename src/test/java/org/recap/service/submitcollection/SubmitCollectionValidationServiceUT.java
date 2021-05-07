@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.jpa.BibliographicEntity;
 import org.recap.model.jpa.HoldingsEntity;
 import org.recap.model.jpa.InstitutionEntity;
@@ -401,7 +401,7 @@ public class SubmitCollectionValidationServiceUT extends BaseTestCaseUT {
         List<BibliographicEntity> existingBibliographicEntityList = new ArrayList<>();
         existingBibliographicEntityList.add(existingBibliographicEntity);
         Mockito.when(setupDataService.getItemStatusIdCodeMap()).thenReturn(itemStatusIdCodeMap);
-        Mockito.when(itemStatusIdCodeMap.get(1)).thenReturn(RecapConstants.ITEM_STATUS_AVAILABLE);
+        Mockito.when(itemStatusIdCodeMap.get(1)).thenReturn(ScsbConstants.ITEM_STATUS_AVAILABLE);
         Mockito.when(existingItemEntity.getItemAvailabilityStatusId()).thenReturn(1);
         Mockito.when(incomingItemEntity.getItemAvailabilityStatusId()).thenReturn(1);
         List<ItemEntity> existingItemEntityList=new ArrayList<>();

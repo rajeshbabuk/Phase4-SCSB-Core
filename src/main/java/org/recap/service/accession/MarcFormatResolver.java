@@ -3,7 +3,7 @@ package org.recap.service.accession;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.marc.Record;
-import org.recap.RecapConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.ILSConfigProperties;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
@@ -62,7 +62,7 @@ public class MarcFormatResolver extends AccessionResolverAbstract {
                 }
             }
         } else {
-            response = RecapConstants.INVALID_BOUNDWITH_RECORD;
+            response = ScsbConstants.INVALID_BOUNDWITH_RECORD;
             accessionUtil.setAccessionResponse(accessionResponses, accessionRequest.getItemBarcode(), response);
             reportDataEntityList.addAll(accessionUtil.createReportDataEntityList(accessionRequest, response));
         }
