@@ -9,7 +9,7 @@ import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
 import org.recap.ScsbCommonConstants;
 import org.recap.repository.jpa.ImsLocationDetailsRepository;
-import org.recap.repository.jpa.InstitutionDetailsRepository;
+import org.recap.util.CommonUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class AccessionReconcilationJobControllerUT extends BaseTestCaseUT {
     AccessionReconcilationJobController accessionReconcilationJobController;
 
     @Mock
-    InstitutionDetailsRepository institutionDetailsRepository;
+    CommonUtil commonUtil;
 
     @Mock
     CamelContext camelContext;
@@ -39,7 +39,7 @@ public class AccessionReconcilationJobControllerUT extends BaseTestCaseUT {
         allImsLocationCodeExceptUN.add("RECAP");
         allImsLocationCodeExceptUN.add("HD");
         Mockito.when(imsLocationDetailsRepository.findAllImsLocationCodeExceptUN()).thenReturn(allImsLocationCodeExceptUN);
-        Mockito.when(institutionDetailsRepository.findAllInstitutionCodeExceptHTC()).thenReturn(getInstitutionCodeExceptHTC());
+        Mockito.when(commonUtil.findAllInstitutionCodesExceptSupportInstitution()).thenReturn(getInstitutionCodeExceptSupportInstitution());
         Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
         Mockito.doNothing().when(routeController).startRoute(Mockito.anyString());
         String result = accessionReconcilationJobController.startAccessionReconciliation();
@@ -47,12 +47,12 @@ public class AccessionReconcilationJobControllerUT extends BaseTestCaseUT {
         assertEquals(ScsbCommonConstants.SUCCESS,result);
     }
 
-    private List<String> getInstitutionCodeExceptHTC() {
-        List<String> allInstitutionCodeExceptHTC=new ArrayList<>();
-        allInstitutionCodeExceptHTC.add("PUL");
-        allInstitutionCodeExceptHTC.add("CUL");
-        allInstitutionCodeExceptHTC.add("NYPL");
-        allInstitutionCodeExceptHTC.add("HUL");
-        return allInstitutionCodeExceptHTC;
+    private List<String> getInstitutionCodeExceptSupportInstitution() {
+        List<String> allInstitutionCodeExceptSupportInstitution=new ArrayList<>();
+        allInstitutionCodeExceptSupportInstitution.add("PUL");
+        allInstitutionCodeExceptSupportInstitution.add("CUL");
+        allInstitutionCodeExceptSupportInstitution.add("NYPL");
+        allInstitutionCodeExceptSupportInstitution.add("HL");
+        return allInstitutionCodeExceptSupportInstitution;
     }
 }

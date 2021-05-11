@@ -15,6 +15,7 @@ import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.submitcollection.processor.SubmitCollectionProcessor;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
+import org.recap.util.CommonUtil;
 import org.recap.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,9 @@ public class SubmitCollectionPollingS3RouteBuilder {
 
     @Autowired
     InstitutionDetailsRepository institutionDetailsRepository;
+
+    @Autowired
+    CommonUtil commonUtil;
 
     @Value("${s3.submit.collection.dir}")
     private String submitCollectionS3BasePath;
@@ -109,10 +113,10 @@ public class SubmitCollectionPollingS3RouteBuilder {
     public void createRoutesForSubmitCollection() {
         List<String> protectedAndNotProtected = Arrays.asList(ScsbConstants.PROTECTED, ScsbConstants.NOT_PROTECTED);
         String nextInstitution = null;
-        List<String> allInstitutionCodeExceptHTC = institutionDetailsRepository.findAllInstitutionCodeExceptHTC();
-        for (int i = 0; i < allInstitutionCodeExceptHTC.size(); i++) {
-            String currentInstitution = allInstitutionCodeExceptHTC.get(i);
-            nextInstitution = (i < allInstitutionCodeExceptHTC.size() - 1) ? allInstitutionCodeExceptHTC.get(i + 1) : null;
+        List<String> allInstitutionCodesExceptSupportInstitution = commonUtil.findAllInstitutionCodesExceptSupportInstitution();
+        for (int i = 0; i < allInstitutionCodesExceptSupportInstitution.size(); i++) {
+            String currentInstitution = allInstitutionCodesExceptSupportInstitution.get(i);
+            nextInstitution = (i < allInstitutionCodesExceptSupportInstitution.size() - 1) ? allInstitutionCodesExceptSupportInstitution.get(i + 1) : null;
             for (String cdgType : protectedAndNotProtected) {
                 String nextRouteId = getNextRouteId(currentInstitution, nextInstitution, cdgType);
                 if (ScsbConstants.PROTECTED.equalsIgnoreCase(cdgType))
@@ -223,8 +227,8 @@ public class SubmitCollectionPollingS3RouteBuilder {
     public void removeRoutesForSubmitCollection() throws Exception {
         logger.info(" Total routes before removing : {}", camelContext.getRoutesSize());
         List<String> protectedAndNotProtected = Arrays.asList(ScsbConstants.PROTECTED, ScsbConstants.NOT_PROTECTED);
-        List<String> allInstitutionCodeExceptHTC = institutionDetailsRepository.findAllInstitutionCodeExceptHTC();
-        for (String institution : allInstitutionCodeExceptHTC) {
+        List<String> allInstitutionCodesExceptSupportInstitution = commonUtil.findAllInstitutionCodesExceptSupportInstitution();
+        for (String institution : allInstitutionCodesExceptSupportInstitution) {
             for (String cdgType : protectedAndNotProtected) {
                 if (ScsbConstants.PROTECTED.equalsIgnoreCase(cdgType)) {
                     camelContext.getRouteController().stopRoute(institution + ScsbConstants.CGD_PROTECTED_ROUTE_ID);

@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
 import org.recap.model.ILSConfigProperties;
-import org.recap.repository.jpa.InstitutionDetailsRepository;
+import org.recap.util.CommonUtil;
 import org.recap.util.PropertyUtil;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class SubmitCollectionPollingS3RouteBuilderUT extends BaseTestCaseUT {
     SubmitCollectionPollingS3RouteBuilder submitCollectionPollingS3RouteBuilder;
 
     @Mock
-    InstitutionDetailsRepository institutionDetailsRepository;
+    CommonUtil commonUtil;
 
     @Mock
     PropertyUtil propertyUtil;
@@ -41,7 +41,7 @@ public class SubmitCollectionPollingS3RouteBuilderUT extends BaseTestCaseUT {
 
     @Test
     public void createRoutesForSubmitCollection() throws Exception {
-        Mockito.when(institutionDetailsRepository.findAllInstitutionCodeExceptHTC()).thenReturn(getStrings());
+        Mockito.when(commonUtil.findAllInstitutionCodesExceptSupportInstitution()).thenReturn(getStrings());
         ILSConfigProperties ilsConfigProperties=new ILSConfigProperties();
         ilsConfigProperties.setBibDataFormat("test");
         Mockito.when(propertyUtil.getILSConfigProperties(Mockito.anyString())).thenReturn(ilsConfigProperties);
@@ -67,17 +67,17 @@ public class SubmitCollectionPollingS3RouteBuilderUT extends BaseTestCaseUT {
 
     @Test
     public void removeRoutesForSubmitCollection() throws Exception {
-        Mockito.when(institutionDetailsRepository.findAllInstitutionCodeExceptHTC()).thenReturn(getStrings());
+        Mockito.when(commonUtil.findAllInstitutionCodesExceptSupportInstitution()).thenReturn(getStrings());
         Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
         submitCollectionPollingS3RouteBuilder.removeRoutesForSubmitCollection();
     }
 
 
     private List<String> getStrings() {
-        List<String> allInstitutionCodeExceptHTC=new ArrayList<>();
-        allInstitutionCodeExceptHTC.add("PUL");
-        allInstitutionCodeExceptHTC.add("CUL");
-        allInstitutionCodeExceptHTC.add("NYPL");
-        return allInstitutionCodeExceptHTC;
+        List<String> allInstitutionCodeExceptSupportInstitution=new ArrayList<>();
+        allInstitutionCodeExceptSupportInstitution.add("PUL");
+        allInstitutionCodeExceptSupportInstitution.add("CUL");
+        allInstitutionCodeExceptSupportInstitution.add("NYPL");
+        return allInstitutionCodeExceptSupportInstitution;
     }
 }

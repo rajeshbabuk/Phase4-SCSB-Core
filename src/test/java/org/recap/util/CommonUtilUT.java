@@ -17,16 +17,9 @@ import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.repository.jpa.ItemChangeLogDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
 import org.recap.repository.jpa.ItemStatusDetailsRepository;
+import org.springframework.beans.factory.annotation.Value;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -59,6 +52,9 @@ public class CommonUtilUT extends BaseTestCaseUT {
 
     @Mock
     Record record;
+
+    @Value("${scsb.support.institution}")
+    private String supportInstitution;
 
     private String scsbXmlContent = "<bibRecords>\n" +
             "    <bibRecord>\n" +
@@ -421,5 +417,29 @@ public class CommonUtilUT extends BaseTestCaseUT {
         itemEntity.setItemAvailabilityStatusId(1);
         itemEntity.setDeleted(false);
         return itemEntity;
+    }
+
+    @Test
+    public void findAllInstitutionCodesExceptSupportInstitution() {
+        InstitutionEntity institutionEntity = getInstitutionEntity();
+        Mockito.when(institutionDetailsRepository.findAllInstitutionCodesExceptSupportInstitution(supportInstitution)).thenReturn(Collections.singletonList(institutionEntity.getInstitutionName()));
+        List<String> result = commonUtil.findAllInstitutionCodesExceptSupportInstitution();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void findAllInstitutionsExceptSupportInstitution() {
+        InstitutionEntity institutionEntity = getInstitutionEntity();
+        Mockito.when(institutionDetailsRepository.findAllInstitutionsExceptSupportInstitution(supportInstitution)).thenReturn(Collections.singletonList(institutionEntity));
+        List<InstitutionEntity> result = commonUtil.findAllInstitutionsExceptSupportInstitution();
+        assertNotNull(result);
+    }
+
+    private InstitutionEntity getInstitutionEntity() {
+        InstitutionEntity institutionEntity = new InstitutionEntity();
+        institutionEntity.setId(1);
+        institutionEntity.setInstitutionCode("PUL");
+        institutionEntity.setInstitutionName("PUL");
+        return institutionEntity;
     }
 }

@@ -14,6 +14,7 @@ import org.recap.repository.jpa.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.JAXBContext;
@@ -55,6 +56,9 @@ public class CommonUtil {
 
     @Autowired
     AccessionUtil accessionUtil;
+
+    @Value("${scsb.support.institution}")
+    private String supportInstitution;
 
     /**
      * This method builds Holdings Entity from holdings content
@@ -351,5 +355,21 @@ public class CommonUtil {
             }
         }
         return itemStatusCheckModelList;
+    }
+
+    /**
+     * Get All Institution Codes Except Support Institution
+     * @return institutionCodes
+     */
+    public List<String> findAllInstitutionCodesExceptSupportInstitution() {
+        return institutionDetailsRepository.findAllInstitutionCodesExceptSupportInstitution(supportInstitution);
+    }
+
+    /**
+     * Get All Institution Codes Except Support Institution
+     * @return institutionCodes
+     */
+    public List<InstitutionEntity> findAllInstitutionsExceptSupportInstitution() {
+        return institutionDetailsRepository.findAllInstitutionsExceptSupportInstitution(supportInstitution);
     }
 }

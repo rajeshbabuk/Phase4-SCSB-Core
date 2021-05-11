@@ -5,8 +5,7 @@ import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.accessionreconciliation.BarcodeReconciliationRouteBuilder;
 import org.recap.repository.jpa.ImsLocationDetailsRepository;
-import org.recap.repository.jpa.InstitutionDetailsRepository;
-import org.recap.util.PropertyUtil;
+import org.recap.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +27,7 @@ public class AccessionReconcilationJobController {
     private static final Logger logger = LoggerFactory.getLogger(AccessionReconcilationJobController.class);
 
     @Autowired
-    PropertyUtil propertyUtil;
-
-    @Autowired
-    InstitutionDetailsRepository institutionDetailsRepository;
+    private CommonUtil commonUtil;
 
     @Autowired
     ImsLocationDetailsRepository imsLocationDetailsRepository;
@@ -63,15 +59,15 @@ public class AccessionReconcilationJobController {
         logger.info("Before accession reconciliation process : {}", camelContext.getRoutes().size());
         logger.info("Starting Accession Reconciliation Routes");
         List<String> imsLocationCodesExceptUN = imsLocationDetailsRepository.findAllImsLocationCodeExceptUN();
-        List<String> allInstitutionCodeExceptHTC = institutionDetailsRepository.findAllInstitutionCodeExceptHTC();
+        List<String> allInstitutionCodesExceptSupportInstitution = commonUtil.findAllInstitutionCodesExceptSupportInstitution();
         for (String imsLocation : imsLocationCodesExceptUN) {
-            for (String institution : allInstitutionCodeExceptHTC) {
+            for (String institution : allInstitutionCodesExceptSupportInstitution) {
                 camelContext.addRoutes(new BarcodeReconciliationRouteBuilder(applicationContext, camelContext,
                         institution, imsLocation, accessionReconciliationPath, accessionReconciliationFilePath, accessionReconciliationProcessedPath));
             }
         }
         for (String imsLocation : imsLocationCodesExceptUN) {
-            for (String institution : allInstitutionCodeExceptHTC) {
+            for (String institution : allInstitutionCodesExceptSupportInstitution) {
                 camelContext.getRouteController().startRoute(imsLocation + institution + ScsbConstants.ACCESSION_RECONCILIATION_S3_ROUTE_ID);
             }
         }
