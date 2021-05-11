@@ -8,6 +8,7 @@ import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.submitcollection.SubmitCollectionPollingS3RouteBuilder;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
+import org.recap.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ public class SubmitCollectionJobController {
     SubmitCollectionPollingS3RouteBuilder submitCollectionPollingFtpRouteBuilder;
 
     @Autowired
-    InstitutionDetailsRepository institutionDetailsRepository;
+    CommonUtil commonUtil;
 
     /**
      * This method is initiated from the scheduler to start the submit collection process in sequence
@@ -45,8 +46,8 @@ public class SubmitCollectionJobController {
      */
     @PostMapping(value = "/startSubmitCollection")
     public String startSubmitCollection() throws Exception{
-        List<String> allInstitutionCodeExceptHTC = institutionDetailsRepository.findAllInstitutionCodeExceptHTC();
-        Optional<String> institution = allInstitutionCodeExceptHTC.stream().findFirst();
+        List<String> allInstitutionCodesExceptSupportInstitution = commonUtil.findAllInstitutionCodesExceptSupportInstitution();
+        Optional<String> institution = allInstitutionCodesExceptSupportInstitution.stream().findFirst();
         submitCollectionPollingFtpRouteBuilder.createRoutesForSubmitCollection();
         camelContext.getRouteController().startRoute((institution.isPresent() ? institution.get() : "") + ScsbConstants.CGD_PROTECTED_ROUTE_ID);
         Endpoint endpoint = camelContext.getEndpoint(ScsbConstants.SUBMIT_COLLECTION_COMPLETION_QUEUE_TO);

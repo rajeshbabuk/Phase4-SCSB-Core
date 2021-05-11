@@ -27,7 +27,7 @@ public class DailyReconcilationRecordUT extends BaseTestCaseUT {
         dailyReconcilationRecord.setOwningInst("CUL");
         dailyReconcilationRecord.setDeliveryMethod("Test");
         dailyReconcilationRecord.setStatus("Available");
-        dailyReconcilationRecord.setEmail("hemalatha.s@htcindia.com");
+        dailyReconcilationRecord.setEmail("test@email.com");
         dailyReconcilationRecord.setErrorCode("Test");
         dailyReconcilationRecord.setErrorNote("Test");
 

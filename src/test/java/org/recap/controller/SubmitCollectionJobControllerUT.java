@@ -16,6 +16,7 @@ import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.submitcollection.SubmitCollectionPollingS3RouteBuilder;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
+import org.recap.util.CommonUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +47,7 @@ public class SubmitCollectionJobControllerUT extends BaseTestCaseUT {
     Message message;
 
     @Mock
-    InstitutionDetailsRepository institutionDetailsRepository;
+    CommonUtil commonUtil;
 
     @Mock
     SubmitCollectionPollingS3RouteBuilder submitCollectionPollingFtpRouteBuilder;
@@ -62,8 +63,8 @@ public class SubmitCollectionJobControllerUT extends BaseTestCaseUT {
         Mockito.when(endpoint.createPollingConsumer()).thenReturn(pollingConsumer);
         Mockito.when(pollingConsumer.receive()).thenReturn(exchange);
         Mockito.when(exchange.getIn()).thenReturn(message);
-        List<String> allInstitutionCodeExceptHTC= Arrays.asList("PUL","CUL","NYPL");
-        Mockito.when(institutionDetailsRepository.findAllInstitutionCodeExceptHTC()).thenReturn(allInstitutionCodeExceptHTC);
+        List<String> allInstitutionCodeExceptSupportInstitution= Arrays.asList("PUL","CUL","NYPL");
+        Mockito.when(commonUtil.findAllInstitutionCodesExceptSupportInstitution()).thenReturn(allInstitutionCodeExceptSupportInstitution);
         String result = submitCollectionJobController.startSubmitCollection();
         assertEquals(ScsbCommonConstants.SUCCESS,result);
     }
@@ -78,8 +79,8 @@ public class SubmitCollectionJobControllerUT extends BaseTestCaseUT {
         Mockito.when(endpoint.createPollingConsumer()).thenThrow(NullPointerException.class);
         Mockito.when(pollingConsumer.receive()).thenReturn(exchange);
         Mockito.when(exchange.getIn()).thenReturn(message);
-        List<String> allInstitutionCodeExceptHTC= Arrays.asList("PUL","CUL","NYPL");
-        Mockito.when(institutionDetailsRepository.findAllInstitutionCodeExceptHTC()).thenReturn(allInstitutionCodeExceptHTC);
+        List<String> allInstitutionCodeExceptSupportInstitution= Arrays.asList("PUL","CUL","NYPL");
+        Mockito.when(commonUtil.findAllInstitutionCodesExceptSupportInstitution()).thenReturn(allInstitutionCodeExceptSupportInstitution);
         String result = submitCollectionJobController.startSubmitCollection();
         assertEquals(ScsbCommonConstants.SUCCESS,result);
     }
