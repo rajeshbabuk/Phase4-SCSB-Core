@@ -46,7 +46,7 @@ public class StatusReconciliationController {
     @Value("${status.reconciliation.day.limit}")
     private Integer statusReconciliationDayLimit;
 
-    @Value("${status.reconciliation.las.barcode.limit}")
+    @Value("${status.reconciliation.barcode.limit}")
     private Integer statusReconciliationLasBarcodeLimit;
 
     @Autowired
