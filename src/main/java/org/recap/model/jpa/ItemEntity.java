@@ -22,7 +22,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "item_t", schema = "recap", catalog = "")
+@Table(name = "item_t", catalog = "")
 @AttributeOverride(name = "id", column = @Column(name = "ITEM_ID"))
 public class ItemEntity extends ItemAbstractEntity {
 

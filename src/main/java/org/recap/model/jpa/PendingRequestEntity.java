@@ -17,7 +17,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
-@Table(name = "PENDING_REQUEST_T", schema = "recap", catalog = "")
+@Table(name = "PENDING_REQUEST_T", catalog = "")
 @AttributeOverride(name = "id", column = @Column(name = "PENDING_ID"))
 public class PendingRequestEntity extends AbstractEntity<Integer>  {
     @Column(name = "REQUEST_ID")
