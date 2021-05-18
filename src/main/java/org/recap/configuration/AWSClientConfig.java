@@ -15,10 +15,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AWSClientConfig {
 
-    @Value("${" + PropertyKeyConstants.AWS_ACESSKEY + "}")
+    @Value("${" + PropertyKeyConstants.AWS_ACCESS_KEY + "}")
     private String awsAccessKey;
 
-    @Value("${" + PropertyKeyConstants.AWS_ACCESS_SECRETKEY + "}")
+    @Value("${" + PropertyKeyConstants.AWS_ACCESS_SECRET_KEY + "}")
     private String awsAccessSecretKey;
 
     @Bean
