@@ -15,7 +15,7 @@ import java.util.Date;
  * Created by rajeshbabuk on 8/5/17.
  */
 @Entity
-@Table(name = "DELETED_RECORDS_T", schema = "recap", catalog = "")
+@Table(name = "DELETED_RECORDS_T", catalog = "")
 @AttributeOverride(name = "id", column = @Column(name = "DELETED_RECORDS_ID"))
 @Getter
 @Setter

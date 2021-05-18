@@ -21,7 +21,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "holdings_t", schema = "recap", catalog = "")
+@Table(name = "holdings_t", catalog = "")
 @AttributeOverride(name = "id", column = @Column(name = "HOLDINGS_ID"))
         @NamedNativeQuery(
                 name = "HoldingsEntity.getNonDeletedItemEntities",

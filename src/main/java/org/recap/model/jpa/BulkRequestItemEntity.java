@@ -18,7 +18,7 @@ import java.util.List;
  * Created by rajeshbabuk on 10/10/17.
  */
 @Entity
-@Table(name = "bulk_request_item_t", schema = "recap", catalog = "")
+@Table(name = "bulk_request_item_t", catalog = "")
 @AttributeOverride(name = "id", column = @Column(name = "BULK_REQUEST_ID"))
 @Getter
 @Setter
