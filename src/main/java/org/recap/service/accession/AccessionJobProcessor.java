@@ -2,6 +2,7 @@ package org.recap.service.accession;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 import org.slf4j.Logger;
@@ -19,9 +20,11 @@ public class AccessionJobProcessor {
 
     @Autowired
     private ProducerTemplate producer;
-    @Value("${email.accession.job.exception.to}")
+
+    @Value("${" + PropertyKeyConstants.EMAIL_ACCESSION_JOB_EXCEPTION_TO + "}")
     private String emailTo;
-    @Value("${email.accession.job.exception.cc}")
+
+    @Value("${" + PropertyKeyConstants.EMAIL_ACCESSION_JOB_EXCEPTION_CC + "}")
     private String emailCc;
 
     public void caughtException(Exchange exchange) {

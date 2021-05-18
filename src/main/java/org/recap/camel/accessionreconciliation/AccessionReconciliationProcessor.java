@@ -3,6 +3,7 @@ package org.recap.camel.accessionreconciliation;
 import com.amazonaws.services.s3.AmazonS3;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
 import org.slf4j.Logger;
@@ -43,10 +44,10 @@ public class AccessionReconciliationProcessor {
     @Autowired
     RestTemplate restTemplate;
 
-    @Value("${scsb.solr.doc.url}")
+    @Value("${" + PropertyKeyConstants.SCSB_SOLR_DOC_URL + "}")
     private String solrSolrClientUrl;
 
-    @Value("${accession.reconciliation.filePath}")
+    @Value("${" + PropertyKeyConstants.ACCESSION_RECONCILIATION_FILEPATH + "}")
     private String accessionFilePath;
 
     @Autowired

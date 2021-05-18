@@ -2,6 +2,7 @@ package org.recap.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,10 +22,10 @@ public class RestTemplateConfig {
     private RestTemplate restTemplate;
     private ObjectMapper objectMapper;
 
-    @Value("${bibdata.api.connection.timeout}")
+    @Value("${" + PropertyKeyConstants.BIBDATA_API_CONNECTION_TIMEOUT + "}")
     Integer connectionTimeout;
 
-    @Value("${bibdata.api.read.timeout}")
+    @Value("${" + PropertyKeyConstants.BIBDATA_API_READ_TIMEOUT + "}")
     Integer readTimeout;
 
 

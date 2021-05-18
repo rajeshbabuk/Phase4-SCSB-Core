@@ -17,6 +17,7 @@ import org.apache.poi.xssf.usermodel.XSSFCreationHelper;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.model.jpa.ItemEntity;
@@ -57,7 +58,7 @@ public class DailyReconciliationProcessor {
     @Autowired
     private RequestItemDetailsRepository requestItemDetailsRepository;
 
-    @Value("${daily.reconciliation.file}")
+    @Value("${" + PropertyKeyConstants.DAILY_RECONCILIATION_FILE + "}")
     private String filePath;
 
     @Autowired

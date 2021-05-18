@@ -1,6 +1,7 @@
 package org.recap.controller;
 
 import org.apache.camel.CamelContext;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.accessionreconciliation.BarcodeReconciliationRouteBuilder;
@@ -38,13 +39,13 @@ public class AccessionReconcilationJobController {
     @Autowired
     CamelContext camelContext;
 
-    @Value("${s3.accession.reconciliation.dir}")
+    @Value("${" + PropertyKeyConstants.S3_ACCESSION_RECONCILIATION_DIR + "}")
     private String accessionReconciliationPath;
 
-    @Value("${accession.reconciliation.filePath}")
+    @Value("${" + PropertyKeyConstants.ACCESSION_RECONCILIATION_FILEPATH + "}")
     private String accessionReconciliationFilePath;
 
-    @Value("${s3.accession.reconciliation.processed.dir}")
+    @Value("${" + PropertyKeyConstants.S3_ACCESSION_RECONCILIATION_PROCESSED_DIR + "}")
     private String accessionReconciliationProcessedPath;
 
     /**

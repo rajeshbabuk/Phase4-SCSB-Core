@@ -3,6 +3,7 @@ package org.recap.controller;
 import com.google.gson.Gson;
 import org.apache.camel.Exchange;
 import org.apache.commons.collections.CollectionUtils;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionModelRequest;
@@ -53,7 +54,7 @@ public class SharedCollectionRestController {
     @Autowired
     BulkAccessionService bulkAccessionService;
 
-    @Value("${ongoing.accession.input.limit}")
+    @Value("${" + PropertyKeyConstants.ONGOING_ACCESSION_INPUT_LIMIT + "}")
     private Integer inputLimit;
 
     /**

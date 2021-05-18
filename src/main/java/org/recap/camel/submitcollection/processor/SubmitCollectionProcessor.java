@@ -3,6 +3,7 @@ package org.recap.camel.submitcollection.processor;
 import com.amazonaws.services.s3.AmazonS3;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
@@ -49,13 +50,13 @@ public class SubmitCollectionProcessor {
     @Autowired
     PropertyUtil propertyUtil;
 
-    @Value("${email.submit.collection.subject}")
+    @Value("${" + PropertyKeyConstants.EMAIL_SUBMIT_COLLECTION_SUBJECT + "}")
     private String submitCollectionEmailSubject;
 
-    @Value("${email.submit.collection.subject.for.empty.directory}")
+    @Value("${" + PropertyKeyConstants.EMAIL_SUBMIT_COLLECTION_SUBJECT_FOR_EMPTY_DIRECTORY + "}")
     private String subjectForEmptyDirectory;
 
-    @Value("${s3.submit.collection.report.dir}")
+    @Value("${" + PropertyKeyConstants.S3_SUBMIT_COLLECTION_REPORT_DIR + "}")
     private String submitCollectionReportS3Dir;
 
     private String institutionCode;
@@ -68,10 +69,10 @@ public class SubmitCollectionProcessor {
     @Autowired
     AmazonS3 awsS3Client;
 
-    @Value("${s3.submit.collection.dir}")
+    @Value("${" + PropertyKeyConstants.S3_SUBMIT_COLLECTION_DIR + "}")
     private String submitCollectionS3BasePath;
 
-    @Value("${scsbBucketName}")
+    @Value("${" + PropertyKeyConstants.SCSB_BUCKET_NAME + "}")
     private String bucketName;
 
     public SubmitCollectionProcessor() {
@@ -170,8 +171,8 @@ public class SubmitCollectionProcessor {
         emailPayLoad.setSubject(ScsbConstants.SUBJECT_FOR_SUBMIT_COL_EXCEPTION);
         emailPayLoad.setXmlFileName(name);
         logger.info("Institution inside email payload for exception- {}", institutionCode);
-        emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.to"));
-        emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.cc"));
+        emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, PropertyKeyConstants.ILS.ILS_EMAIL_SUBMIT_COLLECTION_TO));
+        emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, PropertyKeyConstants.ILS.ILS_EMAIL_SUBMIT_COLLECTION_CC));
         emailPayLoad.setLocation(submitCollectionReportS3Dir);
         emailPayLoad.setLocation(filePath);
         emailPayLoad.setInstitution(institutionCode.toUpperCase());
@@ -197,8 +198,8 @@ public class SubmitCollectionProcessor {
         emailPayLoad.setReportFileName(reportFileName);
         emailPayLoad.setXmlFileName(xmlFileName);
         logger.info("Institution inside email payload - {}", institutionCode);
-        emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.to"));
-        emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.cc"));
+        emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, PropertyKeyConstants.ILS.ILS_EMAIL_SUBMIT_COLLECTION_TO));
+        emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, PropertyKeyConstants.ILS.ILS_EMAIL_SUBMIT_COLLECTION_CC));
         emailPayLoad.setLocation(submitCollectionReportS3Dir);
         emailPayLoad.setInstitution(institutionCode.toUpperCase());
         return emailPayLoad;
@@ -216,7 +217,7 @@ public class SubmitCollectionProcessor {
         EmailPayLoad emailPayLoad = new EmailPayLoad();
         emailPayLoad.setSubject(subjectForEmptyDirectory+" - "+institutionCode+" - "+cgdType);
         emailPayLoad.setLocation(ftpLocationPath);
-        emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.submit.collection.nofiles.to"));
+        emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, PropertyKeyConstants.ILS.ILS_EMAIL_SUBMIT_COLLECTION_NOFILES_TO));
         return  emailPayLoad;
     }
 }

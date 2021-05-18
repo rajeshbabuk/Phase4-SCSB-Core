@@ -3,6 +3,7 @@ package org.recap.service.statusreconciliation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.model.ItemRefileRequest;
@@ -30,13 +31,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class StatusReconciliationService {
 
-    @Value("${scsb.gateway.url}")
+    @Value("${" + PropertyKeyConstants.SCSB_GATEWAY_URL + "}")
     private String scsbUrl;
 
-    @Value("${scsb.circ.url}")
+    @Value("${" + PropertyKeyConstants.SCSB_CIRC_URL + "}")
     private String scsbCircUrl;
 
-    @Value("${status.reconciliation.day.limit}")
+    @Value("${" + PropertyKeyConstants.STATUS_RECONCILIATION_DAY_LIMIT + "}")
     private Integer statusReconciliationDayLimit;
 
     @Autowired

@@ -5,6 +5,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.TestUtil;
 import org.recap.model.csv.StatusReconciliationCSVRecord;
@@ -39,7 +40,7 @@ public class StatusReconciliationServiceUT extends BaseTestCaseUT {
     @Mock
     ItemChangeLogDetailsRepository itemChangeLogDetailsRepository;
 
-    @Value("${scsb.circ.url}")
+    @Value("${" + PropertyKeyConstants.SCSB_CIRC_URL + "}")
     String scsbCircUrl;
 
     @Mock

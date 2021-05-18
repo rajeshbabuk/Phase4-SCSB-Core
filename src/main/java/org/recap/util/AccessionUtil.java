@@ -5,6 +5,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.marc.Leader;
 import org.marc4j.marc.Record;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.converter.AccessionXmlToBibEntityConverterInterface;
@@ -93,7 +94,7 @@ public class AccessionUtil {
     @Autowired
     ImsLocationDetailsRepository imsLocationDetailsRepository;
 
-    @Value("${scsb.solr.doc.url}")
+    @Value("${" + PropertyKeyConstants.SCSB_SOLR_DOC_URL + "}")
     private String scsbSolrClientUrl;
 
     private RestTemplate restTemplate;

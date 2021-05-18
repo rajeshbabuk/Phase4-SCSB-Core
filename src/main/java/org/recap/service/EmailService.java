@@ -1,6 +1,7 @@
 package org.recap.service;
 
 import org.apache.camel.ProducerTemplate;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
-    @Value("${email.deleted.records.to}")
+    @Value("${" + PropertyKeyConstants.EMAIL_DELETED_RECORDS_TO + "}")
     private String deletedRecordsMailTo;
 
     @Autowired

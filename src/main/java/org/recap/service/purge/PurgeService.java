@@ -1,5 +1,6 @@
 package org.recap.service.purge;
 
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.model.jpa.RequestTypeEntity;
@@ -26,16 +27,16 @@ public class PurgeService {
 
     private static final Logger logger = LoggerFactory.getLogger(PurgeService.class);
 
-    @Value("${purge.email.address.edd.request.day.limit}")
+    @Value("${" + PropertyKeyConstants.PURGE_EMAIL_ADDRESS_EDD_REQUEST_DAY_LIMIT + "}")
     private Integer purgeEmailEddRequestDayLimit;
 
-    @Value("${purge.email.address.physical.request.day.limit}")
+    @Value("${" + PropertyKeyConstants.PURGE_EMAIL_ADDRESS_PHYSICAL_REQUEST_DAY_LIMIT + "}")
     private Integer purgeEmailPhysicalRequestDayLimit;
 
-    @Value("${purge.exception.request.day.limit}")
+    @Value("${" + PropertyKeyConstants.PURGE_EXCEPTION_REQUEST_DAY_LIMIT + "}")
     private Integer purgeExceptionRequestDayLimit;
 
-    @Value("${purge.accession.request.day.limit}")
+    @Value("${" + PropertyKeyConstants.PURGE_ACCESSION_REQUEST_DAY_LIMIT + "}")
     private Integer purgeAccessionRequestDayLimit;
 
     @Autowired
