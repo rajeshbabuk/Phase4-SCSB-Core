@@ -3,6 +3,7 @@ package org.recap.service.statusreconciliation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,10 @@ public class StatusReconciliationEmailService {
     @Autowired
     private ProducerTemplate producerTemplate;
 
-    @Value("${email.status.reconciliation.to}")
+    @Value("${" + PropertyKeyConstants.EMAIL_STATUS_RECONCILIATION_TO + "}")
     private String statusReconciliationEmailTo;
 
-    @Value("${email.status.reconciliation.cc}")
+    @Value("${" + PropertyKeyConstants.EMAIL_STATUS_RECONCILIATION_CC + "}")
     private String statusReconciliationEmailCC;
 
     /**

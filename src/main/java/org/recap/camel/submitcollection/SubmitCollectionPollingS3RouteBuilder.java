@@ -11,6 +11,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.submitcollection.processor.SubmitCollectionProcessor;
@@ -57,16 +58,16 @@ public class SubmitCollectionPollingS3RouteBuilder {
     @Autowired
     CommonUtil commonUtil;
 
-    @Value("${s3.submit.collection.dir}")
+    @Value("${" + PropertyKeyConstants.S3_SUBMIT_COLLECTION_DIR + "}")
     private String submitCollectionS3BasePath;
 
     @Autowired
     AmazonS3 awsS3Client;
 
-    @Value("${scsbBucketName}")
+    @Value("${" + PropertyKeyConstants.SCSB_BUCKET_NAME + "}")
     private String scsbBucketName;
 
-    @Value("${submit.collection.local.dir}")
+    @Value("${" + PropertyKeyConstants.SUBMIT_COLLECTION_LOCAL_DIR + "}")
     private String submitCollectionLocalWorkingDir;
 
     /**

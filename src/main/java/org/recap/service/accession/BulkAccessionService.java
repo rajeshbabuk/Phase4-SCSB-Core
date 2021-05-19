@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.apache.camel.Exchange;
 import org.apache.commons.collections.CollectionUtils;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionModelRequest;
@@ -57,7 +58,7 @@ public class BulkAccessionService extends AccessionService{
     /**
      * The batch accession thread size.
      */
-    @Value("${batch.accession.thread.size}")
+    @Value("${" + PropertyKeyConstants.BATCH_ACCESSION_THREAD_SIZE + "}")
     int batchAccessionThreadSize;
 
     /**

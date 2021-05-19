@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
+import org.recap.PropertyKeyConstants;
 import org.recap.model.reports.ReportDataRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
@@ -20,7 +21,7 @@ public class SubmitCollectionReportGeneratorUT extends BaseTestCaseUT {
     @Mock
     private SubmitCollectionReportGenerator submitCollectionReportGenerator;
 
-    @Value("${scsb.solr.client.url}")
+    @Value("${" + PropertyKeyConstants.SCSB_SOLR_DOC_URL + "}")
     private String solrClientUrl;
 
     @Mock

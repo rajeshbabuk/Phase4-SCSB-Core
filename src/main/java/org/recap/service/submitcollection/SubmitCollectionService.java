@@ -5,6 +5,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.MarcException;
 import org.marc4j.marc.Record;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.converter.MarcToBibEntityConverter;
@@ -78,10 +79,10 @@ public class SubmitCollectionService {
 
     private RestTemplate restTemplate;
 
-    @Value("${scsb.solr.doc.url}")
+    @Value("${" + PropertyKeyConstants.SCSB_SOLR_DOC_URL + "}")
     private String scsbSolrClientUrl;
 
-    @Value("${submit.collection.input.limit}")
+    @Value("${" + PropertyKeyConstants.SUBMIT_COLLECTION_INPUT_LIMIT + "}")
     private Integer inputLimit;
 
     /**

@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.accessionreconciliation.AccessionReconciliationProcessor;
@@ -61,10 +62,10 @@ public class AccessionReconciliationProcessorUT extends BaseTestCaseUT {
     @Mock
     AmazonS3 awsS3Client;
 
-    @Value("${scsb.solr.client.url}")
+    @Value("${" + PropertyKeyConstants.SCSB_SOLR_DOC_URL + "}")
     String solrSolrClientUrl;
 
-    @Value("${accession.reconciliation.filePath}")
+    @Value("${" + PropertyKeyConstants.ACCESSION_RECONCILIATION_FILEPATH + "}")
     String accessionFilePath;
 
     @AfterTestMethod

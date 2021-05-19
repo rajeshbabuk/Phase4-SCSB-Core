@@ -1,5 +1,6 @@
 package org.recap.service.submitcollection;
 
+import org.recap.PropertyKeyConstants;
 import org.recap.model.reports.ReportDataRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class SubmitCollectionReportGenerator {
 
-    @Value("${scsb.solr.doc.url}")
+    @Value("${" + PropertyKeyConstants.SCSB_SOLR_DOC_URL + "}")
     private String solrClientUrl;
 
     /**

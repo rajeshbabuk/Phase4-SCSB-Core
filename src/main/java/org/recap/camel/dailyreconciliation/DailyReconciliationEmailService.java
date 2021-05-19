@@ -2,6 +2,7 @@ package org.recap.camel.dailyreconciliation;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 import org.recap.util.PropertyUtil;
@@ -43,7 +44,7 @@ public class DailyReconciliationEmailService {
 
     private EmailPayLoad getEmailPayLoad() {
         EmailPayLoad emailPayLoad = new EmailPayLoad();
-        emailPayLoad.setTo(propertyUtil.getPropertyByImsLocationAndKey(imsLocationCode, "las.email.daily.reconciliation.to"));
+        emailPayLoad.setTo(propertyUtil.getPropertyByImsLocationAndKey(imsLocationCode, PropertyKeyConstants.IMS.IMS_EMAIL_DAILY_RECONCILIATION_TO));
         logger.info("Daily Reconciliation email sent to {}", emailPayLoad.getTo());
         emailPayLoad.setMessageDisplay("Daily reconciliation report is available at the S3 location " + fileLocation);
         return emailPayLoad;

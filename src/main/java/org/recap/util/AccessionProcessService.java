@@ -2,6 +2,7 @@ package org.recap.util;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.model.ILSConfigProperties;
@@ -60,7 +61,7 @@ public class AccessionProcessService {
 
     private Map<String, Integer> institutionEntityMap;
 
-    @Value("${scsb.gateway.url}")
+    @Value("${" + PropertyKeyConstants.SCSB_GATEWAY_URL + "}")
     private String scsbUrl;
 
     public Object processRecords(Set<AccessionResponse> accessionResponses, List<Map<String, String>> responseMaps,

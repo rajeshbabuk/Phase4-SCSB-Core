@@ -3,6 +3,7 @@ package org.recap.camel;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.commons.io.FileUtils;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.util.CommonUtil;
@@ -48,9 +49,9 @@ public class EmailRouteBuilder {
      * @param smtpServer        the smtp server
      */
     @Autowired
-    public EmailRouteBuilder(CamelContext context, CommonUtil commonUtil, @Value("${email.smtp.server.username}") String username, @Value("${email.smtp.server.password.file}") String passwordDirectory,
-                             @Value("${email.smtp.server.address.from}") String from, @Value("${email.request.recall.subject}") String subject,
-                             @Value("${email.smtp.server}") String smtpServer) {
+    public EmailRouteBuilder(CamelContext context, CommonUtil commonUtil, @Value("${" + PropertyKeyConstants.EMAIL_SMTP_SERVER_USERNAME + "}") String username, @Value("${" + PropertyKeyConstants.EMAIL_SMTP_SERVER_PASSWORD_FILE + "}") String passwordDirectory,
+                             @Value("${" + PropertyKeyConstants.EMAIL_SMTP_SERVER_ADDRESS_FROM + "}") String from, @Value("${" + PropertyKeyConstants.EMAIL_REQUEST_RECALL_SUBJECT + "}") String subject,
+                             @Value("${" + PropertyKeyConstants.EMAIL_SMTP_SERVER + "}") String smtpServer) {
         try {
             context.addRoutes(new RouteBuilder() {
                 @Override

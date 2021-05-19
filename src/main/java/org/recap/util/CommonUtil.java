@@ -2,6 +2,7 @@ package org.recap.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.marc.Record;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.model.accession.AccessionRequest;
@@ -57,7 +58,7 @@ public class CommonUtil {
     @Autowired
     AccessionUtil accessionUtil;
 
-    @Value("${scsb.support.institution}")
+    @Value("${" + PropertyKeyConstants.SCSB_SUPPORT_INSTITUTION + "}")
     private String supportInstitution;
 
     /**

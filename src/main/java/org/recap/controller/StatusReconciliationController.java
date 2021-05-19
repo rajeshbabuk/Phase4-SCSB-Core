@@ -3,6 +3,7 @@ package org.recap.controller;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.model.csv.StatusReconciliationCSVRecord;
@@ -37,16 +38,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class StatusReconciliationController {
 
-    @Value("${scsb.circ.url}")
+    @Value("${" + PropertyKeyConstants.SCSB_CIRC_URL + "}")
     private String scsbCircUrl;
 
-    @Value("${status.reconciliation.batch.size}")
+    @Value("${" + PropertyKeyConstants.STATUS_RECONCILIATION_BATCH_SIZE + "}")
     private Integer batchSize;
 
-    @Value("${status.reconciliation.day.limit}")
+    @Value("${" + PropertyKeyConstants.STATUS_RECONCILIATION_DAY_LIMIT + "}")
     private Integer statusReconciliationDayLimit;
 
-    @Value("${status.reconciliation.barcode.limit}")
+    @Value("${" + PropertyKeyConstants.STATUS_RECONCILIATION_BARCODE_LIMIT + "}")
     private Integer statusReconciliationLasBarcodeLimit;
 
     @Autowired

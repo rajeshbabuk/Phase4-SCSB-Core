@@ -7,6 +7,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import org.recap.PropertyKeyConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,10 +15,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AWSClientConfig {
 
-    @Value("${awsAccessKey}")
+    @Value("${" + PropertyKeyConstants.AWS_ACCESS_KEY + "}")
     private String awsAccessKey;
 
-    @Value("${awsAccessSecretKey}")
+    @Value("${" + PropertyKeyConstants.AWS_ACCESS_SECRET_KEY + "}")
     private String awsAccessSecretKey;
 
     @Bean

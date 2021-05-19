@@ -8,6 +8,7 @@ import org.marc4j.MarcWriter;
 import org.marc4j.MarcXmlReader;
 import org.marc4j.MarcXmlWriter;
 import org.marc4j.marc.*;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.model.jaxb.BibRecord;
@@ -41,7 +42,7 @@ public class MarcUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(MarcUtil.class);
 
-    @Value("${submit.collection.input.limit}")
+    @Value("${" + PropertyKeyConstants.SUBMIT_COLLECTION_INPUT_LIMIT + "}")
     private Integer inputLimit;
 
     /**
