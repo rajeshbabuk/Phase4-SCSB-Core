@@ -3,6 +3,7 @@ package org.recap.service.submitcollection;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.collections4.ListUtils;
 import org.marc4j.marc.Record;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.model.jaxb.BibRecord;
@@ -45,10 +46,10 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
     @Autowired
     private CommonUtil commonUtil;
 
-    @Value("${submit.collection.input.limit}")
+    @Value("${" + PropertyKeyConstants.SUBMIT_COLLECTION_INPUT_LIMIT + "}")
     private Integer inputLimit;
 
-    @Value("${submit.collection.partition.size}")
+    @Value("${" + PropertyKeyConstants.SUBMIT_COLLECTION_PARTITION_SIZE + "}")
     private Integer partitionSize;
 
     @Override

@@ -4,6 +4,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.aws.s3.S3Constants;
 import org.apache.camel.model.dataformat.BindyType;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.model.csv.StatusReconciliationCSVRecord;
@@ -32,7 +33,7 @@ public class StatusReconciliationS3RouteBuilder {
      * @param statusReconciliation the status reconciliation
      */
     @Autowired
-    public StatusReconciliationS3RouteBuilder(CamelContext camelContext, ApplicationContext applicationContext, @Value("${s3.add.s3.routes.on.startup}") boolean addS3RoutesOnStartup, @Value("${status.reconciliation}") String statusReconciliation) {
+    public StatusReconciliationS3RouteBuilder(CamelContext camelContext, ApplicationContext applicationContext, @Value("${" + PropertyKeyConstants.S3_ADD_S3_ROUTES_ON_STARTUP + "}") boolean addS3RoutesOnStartup, @Value("${" + PropertyKeyConstants.STATUS_RECONCILIATION + "}") String statusReconciliation) {
         try {
             if (addS3RoutesOnStartup) {
                 camelContext.addRoutes(new RouteBuilder() {

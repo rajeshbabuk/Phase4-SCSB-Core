@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.model.csv.DailyReconcilationRecord;
 import org.recap.model.jpa.InstitutionEntity;
@@ -62,7 +63,7 @@ public class DailyReconciliationProcessorUT extends BaseTestCaseUT {
     @Mock
     AmazonS3 awsS3Client;
 
-    @Value("${daily.reconciliation.file}")
+    @Value("${" + PropertyKeyConstants.DAILY_RECONCILIATION_FILE + "}")
     private String filePath;
 
     @Test

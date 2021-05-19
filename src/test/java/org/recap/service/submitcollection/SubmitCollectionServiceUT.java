@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.converter.MarcToBibEntityConverter;
@@ -116,11 +117,11 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
     RestTemplate restTemplate;
 
 
-    @Value("${scsb.solr.client.url}")
+    @Value("${" + PropertyKeyConstants.SCSB_SOLR_DOC_URL + "}")
     private String scsbSolrClientUrl;
 
 
-    @Value("${nonholdingid.institution}")
+    @Value("${" + PropertyKeyConstants.NONHOLDINGID_INSTITUTION + "}")
     private String nonHoldingIdInstitution;
 
 

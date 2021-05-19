@@ -2,6 +2,7 @@ package org.recap.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelContext;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.dailyreconciliation.DailyReconciliationRouteBuilder;
@@ -31,13 +32,13 @@ public class DailyReconciliationJobController {
     @Autowired
     ImsLocationDetailsRepository imsLocationDetailsRepository;
 
-    @Value("${s3.daily.reconciliation}")
+    @Value("${" + PropertyKeyConstants.S3_DAILY_RECONCILIATION + "}")
     String dailyReconciliationS3;
 
-    @Value("${s3.daily.reconciliation.processed}")
+    @Value("${" + PropertyKeyConstants.S3_DAILY_RECONCILIATION_PROCESSED + "}")
     String dailyReconciliationFtpProcessed;
 
-    @Value("${daily.reconciliation.file}")
+    @Value("${" + PropertyKeyConstants.DAILY_RECONCILIATION_FILE + "}")
     String dailyReconciliationFilePath;
 
     /**

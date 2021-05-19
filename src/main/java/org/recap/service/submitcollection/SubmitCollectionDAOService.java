@@ -1,6 +1,7 @@
 package org.recap.service.submitcollection;
 
 import org.apache.commons.collections.map.HashedMap;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.model.jpa.*;
@@ -65,7 +66,7 @@ public class SubmitCollectionDAOService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Value("${nonholdingid.institution}")
+    @Value("${" + PropertyKeyConstants.NONHOLDINGID_INSTITUTION + "}")
     private String nonHoldingIdInstitution;
 
     @Autowired

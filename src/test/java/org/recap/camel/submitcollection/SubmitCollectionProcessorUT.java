@@ -13,10 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.recap.BaseTestCaseUT;
-import org.recap.ScsbCommonConstants;
-import org.recap.ScsbConstants;
-import org.recap.TestUtil;
+import org.recap.*;
 import org.recap.camel.submitcollection.processor.SubmitCollectionProcessor;
 import org.recap.converter.MarcToBibEntityConverter;
 import org.recap.model.jpa.BibliographicEntity;
@@ -81,7 +78,7 @@ public class SubmitCollectionProcessorUT extends BaseTestCaseUT {
     @Mock
     Message message;
 
-    @Value("${scsbBucketName}")
+    @Value("${" + PropertyKeyConstants.SCSB_BUCKET_NAME + "}")
     private String bucketName;
 
     @Mock

@@ -2,6 +2,7 @@ package org.recap.camel.accessionreconciliation;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 import org.recap.util.PropertyUtil;
@@ -57,8 +58,8 @@ public class AccessionReconciliationEmailService {
     public EmailPayLoad getEmailPayLoad(Exchange exchange) {
         EmailPayLoad emailPayLoad = new EmailPayLoad();
         String fileNameWithPath = (String) exchange.getIn().getHeader(ScsbConstants.CAMEL_AWS_KEY);
-        emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.accession.reconciliation.to"));
-        emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, "email.accession.reconciliation.cc"));
+        emailPayLoad.setTo(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, PropertyKeyConstants.ILS.ILS_EMAIL_ACCESSION_RECONCILIATION_TO));
+        emailPayLoad.setCc(propertyUtil.getPropertyByInstitutionAndKey(institutionCode, PropertyKeyConstants.ILS.ILS_EMAIL_ACCESSION_RECONCILIATION_CC));
         logger.info("Accession Reconciliation email sent to : {} and cc : {} ", emailPayLoad.getTo(), emailPayLoad.getCc());
         emailPayLoad.setMessageDisplay("Barcode Reconciliation has been completed for " + institutionCode.toUpperCase() + " at " + imsLocationCode + ". The report is at the S3 location " + fileNameWithPath);
         return emailPayLoad;

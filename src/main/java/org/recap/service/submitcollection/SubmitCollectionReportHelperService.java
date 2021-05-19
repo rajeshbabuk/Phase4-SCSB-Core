@@ -2,6 +2,7 @@ package org.recap.service.submitcollection;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.model.jpa.BibliographicEntity;
@@ -48,7 +49,7 @@ public class SubmitCollectionReportHelperService {
     @Autowired
     private CommonUtil commonUtil;
 
-    @Value("${nonholdingid.institution}")
+    @Value("${" + PropertyKeyConstants.NONHOLDINGID_INSTITUTION + "}")
     private String nonHoldingIdInstitution;
 
     private String existingBibid = ", existing owning institution bib id ";
