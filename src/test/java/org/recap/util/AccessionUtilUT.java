@@ -16,11 +16,7 @@ import org.recap.converter.XmlToBibEntityConverterFactory;
 import org.recap.model.ILSConfigProperties;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.jpa.*;
-import org.recap.repository.jpa.BibliographicDetailsRepository;
-import org.recap.repository.jpa.InstitutionDetailsRepository;
-import org.recap.repository.jpa.ItemChangeLogDetailsRepository;
-import org.recap.repository.jpa.ItemDetailsRepository;
-import org.recap.repository.jpa.OwnerCodeDetailsRepository;
+import org.recap.repository.jpa.*;
 import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.service.accession.AccessionValidationService;
 import org.recap.service.accession.DummyDataService;
@@ -93,14 +89,29 @@ public class AccessionUtilUT extends BaseTestCaseUT{
     @Mock
     ProducerTemplate producerTemplate;
 
-    @Mock
-    OwnerCodeDetailsRepository customerCodeDetailsRepository;
+
 
     @Mock
     PropertyUtil propertyUtil;
 
     @Mock
     AccessionRequest accessionRequest;
+
+    @Mock
+    ImsLocationDetailsRepository imsLocationDetailsRepository;
+
+    @Mock
+    OwnerCodeDetailsRepository ownerCodeDetailsRepository;
+
+    @Mock
+    OwnerCodeEntity ownerCodeEntity;
+
+    @Mock
+    ImsLocationEntity imsLocationEntity;
+
+    @Mock
+    InstitutionEntity institutionEntity;
+
 
     @Test
     public void processAndValidateBibliographicEntitysuccessBibCount(){
@@ -152,14 +163,18 @@ public class AccessionUtilUT extends BaseTestCaseUT{
 
     @Test
     public void getOwningInstitution() throws Exception {
-        Mockito.when(customerCodeDetailsRepository.findByOwnerCode(Mockito.anyString())).thenReturn(getOwnerCodeEntity());
+        Mockito.when(imsLocationEntity.getId()).thenReturn(1);
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(Mockito.anyString())).thenReturn(imsLocationEntity);
+        Mockito.when(ownerCodeDetailsRepository.findByOwnerCodeAndImsLocationId(Mockito.anyString(),Mockito.anyInt())).thenReturn(ownerCodeEntity);
+        Mockito.when(ownerCodeEntity.getInstitutionEntity()).thenReturn(institutionEntity);
+        Mockito.when(institutionEntity.getInstitutionCode()).thenReturn(ScsbCommonConstants.PRINCETON);
         String owningInstitution=accessionUtil.getOwningInstitution("PA", "RECAP");
-        assertEquals("PUL",owningInstitution);
+        assertEquals(ScsbCommonConstants.PRINCETON,owningInstitution);
     }
 
     @Test
     public void getOwningInstitutionException() throws Exception {
-        Mockito.when(customerCodeDetailsRepository.findByOwnerCode(Mockito.anyString())).thenThrow(NullPointerException.class);
+        Mockito.when(ownerCodeDetailsRepository.findByOwnerCode(Mockito.anyString())).thenThrow(NullPointerException.class);
         String owningInstitution=accessionUtil.getOwningInstitution("PA", "RECAP");
         assertNull(owningInstitution);
     }

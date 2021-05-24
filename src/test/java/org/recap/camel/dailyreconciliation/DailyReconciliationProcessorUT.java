@@ -65,9 +65,12 @@ public class DailyReconciliationProcessorUT extends BaseTestCaseUT {
 
     @Value("${" + PropertyKeyConstants.DAILY_RECONCILIATION_FILE + "}")
     private String filePath;
+    
+
 
     @Test
     public void processInput() throws Exception {
+        ReflectionTestUtils.setField(dailyReconciliationProcessor,"imsLocationCode","RECAP");
         Mockito.when(exchange.getIn()).thenReturn(message);
         List<DailyReconcilationRecord> dailyReconcilationRecords=new ArrayList<>();
         dailyReconcilationRecords.add(getDailyReconcilationRecord("12345","1", ScsbConstants.GFA_STATUS_IN));

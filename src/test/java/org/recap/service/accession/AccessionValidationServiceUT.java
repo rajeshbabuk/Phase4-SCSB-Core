@@ -76,6 +76,9 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
     @Mock
     ImsLocationDetailsRepository imsLocationDetailsRepository;
 
+    @Mock
+    OwnerCodeEntity ownerCodeEntity;
+
     @Test
     public void validateBarcodeOrCustomerCode(){
         Mockito.when(accessionUtil.getOwningInstitution(Mockito.anyString(), Mockito.anyString())).thenReturn("").thenReturn("PUL");
@@ -113,10 +116,11 @@ public class AccessionValidationServiceUT extends BaseTestCaseUT {
         AccessionRequest accessionRequest=new AccessionRequest();
         accessionRequest.setItemBarcode("32101075852200");
         accessionRequest.setCustomerCode("PA");
-        OwnerCodeEntity ownerCodeEntity = getOwnerCodeEntity();
         Mockito.when(ownerCodeDetailsRepository.findByOwnerCode(Mockito.anyString())).thenReturn(ownerCodeEntity);
         ImsLocationEntity imsLocationEntity=new ImsLocationEntity();
         imsLocationEntity.setId(1);
+        Mockito.when(ownerCodeEntity.getInstitutionId()).thenReturn(1);
+        Mockito.when(ownerCodeDetailsRepository.findByOwnerCodeAndImsLocationId(Mockito.anyString(),Mockito.anyInt())).thenReturn(ownerCodeEntity);
         boolean isValidBoundWithRecord = accessionValidationService.validateBoundWithMarcRecordFromIls(records,accessionRequest,imsLocationEntity);
         assertTrue(isValidBoundWithRecord);
     }
