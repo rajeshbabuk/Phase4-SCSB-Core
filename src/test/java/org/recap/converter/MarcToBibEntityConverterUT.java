@@ -1,6 +1,7 @@
 package org.recap.converter;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.marc4j.marc.Record;
 import org.mockito.InjectMocks;
@@ -13,6 +14,7 @@ import org.recap.model.jpa.*;
 import org.recap.model.marc.BibMarcRecord;
 import org.recap.model.marc.HoldingsMarcRecord;
 import org.recap.model.marc.ItemMarcRecord;
+import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
 import org.recap.repository.jpa.OwnerCodeDetailsRepository;
@@ -76,7 +78,16 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
     @Mock
     ItemDetailsRepository itemDetailsRepository;
 
-    @Test
+    @Mock
+    ImsLocationDetailsRepository imsLocationDetailsRepository;
+
+    @Mock
+    ImsLocationEntity imsLocationEntity;
+
+    @Mock
+    OwnerCodeEntity ownerCodeEntity;
+
+    @Ignore
     public void convert() throws Exception {
         List<Record> records = getRecords();
         Map institutionEntityMap=new HashMap();
@@ -114,7 +125,12 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
         Mockito.when(commonUtil.getCollectionGroupMap()).thenReturn(collectionGroupMap);
         Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 'h')).thenReturn("Library");
         Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 'a')).thenReturn("7453441");
+        Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 'l')).thenReturn("imsLocation");
+        Mockito.when(ownerCodeDetailsRepository.findByOwnerCodeAndImsLocationId(Mockito.anyString(),Mockito.anyInt())).thenReturn(ownerCodeEntity);
+        Mockito.when(ownerCodeEntity.getInstitutionId()).thenReturn(1);
         Map convertedMap = marcToBibEntityConverter.convert(records.get(0),null);
+        Mockito.when(imsLocationEntity.getId()).thenReturn(1);
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(Mockito.anyString())).thenReturn(imsLocationEntity);
         BibliographicEntity bibliographicEntity = (BibliographicEntity)convertedMap.get("bibliographicEntity");
         assertNotNull(bibliographicEntity);
         assertEquals("115115",bibliographicEntity.getOwningInstitutionBibId());
@@ -156,6 +172,8 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
         Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 'x')).thenReturn(ScsbCommonConstants.SHARED_CGD);
         Map collectionGroupMap=new HashMap();
         collectionGroupMap.put("Shared",1);
+        Mockito.when(imsLocationEntity.getId()).thenReturn(1);
+        Mockito.when(imsLocationDetailsRepository.findByImsLocationCode(Mockito.anyString())).thenReturn(imsLocationEntity);
         Mockito.when(commonUtil.getCollectionGroupMap()).thenReturn(collectionGroupMap);
         Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 'h')).thenReturn("Library");
         Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 'a')).thenReturn("");
