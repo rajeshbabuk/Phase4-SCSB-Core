@@ -104,28 +104,30 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
         for (BibliographicEntity bibliographicEntity : bibliographicEntityList) {
             if (bibliographicEntity.getItemEntities().size() > 1) {
                 for (HoldingsEntity holdingsEntity : bibliographicEntity.getHoldingsEntities()) {
-                    for (ItemEntity itemEntity : holdingsEntity.getItemEntities()) {
-                        BibliographicEntity splitedBibliographicEntity = new BibliographicEntity();
-                        splitedBibliographicEntity.setOwningInstitutionBibId(bibliographicEntity.getOwningInstitutionBibId());
-                        splitedBibliographicEntity.setCatalogingStatus(bibliographicEntity.getCatalogingStatus());
-                        splitedBibliographicEntity.setContent(bibliographicEntity.getContent());
-                        splitedBibliographicEntity.setOwningInstitutionId(bibliographicEntity.getOwningInstitutionId());
-                        splitedBibliographicEntity.setCreatedBy(bibliographicEntity.getCreatedBy());
-                        splitedBibliographicEntity.setCreatedDate(bibliographicEntity.getCreatedDate());
-                        splitedBibliographicEntity.setLastUpdatedBy(bibliographicEntity.getLastUpdatedBy());
-                        splitedBibliographicEntity.setLastUpdatedDate(bibliographicEntity.getLastUpdatedDate());
-                        HoldingsEntity splitedHoldingsEntity = new HoldingsEntity();
-                        splitedHoldingsEntity.setOwningInstitutionId(holdingsEntity.getOwningInstitutionId());
-                        splitedHoldingsEntity.setContent(holdingsEntity.getContent());
-                        splitedHoldingsEntity.setOwningInstitutionHoldingsId(holdingsEntity.getOwningInstitutionHoldingsId());
-                        splitedHoldingsEntity.setCreatedBy(holdingsEntity.getCreatedBy());
-                        splitedHoldingsEntity.setCreatedDate(holdingsEntity.getCreatedDate());
-                        splitedHoldingsEntity.setLastUpdatedBy(holdingsEntity.getLastUpdatedBy());
-                        splitedHoldingsEntity.setLastUpdatedDate(holdingsEntity.getLastUpdatedDate());
-                        splitedHoldingsEntity.setItemEntities(Collections.singletonList(itemEntity));
-                        splitedBibliographicEntity.setHoldingsEntities(Collections.singletonList(splitedHoldingsEntity));
-                        splitedBibliographicEntity.setItemEntities(Collections.singletonList(itemEntity));
-                        splitedBibliographicEntityList.add(splitedBibliographicEntity);
+                    if (null != holdingsEntity.getItemEntities()) {
+                        for (ItemEntity itemEntity : holdingsEntity.getItemEntities()) {
+                            BibliographicEntity splitedBibliographicEntity = new BibliographicEntity();
+                            splitedBibliographicEntity.setOwningInstitutionBibId(bibliographicEntity.getOwningInstitutionBibId());
+                            splitedBibliographicEntity.setCatalogingStatus(bibliographicEntity.getCatalogingStatus());
+                            splitedBibliographicEntity.setContent(bibliographicEntity.getContent());
+                            splitedBibliographicEntity.setOwningInstitutionId(bibliographicEntity.getOwningInstitutionId());
+                            splitedBibliographicEntity.setCreatedBy(bibliographicEntity.getCreatedBy());
+                            splitedBibliographicEntity.setCreatedDate(bibliographicEntity.getCreatedDate());
+                            splitedBibliographicEntity.setLastUpdatedBy(bibliographicEntity.getLastUpdatedBy());
+                            splitedBibliographicEntity.setLastUpdatedDate(bibliographicEntity.getLastUpdatedDate());
+                            HoldingsEntity splitedHoldingsEntity = new HoldingsEntity();
+                            splitedHoldingsEntity.setOwningInstitutionId(holdingsEntity.getOwningInstitutionId());
+                            splitedHoldingsEntity.setContent(holdingsEntity.getContent());
+                            splitedHoldingsEntity.setOwningInstitutionHoldingsId(holdingsEntity.getOwningInstitutionHoldingsId());
+                            splitedHoldingsEntity.setCreatedBy(holdingsEntity.getCreatedBy());
+                            splitedHoldingsEntity.setCreatedDate(holdingsEntity.getCreatedDate());
+                            splitedHoldingsEntity.setLastUpdatedBy(holdingsEntity.getLastUpdatedBy());
+                            splitedHoldingsEntity.setLastUpdatedDate(holdingsEntity.getLastUpdatedDate());
+                            splitedHoldingsEntity.setItemEntities(Collections.singletonList(itemEntity));
+                            splitedBibliographicEntity.setHoldingsEntities(Collections.singletonList(splitedHoldingsEntity));
+                            splitedBibliographicEntity.setItemEntities(Collections.singletonList(itemEntity));
+                            splitedBibliographicEntityList.add(splitedBibliographicEntity);
+                        }
                     }
                 }
             } else {
