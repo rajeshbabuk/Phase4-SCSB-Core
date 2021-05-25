@@ -165,7 +165,7 @@ public class SCSBToBibEntityConverter implements XmlToBibEntityConverterInterfac
         bibliographicEntity.setLastUpdatedDate(currentDate);
         bibliographicEntity.setLastUpdatedBy(ScsbConstants.SUBMIT_COLLECTION);
         bibliographicEntity.setCatalogingStatus(ScsbCommonConstants.COMPLETE_STATUS);
-        return marcUtil.extractXmlAndSetEntityToMap(bibRecord, errorMessage, map, bibliographicEntity);
+        return marcUtil.extractXmlAndSetEntityToMap(bibRecord, errorMessage, map, bibliographicEntity, getDbReportUtil());
     }
 
     /**

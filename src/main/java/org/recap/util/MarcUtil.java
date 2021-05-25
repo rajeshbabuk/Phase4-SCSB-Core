@@ -16,6 +16,8 @@ import org.recap.model.jaxb.Holding;
 import org.recap.model.jaxb.Items;
 import org.recap.model.jaxb.marc.*;
 import org.recap.model.jpa.BibliographicEntity;
+import org.recap.model.jpa.ReportDataEntity;
+import org.recap.model.jpa.ReportEntity;
 import org.recap.model.marc.BibMarcRecord;
 import org.recap.model.marc.HoldingsMarcRecord;
 import org.recap.model.marc.ItemMarcRecord;
@@ -29,10 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by pvsubrah on 6/15/16.
@@ -518,7 +517,7 @@ public class MarcUtil {
         return record;
     }
 
-    public Map<String, Object> extractXmlAndSetEntityToMap(Record bibRecord, StringBuilder errorMessage, Map<String, Object> map, BibliographicEntity bibliographicEntity) {
+    public Map<String, Object> extractXmlAndSetEntityToMap(Record bibRecord, StringBuilder errorMessage, Map<String, Object> map, BibliographicEntity bibliographicEntity, DBReportUtil dbReportUtil) {
         String bibContent = writeMarcXml(bibRecord);
         if (StringUtils.isNotBlank(bibContent)) {
             bibliographicEntity.setContent(bibContent.getBytes());
@@ -536,6 +535,20 @@ public class MarcUtil {
             if (!(StringUtils.isNotBlank(leaderValue) && leaderValue.length() == 24)) {
                 errorMessage.append(" Leader Field value should be 24 characters");
             }
+        }
+        if (errorMessage.toString().length() > 1) {
+            ReportEntity reportEntity = new ReportEntity();
+            reportEntity.setFileName(ScsbCommonConstants.SUBMIT_COLLECTION_REPORT);
+            reportEntity.setCreatedDate(new Date());
+            reportEntity.setInstitutionName(bibliographicEntity.getInstitutionEntity().getInstitutionCode());
+            reportEntity.setType(ScsbCommonConstants.SUBMIT_COLLECTION_FAILURE_REPORT);
+            List<ReportDataEntity> reportDataEntities = dbReportUtil.generateBibFailureReportEntity(bibliographicEntity, bibRecord);
+            ReportDataEntity errorReportDataEntity = new ReportDataEntity();
+            errorReportDataEntity.setHeaderName(ScsbCommonConstants.ERROR_DESCRIPTION);
+            errorReportDataEntity.setHeaderValue(errorMessage.toString());
+            reportDataEntities.add(errorReportDataEntity);
+            reportEntity.addAll(reportDataEntities);
+            map.put("bibReportEntity", reportEntity);
         }
         map.put(ScsbConstants.BIBLIOGRAPHIC_ENTITY, bibliographicEntity);
         return map;

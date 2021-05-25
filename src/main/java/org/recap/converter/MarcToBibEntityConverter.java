@@ -6,13 +6,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.marc4j.marc.Record;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
-import org.recap.model.jpa.BibliographicEntity;
-import org.recap.model.jpa.HoldingsEntity;
-import org.recap.model.jpa.ImsLocationEntity;
-import org.recap.model.jpa.InstitutionEntity;
-import org.recap.model.jpa.ItemEntity;
-import org.recap.model.jpa.OwnerCodeEntity;
-import org.recap.model.jpa.ReportEntity;
+import org.recap.model.jpa.*;
 import org.recap.model.marc.BibMarcRecord;
 import org.recap.model.marc.HoldingsMarcRecord;
 import org.recap.model.marc.ItemMarcRecord;
@@ -120,14 +114,18 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
                     if (CollectionUtils.isNotEmpty(itemMarcRecordList)) {
                         for (ItemMarcRecord itemMarcRecord : itemMarcRecordList) {
                             Record itemRecord = itemMarcRecord.getItemRecord();
-                            Map<String, Object> itemMap = processAndValidateItemEntity(institutionEntity, holdingsCallNumber, holdingsCallNumberType, itemRecord,currentDate,errorMessage);
+                            Map<String, Object> itemMap = processAndValidateItemEntity(bibliographicEntity, holdingsEntity, institutionEntity, holdingsCallNumber, holdingsCallNumberType, itemRecord,currentDate,errorMessage);
                             commonUtil.addItemAndReportEntities(itemEntities, reportEntities, processHoldings, holdingsEntity, itemMap);
                         }
+                    } else {
+                        errorMessage.append(" No Items Found in Incoming Marc Record for Owning Institution Holdings Id - " + holdingsEntity.getOwningInstitutionHoldingsId() + ", Owning Institution Bib Id - " + bibliographicEntity.getOwningInstitutionBibId());
                     }
 
                 }
                 bibliographicEntity.setHoldingsEntities(holdingsEntities);
                 bibliographicEntity.setItemEntities(itemEntities);
+            } else {
+                errorMessage.append(" No Holdings Found in Incoming Marc Record for Owning Institution Bib Id - " + bibliographicEntity.getOwningInstitutionBibId());
             }
 
             if (processBib) {
@@ -153,6 +151,7 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
         }
         if (institutionEntity != null) {
             bibliographicEntity.setOwningInstitutionId(institutionEntity.getId());
+            bibliographicEntity.setInstitutionEntity(institutionEntity);
         } else {
             errorMessage.append(" Owning Institution Id cannot be null");
         }
@@ -160,7 +159,7 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
         bibliographicEntity.setCreatedBy(ScsbConstants.SUBMIT_COLLECTION);
         bibliographicEntity.setLastUpdatedDate(currentDate);
         bibliographicEntity.setLastUpdatedBy(ScsbConstants.SUBMIT_COLLECTION);
-        return marcUtil.extractXmlAndSetEntityToMap(bibRecord, errorMessage, map, bibliographicEntity);
+        return marcUtil.extractXmlAndSetEntityToMap(bibRecord, errorMessage, map, bibliographicEntity, getDbReportUtil());
     }
 
     private Map<String, Object> processAndValidateHoldingsEntity(BibliographicEntity bibliographicEntity, Record holdingsRecord, Date currentDate
@@ -169,10 +168,24 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
         String holdingsContent = new MarcUtil().writeMarcXml(holdingsRecord);
         HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent, ScsbConstants.SUBMIT_COLLECTION);
         String owningInstitutionHoldingsId = marcUtil.getDataFieldValue(holdingsRecord, "852", '0');
+        if (errorMessage.toString().length() > 1) {
+            ReportEntity reportEntity = new ReportEntity();
+            reportEntity.setFileName(ScsbCommonConstants.SUBMIT_COLLECTION_REPORT);
+            reportEntity.setCreatedDate(new Date());
+            reportEntity.setInstitutionName(bibliographicEntity.getInstitutionEntity().getInstitutionCode());
+            reportEntity.setType(ScsbCommonConstants.SUBMIT_COLLECTION_FAILURE_REPORT);
+            List<ReportDataEntity> reportDataEntities = dbReportUtil.generateBibHoldingsFailureReportEntity(bibliographicEntity, holdingsEntity, reportEntity.getInstitutionName(), holdingsRecord);
+            ReportDataEntity errorReportDataEntity = new ReportDataEntity();
+            errorReportDataEntity.setHeaderName(ScsbCommonConstants.ERROR_DESCRIPTION);
+            errorReportDataEntity.setHeaderValue(errorMessage.toString());
+            reportDataEntities.add(errorReportDataEntity);
+            reportEntity.addAll(reportDataEntities);
+            map.put("holdingsReportEntity", reportEntity);
+        }
         return commonUtil.addHoldingsEntityToMap(map, holdingsEntity, owningInstitutionHoldingsId);
     }
 
-    private Map<String, Object> processAndValidateItemEntity(InstitutionEntity institutionEntity, String holdingsCallNumber, Character holdingsCallNumberType, Record itemRecord, Date currentDate,
+    private Map<String, Object> processAndValidateItemEntity(BibliographicEntity bibliographicEntity, HoldingsEntity holdingsEntity, InstitutionEntity institutionEntity, String holdingsCallNumber, Character holdingsCallNumberType, Record itemRecord, Date currentDate,
                                                              StringBuilder errorMessage) {
         Map<String, Object> map = new HashMap<>();
         ItemEntity itemEntity = new ItemEntity();
@@ -200,6 +213,7 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
         }
         if (institutionEntity != null) {
             itemEntity.setOwningInstitutionId(institutionEntity.getId());
+            itemEntity.setInstitutionEntity(institutionEntity);
         } else {
             errorMessage.append(" Owning Institution Id cannot be null");
         }
@@ -226,6 +240,20 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
         itemEntity.setLastUpdatedDate(currentDate);
         itemEntity.setLastUpdatedBy(ScsbConstants.SUBMIT_COLLECTION);
 
+        if (errorMessage.toString().length() > 1) {
+            ReportEntity reportEntity = new ReportEntity();
+            reportEntity.setFileName(ScsbCommonConstants.SUBMIT_COLLECTION_REPORT);
+            reportEntity.setCreatedDate(new Date());
+            reportEntity.setInstitutionName(itemEntity.getInstitutionEntity().getInstitutionCode());
+            reportEntity.setType(ScsbCommonConstants.SUBMIT_COLLECTION_FAILURE_REPORT);
+            List<ReportDataEntity> reportDataEntities = dbReportUtil.generateBibHoldingsAndItemsFailureReportEntities(bibliographicEntity, holdingsEntity, itemEntity, reportEntity.getInstitutionName(), itemRecord);
+            ReportDataEntity errorReportDataEntity = new ReportDataEntity();
+            errorReportDataEntity.setHeaderName(ScsbCommonConstants.ERROR_DESCRIPTION);
+            errorReportDataEntity.setHeaderValue(errorMessage.toString());
+            reportDataEntities.add(errorReportDataEntity);
+            reportEntity.addAll(reportDataEntities);
+            map.put("itemReportEntity", reportEntity);
+        }
         map.put("itemEntity", itemEntity);
         return map;
     }

@@ -77,6 +77,9 @@ public class MarcUtilUT extends BaseTestCaseUT {
     @Mock
     Subfield subfield;
 
+    @Mock
+    DBReportUtil dbReportUtil;
+
     private String marcXML = "<collection xmlns=\"http://www.loc.gov/MARC21/slim\">\n" +
             "          <record>\n" +
             "            <controlfield tag=\"001\">NYPG001000011-B</controlfield>\n" +
@@ -354,7 +357,7 @@ public class MarcUtilUT extends BaseTestCaseUT {
         StringBuilder errorMessage=new StringBuilder();
         Map<String, Object> map=new HashMap<>();
         BibliographicEntity bibliographicEntity=new BibliographicEntity();
-        Map<String, Object> extractXmlAndSetEntityToMap= marcUtil.extractXmlAndSetEntityToMap(records.get(0),errorMessage,map,bibliographicEntity);
+        Map<String, Object> extractXmlAndSetEntityToMap= marcUtil.extractXmlAndSetEntityToMap(records.get(0),errorMessage,map,bibliographicEntity,dbReportUtil);
         assertNotNull(extractXmlAndSetEntityToMap);
     }
 
@@ -364,7 +367,7 @@ public class MarcUtilUT extends BaseTestCaseUT {
         Map<String, Object> map=new HashMap<>();
         BibliographicEntity bibliographicEntity=new BibliographicEntity();
         Mockito.when(record.getLeader()).thenReturn(leader);
-        Map<String, Object> extractXmlAndSetEntityToMap= marcUtil.extractXmlAndSetEntityToMap(record,errorMessage,map,bibliographicEntity);
+        Map<String, Object> extractXmlAndSetEntityToMap= marcUtil.extractXmlAndSetEntityToMap(record,errorMessage,map,bibliographicEntity,dbReportUtil);
         assertNotNull(extractXmlAndSetEntityToMap);
         assertEquals(" Atleast one subfield should be there for 245 tag Leader Field value should be 24 characters",errorMessage.toString());
     }

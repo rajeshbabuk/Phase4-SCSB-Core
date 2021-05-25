@@ -241,7 +241,7 @@ public class SCSBToBibEntityConverterUT extends BaseTestCaseUT {
         Map<String, Object> map = new HashMap<>();
         BibliographicEntity bibliographicEntity=saveBibSingleHoldingsSingleItem("33433002031718","NA","NYPL",".b100000186");
         map.put(ScsbConstants.BIBLIOGRAPHIC_ENTITY,bibliographicEntity);
-        Mockito.when(marcUtil.extractXmlAndSetEntityToMap(Mockito.any(),Mockito.any(),Mockito.anyMap(),Mockito.any())).thenReturn(map);
+        Mockito.when(marcUtil.extractXmlAndSetEntityToMap(Mockito.any(),Mockito.any(),Mockito.anyMap(),Mockito.any(),Mockito.any())).thenReturn(map);
         Map result = scsbToBibEntityConverter.convert(getBibRecords().getBibRecordList().get(0),getInstitutionEntity());
         assertNotNull(result);
     }

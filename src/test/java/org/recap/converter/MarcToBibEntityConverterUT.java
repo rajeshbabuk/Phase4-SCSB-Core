@@ -115,7 +115,7 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
         Map<String, Object> map = new HashMap<>();
         BibliographicEntity bibliographicEntity1=saveBibSingleHoldingsSingleItem("32101095533293","PA","1","115115");
         map.put(ScsbConstants.BIBLIOGRAPHIC_ENTITY,bibliographicEntity1);
-        Mockito.when(marcUtil.extractXmlAndSetEntityToMap(Mockito.any(),Mockito.any(),Mockito.anyMap(),Mockito.any())).thenReturn(map);
+        Mockito.when(marcUtil.extractXmlAndSetEntityToMap(Mockito.any(),Mockito.any(),Mockito.anyMap(),Mockito.any(),Mockito.any())).thenReturn(map);
         Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 'p')).thenReturn("32101095533293");
         Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 't')).thenReturn("0");
         Mockito.when(institutionDetailsRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(getInstitutionEntity()));
@@ -165,7 +165,7 @@ public class MarcToBibEntityConverterUT extends BaseTestCaseUT {
         Map<String, Object> map = new HashMap<>();
         BibliographicEntity bibliographicEntity1=saveBibSingleHoldingsSingleItem("32101095533293","PA","1","115115");
         map.put(ScsbConstants.BIBLIOGRAPHIC_ENTITY,bibliographicEntity1);
-        Mockito.when(marcUtil.extractXmlAndSetEntityToMap(Mockito.any(),Mockito.any(),Mockito.anyMap(),Mockito.any())).thenReturn(map);
+        Mockito.when(marcUtil.extractXmlAndSetEntityToMap(Mockito.any(),Mockito.any(),Mockito.anyMap(),Mockito.any(),Mockito.any())).thenReturn(map);
         Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 'p')).thenReturn("32101095533293").thenReturn("");
         Mockito.when(marcUtil.getDataFieldValue(itemRecord, "876", 't')).thenReturn("0");
         Mockito.when(institutionDetailsRepository.findById(Mockito.anyInt())).thenReturn(Optional.of(getInstitutionEntity()));
