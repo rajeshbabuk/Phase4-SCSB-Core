@@ -221,7 +221,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
                 }
             } else {//Invalid bibliographic entity is added to the failure report
                 if (errorMessage != null && errorMessage.length() > 0) {
-                    logger.error("Error while parsing xml for a barcode in submit collection - {}", errorMessage);
+                    logger.error("Error while parsing xml for a barcode in submit collection - {} for Owning Institution Bib Id - {}", errorMessage, incomingBibliographicEntity != null ? incomingBibliographicEntity.getOwningInstitutionBibId() : "");
                     submitCollectionReportHelperService.setSubmitCollectionFailureReportForUnexpectedException(incomingBibliographicEntity,
                             submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST), "Failed record - Item not updated - " + errorMessage.toString(), institutionEntity);
                 } else {
