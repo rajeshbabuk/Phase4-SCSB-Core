@@ -102,6 +102,34 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
     private List<BibliographicEntity> splitBibWithOneItem(List<BibliographicEntity> bibliographicEntityList) {
         List<BibliographicEntity> splitedBibliographicEntityList = new ArrayList<>();
         for (BibliographicEntity bibliographicEntity : bibliographicEntityList) {
+            if (null != bibliographicEntity) {
+                logger.info("Bib Id: {}", bibliographicEntity.getOwningInstitutionBibId());
+                if (null != bibliographicEntity.getHoldingsEntities()) {
+                    for (HoldingsEntity holdingsEntity : bibliographicEntity.getHoldingsEntities()) {
+                        if (null != holdingsEntity) {
+                            logger.info("Holdings Id: {}", holdingsEntity.getOwningInstitutionHoldingsId());
+                            if (null != holdingsEntity.getItemEntities()) {
+                                for (ItemEntity itemEntity : holdingsEntity.getItemEntities()) {
+                                    if (null != itemEntity) {
+                                        logger.info("Item Id: {}", itemEntity.getOwningInstitutionItemId());
+                                        logger.info("Item Barcode: {}", itemEntity.getBarcode());
+                                    } else {
+                                        logger.info("ItemEntity is NULL");
+                                    }
+                                }
+                            } else {
+                                logger.info("No Items for Holdings Id: {}", holdingsEntity.getOwningInstitutionHoldingsId());
+                            }
+                        } else {
+                            logger.info("HoldingsEntity is NULL");
+                        }
+                    }
+                } else {
+                    logger.info("No Holdings for Bib Id: {}", bibliographicEntity.getOwningInstitutionBibId());
+                }
+            } else {
+                logger.info("BibliographicEntity is NULL");
+            }
             if (bibliographicEntity.getItemEntities().size() > 1) {
                 for (HoldingsEntity holdingsEntity : bibliographicEntity.getHoldingsEntities()) {
                     for (ItemEntity itemEntity : holdingsEntity.getItemEntities()) {
@@ -222,10 +250,12 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
             } else {//Invalid bibliographic entity is added to the failure report
                 if (errorMessage != null && errorMessage.length() > 0) {
                     logger.error("Error while parsing xml for a barcode in submit collection");
+                    logger.error("Error Message : {}", errorMessage);
                     submitCollectionReportHelperService.setSubmitCollectionFailureReportForUnexpectedException(incomingBibliographicEntity,
                             submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST), "Failed record - Item not updated - " + errorMessage.toString(), institutionEntity);
                 } else {
                     logger.error("Error while parsing xml for a barcode in submit collection");
+                    logger.error("Error Message is null");
                     submitCollectionReportHelperService.setSubmitCollectionFailureReportForUnexpectedException(incomingBibliographicEntity,
                             submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST), "Failed record - Item not updated - ", institutionEntity);
 
