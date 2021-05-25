@@ -849,8 +849,10 @@ public class SubmitCollectionDAOService {
                     copyHoldingsEntity(fetchedHoldingsEntity, incomingHoldingsEntity,false);
                     isAnyValidHoldingToUpdate = true;
                 } else {
-                    for(ItemEntity itemEntity:incomingHoldingsEntity.getItemEntities()){
-                        barcodeHavingMismatchHoldingsId.add(itemEntity.getBarcode());
+                    if (null != incomingHoldingsEntity.getItemEntities()) {
+                        for (ItemEntity itemEntity : incomingHoldingsEntity.getItemEntities()) {
+                            barcodeHavingMismatchHoldingsId.add(itemEntity.getBarcode());
+                        }
                     }
                 }
             }
