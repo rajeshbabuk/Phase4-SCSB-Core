@@ -119,6 +119,7 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
                         }
                     } else {
                         errorMessage.append(" No Items Found in Incoming Marc Record for Owning Institution Holdings Id - ").append(holdingsEntity.getOwningInstitutionHoldingsId()).append(", Owning Institution Bib Id - ").append(bibliographicEntity.getOwningInstitutionBibId());
+                        holdingsEntities.remove(holdingsEntity);
                     }
 
                 }
@@ -126,6 +127,7 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
                 bibliographicEntity.setItemEntities(itemEntities);
             } else {
                 errorMessage.append(" No Holdings Found in Incoming Marc Record for Owning Institution Bib Id - ").append(bibliographicEntity.getOwningInstitutionBibId());
+                bibliographicEntity = null;
             }
 
             if (processBib) {
