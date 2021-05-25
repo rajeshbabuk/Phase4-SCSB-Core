@@ -102,34 +102,6 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
     private List<BibliographicEntity> splitBibWithOneItem(List<BibliographicEntity> bibliographicEntityList) {
         List<BibliographicEntity> splitedBibliographicEntityList = new ArrayList<>();
         for (BibliographicEntity bibliographicEntity : bibliographicEntityList) {
-            if (null != bibliographicEntity) {
-                logger.info("Bib Id: {}", bibliographicEntity.getOwningInstitutionBibId());
-                if (null != bibliographicEntity.getHoldingsEntities()) {
-                    for (HoldingsEntity holdingsEntity : bibliographicEntity.getHoldingsEntities()) {
-                        if (null != holdingsEntity) {
-                            logger.info("Holdings Id: {}", holdingsEntity.getOwningInstitutionHoldingsId());
-                            if (null != holdingsEntity.getItemEntities()) {
-                                for (ItemEntity itemEntity : holdingsEntity.getItemEntities()) {
-                                    if (null != itemEntity) {
-                                        logger.info("Item Id: {}", itemEntity.getOwningInstitutionItemId());
-                                        logger.info("Item Barcode: {}", itemEntity.getBarcode());
-                                    } else {
-                                        logger.info("ItemEntity is NULL");
-                                    }
-                                }
-                            } else {
-                                logger.info("No Items for Holdings Id: {}", holdingsEntity.getOwningInstitutionHoldingsId());
-                            }
-                        } else {
-                            logger.info("HoldingsEntity is NULL");
-                        }
-                    }
-                } else {
-                    logger.info("No Holdings for Bib Id: {}", bibliographicEntity.getOwningInstitutionBibId());
-                }
-            } else {
-                logger.info("BibliographicEntity is NULL");
-            }
             if (bibliographicEntity.getItemEntities().size() > 1) {
                 for (HoldingsEntity holdingsEntity : bibliographicEntity.getHoldingsEntities()) {
                     for (ItemEntity itemEntity : holdingsEntity.getItemEntities()) {

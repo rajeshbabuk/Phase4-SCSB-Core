@@ -118,14 +118,14 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
                             commonUtil.addItemAndReportEntities(itemEntities, reportEntities, processHoldings, holdingsEntity, itemMap);
                         }
                     } else {
-                        errorMessage.append(" No Items Found in Incoming Marc Record for Owning Institution Holdings Id - " + holdingsEntity.getOwningInstitutionHoldingsId() + ", Owning Institution Bib Id - " + bibliographicEntity.getOwningInstitutionBibId());
+                        errorMessage.append(" No Items Found in Incoming Marc Record for Owning Institution Holdings Id - ").append(holdingsEntity.getOwningInstitutionHoldingsId()).append(", Owning Institution Bib Id - ").append(bibliographicEntity.getOwningInstitutionBibId());
                     }
 
                 }
                 bibliographicEntity.setHoldingsEntities(holdingsEntities);
                 bibliographicEntity.setItemEntities(itemEntities);
             } else {
-                errorMessage.append(" No Holdings Found in Incoming Marc Record for Owning Institution Bib Id - " + bibliographicEntity.getOwningInstitutionBibId());
+                errorMessage.append(" No Holdings Found in Incoming Marc Record for Owning Institution Bib Id - ").append(bibliographicEntity.getOwningInstitutionBibId());
             }
 
             if (processBib) {
