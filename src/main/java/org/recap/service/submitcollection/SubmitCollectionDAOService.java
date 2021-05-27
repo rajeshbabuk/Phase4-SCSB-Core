@@ -761,8 +761,10 @@ public class SubmitCollectionDAOService {
                     copyHoldingsEntity(fetchedHoldingsEntity, incomingHoldingsEntity,false);
                     isAnyValidHoldingToUpdate = true;
                 } else {
-                    for(ItemEntity itemEntity:incomingHoldingsEntity.getItemEntities()){
-                        barcodeHavingMismatchHoldingsId.add(itemEntity.getBarcode());
+                    if (null != incomingHoldingsEntity.getItemEntities()) {
+                        for (ItemEntity itemEntity : incomingHoldingsEntity.getItemEntities()) {
+                            barcodeHavingMismatchHoldingsId.add(itemEntity.getBarcode());
+                        }
                     }
                 }
             }
@@ -1016,10 +1018,12 @@ public class SubmitCollectionDAOService {
     private void manageHoldingWithItem(HoldingsEntity incomingHoldingsEntity, HoldingsEntity fetchedHoldingsEntity) {
         List<ItemEntity> fetchedItemEntityList = fetchedHoldingsEntity.getItemEntities();
         List<ItemEntity> itemEntityList = incomingHoldingsEntity.getItemEntities();
-        for (ItemEntity itemEntity : itemEntityList) {
-            for (ItemEntity fetchedItemEntity : fetchedItemEntityList) {
-                if (fetchedItemEntity.getOwningInstitutionItemId().equals(itemEntity.getOwningInstitutionItemId())) {
-                    copyHoldingsEntity(fetchedHoldingsEntity, incomingHoldingsEntity,false);
+        if (null != itemEntityList && null != fetchedItemEntityList) {
+            for (ItemEntity itemEntity : itemEntityList) {
+                for (ItemEntity fetchedItemEntity : fetchedItemEntityList) {
+                    if (fetchedItemEntity.getOwningInstitutionItemId().equals(itemEntity.getOwningInstitutionItemId())) {
+                        copyHoldingsEntity(fetchedHoldingsEntity, incomingHoldingsEntity, false);
+                    }
                 }
             }
         }
@@ -1030,7 +1034,9 @@ public class SubmitCollectionDAOService {
         fetchHoldingsEntity.setLastUpdatedBy(holdingsEntity.getLastUpdatedBy());
         fetchHoldingsEntity.setLastUpdatedDate(holdingsEntity.getLastUpdatedDate());
         if(isForDummyRecord){
-            fetchHoldingsEntity.getItemEntities().addAll(holdingsEntity.getItemEntities());
+            if (null != fetchHoldingsEntity.getItemEntities()) {
+                fetchHoldingsEntity.getItemEntities().addAll(holdingsEntity.getItemEntities());
+            }
         }
         return fetchHoldingsEntity;
     }

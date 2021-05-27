@@ -52,8 +52,10 @@ public class SubmitCollectionHelperService {
         Map<String,Map<String,ItemEntity>> holdingItemMap = new HashMap<>();
         for(HoldingsEntity holdingsEntity:bibliographicEntity.getHoldingsEntities()){
             Map<String,ItemEntity> itemEntityMap = new HashMap<>();
-            for(ItemEntity itemEntity:holdingsEntity.getItemEntities()){
-                itemEntityMap.put(itemEntity.getOwningInstitutionItemId(),itemEntity);
+            if (null != holdingsEntity.getItemEntities()) {
+                for (ItemEntity itemEntity : holdingsEntity.getItemEntities()) {
+                    itemEntityMap.put(itemEntity.getOwningInstitutionItemId(), itemEntity);
+                }
             }
             holdingItemMap.put(holdingsEntity.getOwningInstitutionHoldingsId(),itemEntityMap);
         }
