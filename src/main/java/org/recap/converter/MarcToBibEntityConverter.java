@@ -120,7 +120,7 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
                             commonUtil.addItemAndReportEntities(itemEntities, reportEntities, processHoldings, holdingsEntity, itemMap);
                         }
                     } else {
-                        errorMessage.append(" No Items Found in Incoming Marc Record for Owning Institution Holdings Id - ").append(holdingsEntity.getOwningInstitutionHoldingsId()).append(", Owning Institution Bib Id - ").append(bibliographicEntity.getOwningInstitutionBibId());
+                        errorMessage.append(" No Items Found in Incoming Marc Record for Owning Institution Holdings Id - ").append(holdingsEntity.getOwningInstitutionHoldingsId());
                     }
 
                 }
@@ -172,7 +172,6 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
         HoldingsEntity holdingsEntity = commonUtil.buildHoldingsEntity(bibliographicEntity, currentDate, errorMessage, holdingsContent, ScsbConstants.SUBMIT_COLLECTION);
         String owningInstitutionHoldingsId = marcUtil.getDataFieldValue(holdingsRecord, "852", '0');
         if (errorMessage.toString().length() > 1) {
-            //errorMessage.append(", Owning Institution Holdings Id - ").append(holdingsEntity.getOwningInstitutionHoldingsId()).append(", Owning Institution Bib Id - ").append(bibliographicEntity.getOwningInstitutionBibId());
             ReportEntity reportEntity = new ReportEntity();
             reportEntity.setFileName(ScsbCommonConstants.SUBMIT_COLLECTION_REPORT);
             reportEntity.setCreatedDate(new Date());
@@ -245,7 +244,6 @@ public class MarcToBibEntityConverter implements XmlToBibEntityConverterInterfac
         itemEntity.setLastUpdatedBy(ScsbConstants.SUBMIT_COLLECTION);
 
         if (errorMessage.toString().length() > 1) {
-            //errorMessage.append(" for Owning Institution Item Id - ").append(itemEntity.getOwningInstitutionItemId()).append(", Owning Institution Holdings Id - ").append(holdingsEntity.getOwningInstitutionHoldingsId()).append(", Owning Institution Bib Id - ").append(bibliographicEntity.getOwningInstitutionBibId());
             ReportEntity reportEntity = new ReportEntity();
             reportEntity.setFileName(ScsbCommonConstants.SUBMIT_COLLECTION_REPORT);
             reportEntity.setCreatedDate(new Date());
