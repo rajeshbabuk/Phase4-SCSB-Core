@@ -295,7 +295,7 @@ public class SubmitCollectionService {
         solrIndexRequest.setNumberOfDocs(10000);
         solrIndexRequest.setPartialIndexType(ScsbConstants.BIB_ID_LIST);
         solrIndexRequest.setBibIds(StringUtils.join(bibliographicIdList, ","));
-        return getRestTemplate().postForObject(scsbSolrClientUrl + "solrIndexer/partialIndex", solrIndexRequest, String.class);
+        return getRestTemplate().postForObject(scsbSolrClientUrl + "solrIndexer/partialIndexing", solrIndexRequest, String.class);
     }
 
     public String indexDataUsingOwningInstBibId(List<String> owningInstBibliographicIdList,Integer owningInstId){
