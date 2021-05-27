@@ -20,6 +20,7 @@ import org.recap.model.jpa.ItemEntity;
 import org.recap.model.jpa.ReportDataEntity;
 import org.recap.model.jpa.ReportEntity;
 import org.recap.model.report.SubmitCollectionReportInfo;
+import org.recap.model.submitcollection.SolrIndexRequest;
 import org.recap.model.submitcollection.SubmitCollectionResponse;
 import org.recap.service.common.RepositoryService;
 import org.recap.util.CommonUtil;
@@ -286,6 +287,15 @@ public class SubmitCollectionService {
      */
     public String indexData(Set<Integer> bibliographicIdList){
         return getRestTemplate().postForObject(scsbSolrClientUrl + "solrIndexer/indexByBibliographicId", bibliographicIdList, String.class);
+    }
+
+    public String indexDataUsingPartialIndex(Set<Integer> bibliographicIdList) {
+        SolrIndexRequest solrIndexRequest = new SolrIndexRequest();
+        solrIndexRequest.setNumberOfThreads(1);
+        solrIndexRequest.setNumberOfDocs(10000);
+        solrIndexRequest.setPartialIndexType(ScsbConstants.BIB_ID_LIST);
+        solrIndexRequest.setBibIds(StringUtils.join(bibliographicIdList, ","));
+        return getRestTemplate().postForObject(scsbSolrClientUrl + "solrIndexer/partialIndex", solrIndexRequest, String.class);
     }
 
     public String indexDataUsingOwningInstBibId(List<String> owningInstBibliographicIdList,Integer owningInstId){

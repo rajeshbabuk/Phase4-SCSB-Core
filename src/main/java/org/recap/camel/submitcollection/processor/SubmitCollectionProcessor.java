@@ -110,7 +110,7 @@ public class SubmitCollectionProcessor {
             logger.info("Submit Collection : Solr indexing started for {} records", processedBibIds.size());
             logger.info("idMapToRemoveIndex---> {}", idMapToRemoveIndexList.size());
             if (!processedBibIds.isEmpty()) {
-                submitCollectionBatchService.indexData(processedBibIds);
+                submitCollectionBatchService.indexDataUsingPartialIndex(processedBibIds);
                 logger.info("Submit Collection : Solr indexing completed and remove the incomplete record from solr index for {} records", idMapToRemoveIndexList.size());
             }
             if (!updatedBoundWithDummyRecordOwnInstBibIdSet.isEmpty()) {
