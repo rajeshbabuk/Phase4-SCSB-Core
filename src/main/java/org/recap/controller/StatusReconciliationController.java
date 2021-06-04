@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
+
 /**
  * Created by hemalathas on 1/6/17.
  */
@@ -166,10 +168,33 @@ public class StatusReconciliationController {
                 statusReconciliationCSVRecordList.addAll(statusReconciliationService.itemStatusComparison(itemEntityChunkList, statusReconciliationErrorCSVRecords));
                 log.info("status reconciliation page num: {} and records {} processed", pageNum, from + getBatchSize());
             }
-            getProducer().sendBodyAndHeader(ScsbConstants.STATUS_RECONCILIATION_REPORT, statusReconciliationCSVRecordList, ScsbConstants.FOR, ScsbConstants.STATUS_RECONCILIATION);
-            getProducer().sendBodyAndHeader(ScsbConstants.STATUS_RECONCILIATION_REPORT, statusReconciliationErrorCSVRecords, ScsbConstants.FOR, ScsbConstants.STATUS_RECONCILIATION_FAILURE);
+            Map<String, List<StatusReconciliationCSVRecord>> imsLocationsStatusReconciliationList = statusReconciliationCSVRecordList.stream().collect(groupingBy(StatusReconciliationCSVRecord::getImsLocation));
+            Map<String, List<StatusReconciliationErrorCSVRecord>> imsLocationsStatusReconciliationErrorList = statusReconciliationErrorCSVRecords.stream().collect(groupingBy(StatusReconciliationErrorCSVRecord::getImsLocation));
+            sendStatusReconciliationRecordsToQueueAndEmail(imsLocationsStatusReconciliationList,ScsbConstants.STATUS_RECONCILIATION);
+            sendStatusReconciliationErrorRecordsToQueueAndEmail(imsLocationsStatusReconciliationErrorList,ScsbConstants.STATUS_RECONCILIATION_FAILURE);
         }
         return new ResponseEntity<>(ScsbCommonConstants.SUCCESS, HttpStatus.OK);
+    }
+
+    private void sendStatusReconciliationRecordsToQueueAndEmail(Map<String, List<StatusReconciliationCSVRecord>> imsLocationsStatusReconciliationList, String headerFor) {
+        if(!imsLocationsStatusReconciliationList.isEmpty()) {
+            imsLocationsStatusReconciliationList.forEach((key, value) -> {
+                Map<String, Object> headers = new HashMap<>();
+                headers.put(ScsbConstants.FOR, headerFor);
+                headers.put(ScsbConstants.IMS_LOCATION, key);
+                producer.sendBodyAndHeaders(ScsbConstants.STATUS_RECONCILIATION_REPORT, value, headers);
+            });
+        }
+    }
+    private void sendStatusReconciliationErrorRecordsToQueueAndEmail(Map<String, List<StatusReconciliationErrorCSVRecord>> imsLocationsStatusReconciliationErrorList, String headerFor) {
+        if(!imsLocationsStatusReconciliationErrorList.isEmpty()) {
+            imsLocationsStatusReconciliationErrorList.forEach((key, value) -> {
+                Map<String, Object> headers = new HashMap<>();
+                headers.put(ScsbConstants.FOR, headerFor);
+                headers.put(ScsbConstants.IMS_LOCATION, key);
+                producer.sendBodyAndHeaders(ScsbConstants.STATUS_RECONCILIATION_REPORT, value, headers);
+            });
+        }
     }
 
     /**
