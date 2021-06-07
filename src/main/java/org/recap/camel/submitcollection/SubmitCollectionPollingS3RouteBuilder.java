@@ -204,7 +204,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
                 IOUtils.copy(inputStream, new FileOutputStream(new File(submitCollectionLocalWorkingDir + currentInstitution + ScsbCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + ScsbCommonConstants.PATH_SEPARATOR + finalFileName)));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(ScsbCommonConstants.LOG_ERROR, e.getMessage());
         }
     }
 
@@ -248,7 +248,7 @@ public class SubmitCollectionPollingS3RouteBuilder {
         try {
             FileUtils.cleanDirectory(destDirFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(ScsbCommonConstants.LOG_ERROR, e.getMessage());
         }
     }
 }

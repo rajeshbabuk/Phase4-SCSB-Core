@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -282,6 +283,8 @@ public class CommonUtil {
         JAXBContext context = JAXBContext.newInstance(BibRecords.class);
         XMLInputFactory xif = XMLInputFactory.newFactory();
         xif.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);
+        xif.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, false); // Compliant
+        xif.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, false);
         InputStream stream = new ByteArrayInputStream(inputRecords.getBytes(StandardCharsets.UTF_8));
         XMLStreamReader xsr = null;
         try {
