@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.recap.BaseTestCaseUT;
+import org.recap.util.PropertyUtil;
 
 
 public class StatusReconciliationEmailServiceUT extends BaseTestCaseUT {
@@ -29,6 +30,9 @@ public class StatusReconciliationEmailServiceUT extends BaseTestCaseUT {
 
     @Mock
     Header dataheader;
+
+    @Mock
+    PropertyUtil propertyUtil;
 
     @Test
     public void processInput(){
