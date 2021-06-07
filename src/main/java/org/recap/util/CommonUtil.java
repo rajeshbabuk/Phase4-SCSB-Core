@@ -283,8 +283,8 @@ public class CommonUtil {
         JAXBContext context = JAXBContext.newInstance(BibRecords.class);
         XMLInputFactory xif = XMLInputFactory.newFactory();
         xif.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, false);
-        xif.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, false); // Compliant
-        xif.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, false);
+        xif.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        xif.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         InputStream stream = new ByteArrayInputStream(inputRecords.getBytes(StandardCharsets.UTF_8));
         XMLStreamReader xsr = null;
         try {
