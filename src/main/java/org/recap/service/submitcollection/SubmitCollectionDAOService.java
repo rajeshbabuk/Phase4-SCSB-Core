@@ -762,7 +762,9 @@ public class SubmitCollectionDAOService {
                     isAnyValidHoldingToUpdate = true;
                 } else {
                     for(ItemEntity itemEntity:incomingHoldingsEntity.getItemEntities()){
-                        barcodeHavingMismatchHoldingsId.add(itemEntity.getBarcode());
+                        if(!incomingHoldingsEntity.getItemEntities().isEmpty()) {
+                            barcodeHavingMismatchHoldingsId.add(itemEntity.getBarcode());
+                        }
                     }
                 }
             }
@@ -849,8 +851,10 @@ public class SubmitCollectionDAOService {
                     copyHoldingsEntity(fetchedHoldingsEntity, incomingHoldingsEntity,false);
                     isAnyValidHoldingToUpdate = true;
                 } else {
-                    for(ItemEntity itemEntity:incomingHoldingsEntity.getItemEntities()){
-                        barcodeHavingMismatchHoldingsId.add(itemEntity.getBarcode());
+                    if(!incomingHoldingsEntity.getItemEntities().isEmpty()) {
+                        for (ItemEntity itemEntity : incomingHoldingsEntity.getItemEntities()) {
+                            barcodeHavingMismatchHoldingsId.add(itemEntity.getBarcode());
+                        }
                     }
                 }
             }
