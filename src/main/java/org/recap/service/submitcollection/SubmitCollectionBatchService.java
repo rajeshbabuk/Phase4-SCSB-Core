@@ -102,38 +102,36 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
     private List<BibliographicEntity> splitBibWithOneItem(List<BibliographicEntity> bibliographicEntityList) {
         List<BibliographicEntity> splitedBibliographicEntityList = new ArrayList<>();
         for (BibliographicEntity bibliographicEntity : bibliographicEntityList) {
-            if (!bibliographicEntity.getItemEntities().isEmpty() && bibliographicEntity.getItemEntities().size() > 1) {
-                if (!bibliographicEntity.getHoldingsEntities().isEmpty()) {
+            if (null != bibliographicEntity.getItemEntities() && bibliographicEntity.getItemEntities().size() > 1) {
+                if (null != bibliographicEntity.getHoldingsEntities()) {
                     for (HoldingsEntity holdingsEntity : bibliographicEntity.getHoldingsEntities()) {
-                       if (holdingsEntity != null) {
-                           if (holdingsEntity.getItemEntities() != null) {
-                           for (ItemEntity itemEntity : holdingsEntity.getItemEntities()) {
-                               BibliographicEntity splitedBibliographicEntity = new BibliographicEntity();
-                               splitedBibliographicEntity.setOwningInstitutionBibId(bibliographicEntity.getOwningInstitutionBibId());
-                               splitedBibliographicEntity.setCatalogingStatus(bibliographicEntity.getCatalogingStatus());
-                               splitedBibliographicEntity.setContent(bibliographicEntity.getContent());
-                               splitedBibliographicEntity.setOwningInstitutionId(bibliographicEntity.getOwningInstitutionId());
-                               splitedBibliographicEntity.setCreatedBy(bibliographicEntity.getCreatedBy());
-                               splitedBibliographicEntity.setCreatedDate(bibliographicEntity.getCreatedDate());
-                               splitedBibliographicEntity.setLastUpdatedBy(bibliographicEntity.getLastUpdatedBy());
-                               splitedBibliographicEntity.setLastUpdatedDate(bibliographicEntity.getLastUpdatedDate());
-                               HoldingsEntity splitedHoldingsEntity = new HoldingsEntity();
-                               splitedHoldingsEntity.setOwningInstitutionId(holdingsEntity.getOwningInstitutionId());
-                               splitedHoldingsEntity.setContent(holdingsEntity.getContent());
-                               splitedHoldingsEntity.setOwningInstitutionHoldingsId(holdingsEntity.getOwningInstitutionHoldingsId());
-                               splitedHoldingsEntity.setCreatedBy(holdingsEntity.getCreatedBy());
-                               splitedHoldingsEntity.setCreatedDate(holdingsEntity.getCreatedDate());
-                               splitedHoldingsEntity.setLastUpdatedBy(holdingsEntity.getLastUpdatedBy());
-                               splitedHoldingsEntity.setLastUpdatedDate(holdingsEntity.getLastUpdatedDate());
-                               splitedHoldingsEntity.setItemEntities(Collections.singletonList(itemEntity));
-                               splitedBibliographicEntity.setHoldingsEntities(Collections.singletonList(splitedHoldingsEntity));
-                               splitedBibliographicEntity.setItemEntities(Collections.singletonList(itemEntity));
-                               splitedBibliographicEntityList.add(splitedBibliographicEntity);
-                           }
-                       }
-                   }
+                        if (null != holdingsEntity.getItemEntities()) {
+                            for (ItemEntity itemEntity : holdingsEntity.getItemEntities()) {
+                                BibliographicEntity splitedBibliographicEntity = new BibliographicEntity();
+                                splitedBibliographicEntity.setOwningInstitutionBibId(bibliographicEntity.getOwningInstitutionBibId());
+                                splitedBibliographicEntity.setCatalogingStatus(bibliographicEntity.getCatalogingStatus());
+                                splitedBibliographicEntity.setContent(bibliographicEntity.getContent());
+                                splitedBibliographicEntity.setOwningInstitutionId(bibliographicEntity.getOwningInstitutionId());
+                                splitedBibliographicEntity.setCreatedBy(bibliographicEntity.getCreatedBy());
+                                splitedBibliographicEntity.setCreatedDate(bibliographicEntity.getCreatedDate());
+                                splitedBibliographicEntity.setLastUpdatedBy(bibliographicEntity.getLastUpdatedBy());
+                                splitedBibliographicEntity.setLastUpdatedDate(bibliographicEntity.getLastUpdatedDate());
+                                HoldingsEntity splitedHoldingsEntity = new HoldingsEntity();
+                                splitedHoldingsEntity.setOwningInstitutionId(holdingsEntity.getOwningInstitutionId());
+                                splitedHoldingsEntity.setContent(holdingsEntity.getContent());
+                                splitedHoldingsEntity.setOwningInstitutionHoldingsId(holdingsEntity.getOwningInstitutionHoldingsId());
+                                splitedHoldingsEntity.setCreatedBy(holdingsEntity.getCreatedBy());
+                                splitedHoldingsEntity.setCreatedDate(holdingsEntity.getCreatedDate());
+                                splitedHoldingsEntity.setLastUpdatedBy(holdingsEntity.getLastUpdatedBy());
+                                splitedHoldingsEntity.setLastUpdatedDate(holdingsEntity.getLastUpdatedDate());
+                                splitedHoldingsEntity.setItemEntities(Collections.singletonList(itemEntity));
+                                splitedBibliographicEntity.setHoldingsEntities(Collections.singletonList(splitedHoldingsEntity));
+                                splitedBibliographicEntity.setItemEntities(Collections.singletonList(itemEntity));
+                                splitedBibliographicEntityList.add(splitedBibliographicEntity);
+                            }
+                        }
+                    }
                 }
-            }
             } else {
                 splitedBibliographicEntityList.add(bibliographicEntity);
             }
@@ -229,12 +227,11 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
                 }
             } else {//Invalid bibliographic entity is added to the failure report
                 if (errorMessage != null && errorMessage.length() > 0) {
-                    logger.error("Error while parsing xml for a barcode in submit collection");
+                    logger.error("Error while parsing xml for a barcode in submit collection - {} for Owning Institution Bib Id - {}", errorMessage, incomingBibliographicEntity != null ? incomingBibliographicEntity.getOwningInstitutionBibId() : "");
                     submitCollectionReportHelperService.setSubmitCollectionFailureReportForUnexpectedException(incomingBibliographicEntity,
                             submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST), "Failed record - Item not updated - " + errorMessage.toString(), institutionEntity);
                 } else {
-                    logger.error("Error while parsing xml for a barcode in submit collection");
-                    submitCollectionReportHelperService.setSubmitCollectionFailureReportForUnexpectedException(incomingBibliographicEntity,
+                    logger.error("Error while parsing xml for a barcode in submit collection - for Owning Institution Bib Id - {}", incomingBibliographicEntity != null ? incomingBibliographicEntity.getOwningInstitutionBibId() : "");                    submitCollectionReportHelperService.setSubmitCollectionFailureReportForUnexpectedException(incomingBibliographicEntity,
                             submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST), "Failed record - Item not updated - ", institutionEntity);
 
                 }
