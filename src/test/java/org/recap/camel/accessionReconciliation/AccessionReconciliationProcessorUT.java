@@ -32,10 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.apache.camel.builder.Builder.simple;
 
@@ -88,6 +85,78 @@ public class AccessionReconciliationProcessorUT extends BaseTestCaseUT {
     public void processInput() throws Exception {
         ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "solrSolrClientUrl", solrSolrClientUrl);
         ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "accessionFilePath", accessionFilePath);
+        BarcodeReconcilitaionReport barcodeReconcilitaionReport = getBarcodeReconcilitaionReport();
+        ArrayList<BarcodeReconcilitaionReport> barcodeReconcilitaionReports = new ArrayList<>();
+        barcodeReconcilitaionReports.add(0,barcodeReconcilitaionReport);
+        CamelContext ctx = new DefaultCamelContext();
+        Exchange ex = getExchange(barcodeReconcilitaionReports, ctx);
+        ex.setProperty(ScsbConstants.CAMEL_SPLIT_INDEX,1);
+        Map<String, Boolean> map = new HashMap<>();
+        map.put("accessionReconcilationService", true);
+        ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "institutionCode", "pul");
+        ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "camelContext", ctx);
+        ResponseEntity<Map> responseEntity = new ResponseEntity<Map>(map, HttpStatus.OK);
+        HashMap<String,String> barcodesAndOwnerCodes=new HashMap<>();
+        barcodesAndOwnerCodes.put(barcodeReconcilitaionReport.getBarcode(),barcodeReconcilitaionReport.getCustomerCode());
+        HttpEntity httpEntity = new HttpEntity(barcodesAndOwnerCodes);
+        Mockito.when(restTemplate.exchange(solrSolrClientUrl+ ScsbConstants.ACCESSION_RECONCILATION_SOLR_CLIENT_URL, HttpMethod.POST, httpEntity,Map.class)).thenReturn(responseEntity);
+        Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
+        mockedAccessionReconciliationProcessor.processInput(ex);
+    }
+
+    @Test
+    public void processInputCamelException() throws Exception {
+        ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "solrSolrClientUrl", solrSolrClientUrl);
+        ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "accessionFilePath", accessionFilePath);
+        BarcodeReconcilitaionReport barcodeReconcilitaionReport = getBarcodeReconcilitaionReport();
+        ArrayList<BarcodeReconcilitaionReport> barcodeReconcilitaionReports = new ArrayList<>();
+        barcodeReconcilitaionReports.add(0,barcodeReconcilitaionReport);
+        CamelContext ctx = new DefaultCamelContext();
+        Exchange ex = getExchange(barcodeReconcilitaionReports, ctx);
+        ex.setProperty(ScsbConstants.CAMEL_SPLIT_INDEX,1);
+        Map<String, Boolean> map = new HashMap<>();
+        map.put("accessionReconcilationService", true);
+        ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "institutionCode", "pul");
+        ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "camelContext", camelContext);
+        ResponseEntity<Map> responseEntity = new ResponseEntity<Map>(map, HttpStatus.OK);
+        HashMap<String,String> barcodesAndOwnerCodes=new HashMap<>();
+        barcodesAndOwnerCodes.put(barcodeReconcilitaionReport.getBarcode(),barcodeReconcilitaionReport.getCustomerCode());
+        HttpEntity httpEntity = new HttpEntity(barcodesAndOwnerCodes);
+        Mockito.when(restTemplate.exchange(solrSolrClientUrl+ ScsbConstants.ACCESSION_RECONCILATION_SOLR_CLIENT_URL, HttpMethod.POST, httpEntity,Map.class)).thenReturn(responseEntity);
+        Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
+        Mockito.doThrow(NullPointerException.class).when(routeController).startRoute(Mockito.anyString());
+        mockedAccessionReconciliationProcessor.processInput(ex);
+    }
+
+    @Test
+    public void processInputNoFilePath() throws Exception {
+        Random random=new Random();
+        String accessionFilePath=String.valueOf(random.nextInt());
+        ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "solrSolrClientUrl", solrSolrClientUrl);
+        ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "accessionFilePath", accessionFilePath);
+        BarcodeReconcilitaionReport barcodeReconcilitaionReport = getBarcodeReconcilitaionReport();
+        ArrayList<BarcodeReconcilitaionReport> barcodeReconcilitaionReports = new ArrayList<>();
+        barcodeReconcilitaionReports.add(0,barcodeReconcilitaionReport);
+        CamelContext ctx = new DefaultCamelContext();
+        Exchange ex = getExchange(barcodeReconcilitaionReports, ctx);
+        ex.setProperty(ScsbConstants.CAMEL_SPLIT_INDEX,1);
+        Map<String, Boolean> map = new HashMap<>();
+        map.put("accessionReconcilationService", true);
+        ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "institutionCode", "pul");
+        ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "camelContext", ctx);
+        ResponseEntity<Map> responseEntity = new ResponseEntity<Map>(map, HttpStatus.OK);
+        HashMap<String,String> barcodesAndOwnerCodes=new HashMap<>();
+        barcodesAndOwnerCodes.put(barcodeReconcilitaionReport.getBarcode(),barcodeReconcilitaionReport.getCustomerCode());
+        HttpEntity httpEntity = new HttpEntity(barcodesAndOwnerCodes);
+        Mockito.when(restTemplate.exchange(solrSolrClientUrl+ ScsbConstants.ACCESSION_RECONCILATION_SOLR_CLIENT_URL, HttpMethod.POST, httpEntity,Map.class)).thenReturn(responseEntity);
+        Mockito.when(camelContext.getRouteController()).thenReturn(routeController);
+        mockedAccessionReconciliationProcessor.processInput(ex);
+    }
+
+    @Test
+    public void processInputException() throws Exception {
+        ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "solrSolrClientUrl", solrSolrClientUrl);
+        ReflectionTestUtils.setField(mockedAccessionReconciliationProcessor, "accessionFilePath", new String());
         BarcodeReconcilitaionReport barcodeReconcilitaionReport = getBarcodeReconcilitaionReport();
         ArrayList<BarcodeReconcilitaionReport> barcodeReconcilitaionReports = new ArrayList<>();
         barcodeReconcilitaionReports.add(0,barcodeReconcilitaionReport);
