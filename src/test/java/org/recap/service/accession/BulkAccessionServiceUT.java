@@ -171,10 +171,15 @@ public class BulkAccessionServiceUT extends BaseTestCaseUT {
 
     private List<AccessionRequest> getAccessionRequests() {
         List<AccessionRequest> accessionRequestList = new ArrayList<>();
-        AccessionRequest accessionRequest = new AccessionRequest();
-        accessionRequest.setCustomerCode("PA");
-        accessionRequest.setItemBarcode("32101095533293");
-        accessionRequestList.add(accessionRequest);
+        accessionRequestList.add(getAccessionRequest1("PA","32101095533293"));
+        accessionRequestList.add(getAccessionRequest1("PA","32101095533293"));
         return accessionRequestList;
+    }
+
+    private AccessionRequest getAccessionRequest1(String customerCode,String barcode) {
+        AccessionRequest accessionRequest = new AccessionRequest();
+        accessionRequest.setCustomerCode(customerCode);
+        accessionRequest.setItemBarcode(barcode);
+        return accessionRequest;
     }
 }

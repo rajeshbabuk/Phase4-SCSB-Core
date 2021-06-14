@@ -20,8 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class SimpleRestCallForBibdataUT extends BaseTestCaseUT {
 
@@ -62,6 +61,12 @@ public class SimpleRestCallForBibdataUT extends BaseTestCaseUT {
         Mockito.when(simpleRestCallForBibdata.getRestTemplate()).thenCallRealMethod();
         simpleRestCallForBibdata.getRestTemplate();
         assertTrue(true);
+    }
+
+    @Test
+    public void testisAuth() {
+        boolean isAuth=simpleRestCallForBibdata.isAuth("NoAuth");
+        assertFalse(isAuth);
     }
 
     public HttpHeaders getHttpHeaders() {
