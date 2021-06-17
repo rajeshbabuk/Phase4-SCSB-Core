@@ -298,7 +298,7 @@ public class SubmitCollectionDAOService {
                             }
                             if (incomingBibliographicEntity.getItemEntities() != null) {
                                 if (incomingBibliographicEntity.getItemEntities().get(0).getCollectionGroupId() == null) {
-                                    logger.info("Existing Item Collection Group Id: {}", incomingBibliographicEntity.getItemEntities().get(0).getCollectionGroupId());
+                                    logger.info("Existing Item Collection Group Id: {}", existingItemEntity.getCollectionGroupId());
                                     incomingBibliographicEntity.getItemEntities().get(0).setCollectionGroupId(existingItemEntity.getCollectionGroupId());
                                 }
                             }
