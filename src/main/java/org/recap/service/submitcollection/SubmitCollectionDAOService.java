@@ -296,6 +296,12 @@ public class SubmitCollectionDAOService {
                                 incomingBibliographicEntity.getItemEntities().get(0).setCollectionGroupId(existingItemEntity.getCollectionGroupId());
                                 incomingBibliographicEntity.getItemEntities().get(0).setUseRestrictions(existingItemEntity.getUseRestrictions());
                             }
+                            if (incomingBibliographicEntity.getItemEntities() != null) {
+                                if (incomingBibliographicEntity.getItemEntities().get(0).getCollectionGroupId() == null) {
+                                    logger.info("Existing Item Collection Group Id: {}", existingItemEntity.getCollectionGroupId());
+                                    incomingBibliographicEntity.getItemEntities().get(0).setCollectionGroupId(existingItemEntity.getCollectionGroupId());
+                                }
+                            }
                             if(existingBibliographicEntity != null) {
                                 submitCollectionHelperService.attachItemToExistingBib(existingBibliographicEntity,incomingBibliographicEntity);//here just only linking bib
                                 Map<String, String> bibIdMapToRemoveIndex = new HashMap<>();
