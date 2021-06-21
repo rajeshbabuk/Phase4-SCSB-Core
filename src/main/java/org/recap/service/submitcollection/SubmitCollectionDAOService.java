@@ -173,7 +173,7 @@ public class SubmitCollectionDAOService {
         Map<String, ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         List<BibliographicEntity> updatedBibliographicEntityList = new ArrayList<>();
         List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
-        logger.info("Incoming Boundwith List Size: {}", boundWithBibliographicEntityObjectList);
+        logger.info("Incoming Boundwith List Size: {}", boundWithBibliographicEntityObjectList.size());
         for(BoundWithBibliographicEntityObject boundWithBibliographicEntityObject : boundWithBibliographicEntityObjectList){
             String barcode = boundWithBibliographicEntityObject.getBarcode();
             ItemEntity existingItemEntity = fetchedBarcodeItemEntityMap.get(barcode);
@@ -257,6 +257,7 @@ public class SubmitCollectionDAOService {
                 boundWithBibliographicEntityObject.getBibliographicEntityList(),existingBibliographicEntityList);
         int itemId = existingItemEntity.getId();
         boolean deleteDummyRecord=true;
+        logger.info("isValidRecordToProcess: {}", isValidRecordToProcess);
         if (isValidRecordToProcess) {
             for (BibliographicEntity incomingBibliographicEntity : boundWithBibliographicEntityObject.getBibliographicEntityList()) {
                 for (ItemEntity incomingItemEntity : incomingBibliographicEntity.getItemEntities()) {
@@ -267,12 +268,15 @@ public class SubmitCollectionDAOService {
                         BibliographicEntity fetchedBibliographicEntity = fetchedOwnInstBibIdBibliographicEntityMap.get(incomingBibliographicEntity.getOwningInstitutionBibId());
                         if(fetchedBibliographicEntityList.get(0).getOwningInstitutionBibId().substring(0, 1).equals("d")) {//update existing dummy record if any (Removes existing dummy record and creates new record for the same barcode based on the input xml)
                             isIncomingDummyRecord = true;
+                            logger.info("isIncomingDummyRecord: {}", isIncomingDummyRecord);
                             BibliographicEntity updatedBibliographicEntity = null;
                             if(processedBarcodeSetForDummyRecords.contains(boundWithBibliographicEntityObject.getBarcode())) {
                                 deleteDummyRecord=false;
                             }
+                            logger.info("deleteDummyRecord: {}", deleteDummyRecord);
                             updatedBibliographicEntity = updateDummyRecordForBoundWith(incomingBibliographicEntity, submitCollectionReportInfoMap, idMapToRemoveIndexList, processedBarcodeSetForDummyRecords, updatedBibliographicEntity, fetchedBibliographicEntityList.get(0), itemChangeLogEntityList,deleteDummyRecord,processedBibIds);
                             if (updatedBibliographicEntity != null) {
+                                logger.info("Adding Bib to Update List: {} - {}", updatedBibliographicEntity.getId(), updatedBibliographicEntity.getOwningInstitutionBibId());
                                 updatedBibliographicEntityList.add(updatedBibliographicEntity);
                             }
                         } else if (fetchedBibliographicEntity !=null) {
