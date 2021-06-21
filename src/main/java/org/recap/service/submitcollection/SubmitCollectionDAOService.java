@@ -173,9 +173,11 @@ public class SubmitCollectionDAOService {
         Map<String, ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         List<BibliographicEntity> updatedBibliographicEntityList = new ArrayList<>();
         List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
+        logger.info("Incoming Boundwith List Size: {}", boundWithBibliographicEntityObjectList);
         for(BoundWithBibliographicEntityObject boundWithBibliographicEntityObject : boundWithBibliographicEntityObjectList){
             String barcode = boundWithBibliographicEntityObject.getBarcode();
             ItemEntity existingItemEntity = fetchedBarcodeItemEntityMap.get(barcode);
+            logger.info("{} Item Exists: {}", barcode, existingItemEntity != null);
             if (existingItemEntity != null) {
                 Integer incomingBibCountForBoundWithItem = boundWithBibliographicEntityObject.getBibliographicEntityList().size();
                 boolean singleVolumeToBoundWith = isSingleVolumeToBoundWith(existingItemEntity.getBibliographicEntities().size(),incomingBibCountForBoundWithItem);
@@ -183,6 +185,7 @@ public class SubmitCollectionDAOService {
                 boolean isNoOfIncomingBibsOfAnItemMatchesExistingBibsOfAnItemMatched = existingItemEntity.getBibliographicEntities().size() == incomingBibCountForBoundWithItem ;
                 boolean reducedIncomingBibCount = existingItemEntity.getBibliographicEntities().size() > incomingBibCountForBoundWithItem;
                 if (isNoOfIncomingBibsOfAnItemMatchesExistingBibsOfAnItemMatched) {//Bib counts are equal - Same number of bib for incoming and existing records
+                    logger.info("In isNoOfIncomingBibsOfAnItemMatchesExistingBibsOfAnItemMatched");
                     iterateAndUpdateBoundWithItems(submitCollectionReportInfoMap, processedBibIds, fetchedBarcodeItemEntityMap, updatedBibliographicEntityList, itemChangeLogEntityList, boundWithBibliographicEntityObject);
                 } else if (singleVolumeToBoundWith || boundWithBibIncreased){//Incoming bib count is > existing bib count - New bibs are added in the Incoming
                     logger.info("Processing incoming barcode {} have additional bib count compared to the existing bib count",barcode);
