@@ -12,7 +12,7 @@ public class SubmitCollectionNotificationProcessor {
     private ProducerTemplate producer;
 
     public void sendSubmitCollectionNotification(){
-        //producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoad(), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION);
+        producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoad(), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION);
     }
 
     private EmailPayLoad getEmailPayLoad(){

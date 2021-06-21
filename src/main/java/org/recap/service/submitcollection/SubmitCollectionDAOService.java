@@ -679,6 +679,7 @@ public class SubmitCollectionDAOService {
             , BibliographicEntity fetchBibliographicEntity,List<ItemChangeLogEntity> itemChangeLogEntityList,boolean deleteDummyRecord,Set<Integer> processedBibIds) {
         List<ItemEntity> fetchedItemBasedOnOwningInstitutionItemId = submitCollectionReportHelperService.getItemBasedOnOwningInstitutionItemIdAndOwningInstitutionId(incomingBibliographicEntity.getItemEntities());
         boolean boundWith = isBoundWithItem(incomingBibliographicEntity,processedBarcodeSet);
+        logger.info("boundWith: {}", boundWith);
         BibliographicEntity bibliographicEntityToSave = null;
         if (fetchedItemBasedOnOwningInstitutionItemId.isEmpty() || boundWith) {//To check there should not be existing item record with same own item id and for bound with own item id can be different
             boolean isCheckCGDNotNull = checkIsCGDNotNull(incomingBibliographicEntity);

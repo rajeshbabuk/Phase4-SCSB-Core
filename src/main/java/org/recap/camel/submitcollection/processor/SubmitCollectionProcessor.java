@@ -135,7 +135,7 @@ public class SubmitCollectionProcessor {
             }
             ReportDataRequest reportRequest = getReportDataRequest(xmlFileName);
             String generatedReportFileName = submitCollectionReportGenerator.generateReport(reportRequest);
-            //producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoad(xmlFileName, generatedReportFileName), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION);
+            producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoad(xmlFileName, generatedReportFileName), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION);
             if (awsS3Client.doesObjectExist(bucketName, xmlFileName) && (inputXml != null && !inputXml.equals(""))) {
                 String basepath = xmlFileName.substring(0, xmlFileName.lastIndexOf('/'));
                 String fileName = xmlFileName.substring(xmlFileName.lastIndexOf('/'));
@@ -162,7 +162,7 @@ public class SubmitCollectionProcessor {
             String institutionCode1 = (String) exchange.getIn().getHeader(ScsbCommonConstants.INSTITUTION);
             logger.info("Institution inside caught  - {}", institutionCode1);
             logger.info("Exception occured is - {}", exception.getMessage());
-            //producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoadForExcepion(institutionCode1, fileName, filePath, exception, exception.getMessage()), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION_EXCEPTION);
+            producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoadForExcepion(institutionCode1, fileName, filePath, exception, exception.getMessage()), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION_EXCEPTION);
         }
     }
 
@@ -210,7 +210,7 @@ public class SubmitCollectionProcessor {
      */
     public void sendEmailForEmptyDirectory() {
         String s3Path = submitCollectionS3BasePath+ institutionCode + "/cgd_" + cgdType;
-        //producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoadForNoFiles(institutionCode,s3Path), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION_FOR_NO_FILES);
+        producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoadForNoFiles(institutionCode,s3Path), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION_FOR_NO_FILES);
     }
 
     private EmailPayLoad getEmailPayLoadForNoFiles(String institutionCode, String ftpLocationPath) {
