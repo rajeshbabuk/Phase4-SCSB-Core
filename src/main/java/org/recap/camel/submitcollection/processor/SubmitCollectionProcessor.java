@@ -110,11 +110,16 @@ public class SubmitCollectionProcessor {
             logger.info("Submit Collection : Solr indexing started for {} records", processedBibIds.size());
             logger.info("idMapToRemoveIndex---> {}", idMapToRemoveIndexList.size());
             if (!processedBibIds.isEmpty()) {
-                submitCollectionBatchService.indexData(processedBibIds);
+                StopWatch stopWatchSolrIndexing = new StopWatch();
+                stopWatchSolrIndexing.start();
+                String status = submitCollectionBatchService.partialIndexData(processedBibIds);
+                logger.info("Submit Collection : Solr indexing Status - {}", status);
                 logger.info("Submit Collection : Solr indexing completed and remove the incomplete record from solr index for {} records", idMapToRemoveIndexList.size());
+                stopWatchSolrIndexing.stop();
+                logger.info("Total Time taken to do solr indexing : {} sec", stopWatchSolrIndexing.getTotalTimeSeconds());
             }
             if (!updatedBoundWithDummyRecordOwnInstBibIdSet.isEmpty()) {
-                logger.info("Updated boudwith dummy record own inst bib id size-->{}", updatedBoundWithDummyRecordOwnInstBibIdSet.size());
+                logger.info("Updated boundwith dummy record own inst bib id size-->{}", updatedBoundWithDummyRecordOwnInstBibIdSet.size());
                 submitCollectionService.indexDataUsingOwningInstBibId(new ArrayList<>(updatedBoundWithDummyRecordOwnInstBibIdSet), institutionId);
             }
             if (!idMapToRemoveIndexList.isEmpty() || !bibIdMapToRemoveIndexList.isEmpty()) {//remove the incomplete record from solr index
