@@ -84,7 +84,7 @@ public class StatusReconciliationService {
                     for (ScsbLasItemStatusCheckModel modelItem : gfaItemStatusCheckResponseItems) {
                         if (itemEntity.getBarcode().equalsIgnoreCase(modelItem.getItemBarcode())) {
                             isBarcodeAvailableForErrorReport = true;
-                            lasStatus = modelItem.getItemStatus();
+                            lasStatus = StringUtils.isNotBlank(modelItem.getItemStatus()) ? modelItem.getItemStatus().toUpperCase() : modelItem.getItemStatus();
                             boolean isAvailable = commonUtil.checkIfImsItemStatusIsAvailableOrNotAvailable(itemEntity.getImsLocationEntity().getImsLocationCode(), lasStatus, true);
                             if (isAvailable) {
                                 refileCount = processMismatchStatus(statusReconciliationCSVRecordList, itemChangeLogEntityList, lasStatus, itemEntity, false, refileCount);

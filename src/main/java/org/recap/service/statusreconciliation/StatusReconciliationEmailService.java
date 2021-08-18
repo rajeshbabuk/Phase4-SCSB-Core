@@ -45,7 +45,7 @@ public class StatusReconciliationEmailService {
         long unchangedCount = (long) exchange.getIn().getHeader(ScsbConstants.UNCHANGED);
         long unknownCodeCount = (long) exchange.getIn().getHeader(ScsbConstants.UNKNOWN_CODE);
         StringBuilder message = new StringBuilder();
-        message.append("The \"Out\" Status Reconciliation report is available at the S3 location " + fileLocation).append("\n");
+        message.append("The \"Out\" Status Reconciliation report is available at the S3 location " + fileLocation).append("\n").append("\n");
         message.append(ScsbConstants.CHANGED_TO_AVAILABLE).append(": ").append(changedCount);
         message.append("\n");
         message.append(ScsbConstants.UNCHANGED).append(": ").append(changedCount);
