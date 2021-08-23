@@ -48,7 +48,7 @@ public class StatusReconciliationEmailService {
         message.append("The \"Out\" Status Reconciliation report is available at the S3 location " + fileLocation).append("\n").append("\n");
         message.append(ScsbConstants.CHANGED_TO_AVAILABLE).append(": ").append(changedCount);
         message.append("\n");
-        message.append(ScsbConstants.UNCHANGED).append(": ").append(changedCount);
+        message.append(ScsbConstants.UNCHANGED).append(": ").append(unchangedCount);
         if (unchangedCount > 0) {
             message.append(" (" + ScsbConstants.UNUSUAL + ")");
         }
