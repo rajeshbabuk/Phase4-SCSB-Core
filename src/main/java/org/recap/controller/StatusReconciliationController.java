@@ -198,6 +198,7 @@ public class StatusReconciliationController {
                 Map<String, Object> headers = new HashMap<>();
                 headers.put(ScsbConstants.FOR, headerFor);
                 headers.put(ScsbConstants.IMS_LOCATION, key);
+                headers.put(ScsbConstants.FAILED, (value != null) ? value.size() : 0);
                 producer.sendBodyAndHeaders(ScsbConstants.STATUS_RECONCILIATION_REPORT, value, headers);
             });
         }
