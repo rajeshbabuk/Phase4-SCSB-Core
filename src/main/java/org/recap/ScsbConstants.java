@@ -129,6 +129,7 @@ public final class ScsbConstants {
     public static final String SUBMIT_COLLECTION_EMAIL_BODY_VM = "submit_collection_email_body.vm";
     public static final String SUBMIT_COLLECTION_EMAIL_BODY_FOR_EMPTY_DIRECTORY_VM = "submit_collection_email_body_for_emptyDirectory.vm";
     public static final String PROCESS_INPUT = "processInput";
+    public static final String PROCESS_INPUT_FAILURE = "processInputForFailure";
     public static final String SUBMIT_COLLECTION_COMPLETE_RECORD_UPDATE = "Complete item record info updated through submit collection";
     public static final String SUBMIT_COLLECTION_DUMMY_RECORD_UPDATE = "Dummy item record removed and actual record added through submit collection";
     public static final String COUNT_OF_PURGED_EXCEPTION_REQUESTS = "countOfPurgedExceptionRequests";
@@ -196,7 +197,7 @@ public final class ScsbConstants {
     public static final String BARCODE_RECONCILIATION_FILE_DATE_FORMAT = "yyyyMMdd";
     public static final String ACCESSION_JOB_INITIATE_ROUTE_ID = "scsbactivemq:queue:accessionInitiateRoute";
     public static final String SUBMIT_COLLECTION_JOB_INITIATE_ROUTE_ID = "scsbactivemq:queue:submitCollectionInitiateRoute";
-    public static final String BARCODE_NOT_FOUND_IN_LAS = "Barcode not found in LAS";
+    public static final String BARCODE_NOT_FOUND_OR_COULD_NOT_FIND_LAS_ITEM_STATUS = "Barcode not found in LAS or Could not find LAS Item Status";
     public static final String CUSTOMER_CODE_HEADER = "Customer Code mentioned in LAS";
     public static final String TAB = "\t";
     public static final String NEW_LINE = "\n";
@@ -224,5 +225,6 @@ public final class ScsbConstants {
     public static final String UNCHANGED = "Unchanged";
     public static final String UNKNOWN_CODE = "Unknown Code";
     public static final String UNKNOWN_IMS_STATUS = "Unknown IMS Status";
+    public static final String FAILED_TO_GET_IMS_ITEM_STATUS = "Failed to get IMS Item Status";
     public static final String UNUSUAL = "THIS IS UNUSUAL";
 }
