@@ -77,7 +77,7 @@ public class StatusReconciliationEmailService {
         emailPayLoad.setTo(propertyUtil.getPropertyByImsLocationAndKey((String) exchange.getIn().getHeader(ScsbConstants.IMS_LOCATION), PropertyKeyConstants.EMAIL_STATUS_RECONCILIATION_TO));
         emailPayLoad.setCc(propertyUtil.getPropertyByImsLocationAndKey((String) exchange.getIn().getHeader(ScsbConstants.IMS_LOCATION), PropertyKeyConstants.EMAIL_STATUS_RECONCILIATION_CC));
         log.info("Status Reconciliation Failure Report : email sent to : {} and cc : {} ", emailPayLoad.getTo(), emailPayLoad.getCc());
-        long failedCount = (long) exchange.getIn().getHeader(ScsbConstants.FAILED);
+        long failedCount = (int) exchange.getIn().getHeader(ScsbConstants.FAILED);
         StringBuilder message = new StringBuilder();
         message.append("The \"Out\" Status Reconciliation Failure report is available at the S3 location " + fileLocation).append("\n").append("\n");
         message.append(ScsbConstants.FAILED_TO_GET_IMS_ITEM_STATUS).append(": ").append(failedCount);
