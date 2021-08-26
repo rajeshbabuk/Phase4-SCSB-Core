@@ -173,6 +173,8 @@ public final class ScsbConstants {
     //status Reconciliation
     public static final String STATUS_RECONCILIATION_REPORT = "scsbactivemq:queue:statusReconciliationReportQ";
     public static final String STATUS_RECONCILIATION_REPORT_ID = "statusReconciliationReportRoute";
+    public static final String STATUS_RECONCILIATION_FAILURE_REPORT = "scsbactivemq:queue:statusReconciliationFailureReportQ";
+    public static final String STATUS_RECONCILIATION_FAILURE_REPORT_ID = "statusReconciliationFailureReportRoute";
     public static final String COMPLETE = "Complete";
     public static final String ACCESSION_RECONCILIATION_S3_ROUTE_ID = "accessionReconciliationS3Route";
     public static final String ACCESSION_RECONCILIATION_FS_ROUTE_ID = "accessionReconciliationFsRoute";
@@ -227,4 +229,7 @@ public final class ScsbConstants {
     public static final String UNKNOWN_IMS_STATUS = "Unknown IMS Status";
     public static final String FAILED_TO_GET_IMS_ITEM_STATUS = "Failed to get IMS Item Status";
     public static final String UNUSUAL = "THIS IS UNUSUAL";
+
+    public static final String YES = "Yes";
+    public static final String NO = "No";
 }
