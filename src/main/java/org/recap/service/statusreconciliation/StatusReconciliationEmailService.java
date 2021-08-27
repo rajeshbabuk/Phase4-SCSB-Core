@@ -33,15 +33,59 @@ public class StatusReconciliationEmailService {
      */
     public void processInput(Exchange exchange) {
         String fileLocation = (String) exchange.getIn().getHeader(ScsbConstants.CAMEL_AWS_KEY);
-        producerTemplate.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoad(fileLocation,exchange), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.STATUS_RECONCILIATION);
+        producerTemplate.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoad(fileLocation, exchange), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.STATUS_RECONCILIATION);
     }
 
-    private EmailPayLoad getEmailPayLoad(String fileLocation,Exchange exchange) {
+    /**
+     * Sets the email payload with failures for the status reconciliation.
+     *
+     * @param exchange
+     */
+    public void processInputForFailure(Exchange exchange) {
+        String fileLocation = (String) exchange.getIn().getHeader(ScsbConstants.CAMEL_AWS_KEY);
+        producerTemplate.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoadForFailure(fileLocation, exchange), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.STATUS_RECONCILIATION_FAILURE);
+    }
+
+    private EmailPayLoad getEmailPayLoad(String fileLocation, Exchange exchange) {
         EmailPayLoad emailPayLoad = new EmailPayLoad();
         emailPayLoad.setTo(propertyUtil.getPropertyByImsLocationAndKey((String) exchange.getIn().getHeader(ScsbConstants.IMS_LOCATION), PropertyKeyConstants.EMAIL_STATUS_RECONCILIATION_TO));
         emailPayLoad.setCc(propertyUtil.getPropertyByImsLocationAndKey((String) exchange.getIn().getHeader(ScsbConstants.IMS_LOCATION), PropertyKeyConstants.EMAIL_STATUS_RECONCILIATION_CC));
         log.info("Status Reconciliation : email sent to : {} and cc : {} ", emailPayLoad.getTo(), emailPayLoad.getCc());
-        emailPayLoad.setMessageDisplay("The \"Out\" Status Reconciliation report is available at the S3 location " + fileLocation);
+        long changedCount = (long) exchange.getIn().getHeader(ScsbConstants.CHANGED_TO_AVAILABLE);
+        long unchangedCount = (long) exchange.getIn().getHeader(ScsbConstants.UNCHANGED);
+        long unknownCodeCount = (long) exchange.getIn().getHeader(ScsbConstants.UNKNOWN_CODE);
+        StringBuilder message = new StringBuilder();
+        message.append("The \"Out\" Status Reconciliation report is available at the S3 location " + fileLocation).append("\n").append("\n");
+        message.append(ScsbConstants.CHANGED_TO_AVAILABLE).append(": ").append(changedCount);
+        message.append("\n");
+        message.append(ScsbConstants.UNCHANGED).append(": ").append(unchangedCount);
+        if (unchangedCount > 0) {
+            message.append(" (" + ScsbConstants.UNUSUAL + ")");
+        }
+        message.append("\n");
+        message.append(ScsbConstants.UNKNOWN_IMS_STATUS).append(": ").append(unknownCodeCount);
+        if (unknownCodeCount > 0) {
+            message.append(" (" + ScsbConstants.UNUSUAL + ")");
+        }
+        message.append("\n");
+        emailPayLoad.setMessageDisplay(message.toString());
+        return emailPayLoad;
+    }
+
+    private EmailPayLoad getEmailPayLoadForFailure(String fileLocation, Exchange exchange) {
+        EmailPayLoad emailPayLoad = new EmailPayLoad();
+        emailPayLoad.setTo(propertyUtil.getPropertyByImsLocationAndKey((String) exchange.getIn().getHeader(ScsbConstants.IMS_LOCATION), PropertyKeyConstants.EMAIL_STATUS_RECONCILIATION_TO));
+        emailPayLoad.setCc(propertyUtil.getPropertyByImsLocationAndKey((String) exchange.getIn().getHeader(ScsbConstants.IMS_LOCATION), PropertyKeyConstants.EMAIL_STATUS_RECONCILIATION_CC));
+        log.info("Status Reconciliation Failure Report : email sent to : {} and cc : {} ", emailPayLoad.getTo(), emailPayLoad.getCc());
+        long failedCount = (int) exchange.getIn().getHeader(ScsbConstants.FAILED);
+        StringBuilder message = new StringBuilder();
+        message.append("The \"Out\" Status Reconciliation Failure report is available at the S3 location " + fileLocation).append("\n").append("\n");
+        message.append(ScsbConstants.FAILED_TO_GET_IMS_ITEM_STATUS).append(": ").append(failedCount);
+        if (failedCount > 0) {
+            message.append(" (" + ScsbConstants.UNUSUAL + ")");
+        }
+        message.append("\n");
+        emailPayLoad.setMessageDisplay(message.toString());
         return emailPayLoad;
     }
 }

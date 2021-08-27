@@ -40,6 +40,9 @@ public class StatusReconciliationService {
     @Value("${" + PropertyKeyConstants.STATUS_RECONCILIATION_DAY_LIMIT + "}")
     private Integer statusReconciliationDayLimit;
 
+    @Value("${" + PropertyKeyConstants.STATUS_RECONCILIATION_REFILE_MAX_CAP_LIMIT + "}")
+    private int statusReconciliationRefileMaxCapLimit;
+
     @Autowired
     private CommonUtil commonUtil;
 
@@ -68,11 +71,10 @@ public class StatusReconciliationService {
      * @param statusReconciliationErrorCSVRecordList the status reconciliation error csv record list
      * @return the list
      */
-    public List<StatusReconciliationCSVRecord> itemStatusComparison(List<List<ItemEntity>> itemEntityChunkList, List<StatusReconciliationErrorCSVRecord> statusReconciliationErrorCSVRecordList) {
+    public List<StatusReconciliationCSVRecord> itemStatusComparison(List<List<ItemEntity>> itemEntityChunkList, List<StatusReconciliationErrorCSVRecord> statusReconciliationErrorCSVRecordList, int refileCount) {
         List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList = new ArrayList<>();
         List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
         for (List<ItemEntity> itemEntities : itemEntityChunkList) {
-            List<String> lasNotAvailableStatusList = ScsbConstants.getGFAStatusNotAvailableList();
             List<ScsbLasItemStatusCheckModel> gfaItemStatusCheckResponseItems = getGFAItemStatusCheckResponse(itemEntities);
             if (CollectionUtils.isNotEmpty(gfaItemStatusCheckResponseItems)) {
                 String lasStatus = null;
@@ -82,24 +84,28 @@ public class StatusReconciliationService {
                     for (ScsbLasItemStatusCheckModel modelItem : gfaItemStatusCheckResponseItems) {
                         if (itemEntity.getBarcode().equalsIgnoreCase(modelItem.getItemBarcode())) {
                             isBarcodeAvailableForErrorReport = true;
-                            lasStatus = modelItem.getItemStatus();
-                            boolean isNotAvailable = false;
-                            for (String status : lasNotAvailableStatusList) {
-                                if (StringUtils.startsWithIgnoreCase(lasStatus, status)) {
-                                    isNotAvailable = true;
+                            lasStatus = StringUtils.isNotBlank(modelItem.getItemStatus()) ? modelItem.getItemStatus().toUpperCase() : modelItem.getItemStatus();
+                            boolean isRequestableNotRetrievable = commonUtil.checkIfImsItemStatusIsRequestableNotRetrievable(itemEntity.getImsLocationEntity().getImsLocationCode(), lasStatus);
+                            if (isRequestableNotRetrievable) {
+                                refileCount = processMismatchStatus(statusReconciliationCSVRecordList, itemChangeLogEntityList, lasStatus, itemEntity, false, false, refileCount);
+                            } else {
+                                boolean isAvailable = commonUtil.checkIfImsItemStatusIsAvailableOrNotAvailable(itemEntity.getImsLocationEntity().getImsLocationCode(), lasStatus, true);
+                                if (isAvailable) {
+                                    refileCount = processMismatchStatus(statusReconciliationCSVRecordList, itemChangeLogEntityList, lasStatus, itemEntity, false, true, refileCount);
+                                } else {
+                                    boolean isNotAvailable = commonUtil.checkIfImsItemStatusIsAvailableOrNotAvailable(itemEntity.getImsLocationEntity().getImsLocationCode(), lasStatus, false);
+                                    if (!isNotAvailable) {
+                                        refileCount = processMismatchStatus(statusReconciliationCSVRecordList, itemChangeLogEntityList, lasStatus, itemEntity, true, false, refileCount);
+                                    }
                                 }
                             }
-                            if (!isNotAvailable) {
-                                processMismatchStatus(statusReconciliationCSVRecordList, itemChangeLogEntityList, lasStatus, itemEntity);
-                            }
-                            break;
                         }
                     }
                     if (!isBarcodeAvailableForErrorReport) {
                         statusReconciliationErrorCSVRecord.setBarcode(itemEntity.getBarcode());
                         statusReconciliationErrorCSVRecord.setInstitution(itemEntity.getInstitutionEntity().getInstitutionCode());
                         statusReconciliationErrorCSVRecord.setImsLocation(itemEntity.getImsLocationEntity().getImsLocationCode());
-                        statusReconciliationErrorCSVRecord.setReasonForFailure(ScsbConstants.BARCODE_NOT_FOUND_IN_LAS);
+                        statusReconciliationErrorCSVRecord.setReasonForFailure(ScsbConstants.BARCODE_NOT_FOUND_OR_COULD_NOT_FIND_LAS_ITEM_STATUS);
                         statusReconciliationErrorCSVRecordList.add(statusReconciliationErrorCSVRecord);
                     }
                 }
@@ -122,7 +128,7 @@ public class StatusReconciliationService {
         return responseEntity != null ? responseEntity.getBody() : null;
     }
 
-    private void processMismatchStatus(List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList, List<ItemChangeLogEntity> itemChangeLogEntityList, String lasStatus, ItemEntity itemEntity) {
+    private int processMismatchStatus(List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList, List<ItemChangeLogEntity> itemChangeLogEntityList, String lasStatus, ItemEntity itemEntity, boolean isUnknownCode, boolean refileRequired, int refileCount) {
         StatusReconciliationCSVRecord statusReconciliationCSVRecord = new StatusReconciliationCSVRecord();
         List<String> requestStatusCodes = Arrays.asList(ScsbCommonConstants.REQUEST_STATUS_RETRIEVAL_ORDER_PLACED, ScsbCommonConstants.REQUEST_STATUS_EDD, ScsbCommonConstants.REQUEST_STATUS_CANCELED, ScsbCommonConstants.REQUEST_STATUS_INITIAL_LOAD);
         List<RequestStatusEntity> requestStatusEntityList = requestItemStatusDetailsRepository.findByRequestStatusCodeIn(requestStatusCodes);
@@ -131,16 +137,17 @@ public class StatusReconciliationService {
         List<RequestItemEntity> requestItemEntityList = requestItemDetailsRepository.findByIdIn(requestid);
         List<String> barcodeList = new ArrayList<>();
         List<Integer> requestIdList = new ArrayList<>();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:MM:ss");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ItemStatusEntity itemStatusEntity = itemStatusDetailsRepository.findById(itemEntity.getItemAvailabilityStatusId()).orElse(new ItemStatusEntity());
+        boolean isRefileCapNotExceeded = refileCount < statusReconciliationRefileMaxCapLimit;
         if (!requestItemEntityList.isEmpty()) {
             for (RequestItemEntity requestItemEntity : requestItemEntityList) {
                 if (!requestItemEntity.getRequestStatusEntity().getRequestStatusCode().equalsIgnoreCase(ScsbCommonConstants.REQUEST_STATUS_CANCELED)) {
-                    statusReconciliationCSVRecord = getStatusReconciliationCSVRecord(lasStatus, itemEntity, barcodeList, requestIdList, simpleDateFormat, itemStatusEntity, requestItemEntity);
+                    statusReconciliationCSVRecord = getStatusReconciliationCSVRecord(lasStatus, itemEntity, barcodeList, requestIdList, simpleDateFormat, itemStatusEntity, requestItemEntity, isUnknownCode, refileRequired, isRefileCapNotExceeded);
                 } else {
                     if (StringUtils.containsIgnoreCase(requestItemEntity.getNotes(), "Cancel requested")) {
-                        statusReconciliationCSVRecord = getStatusReconciliationCSVRecord(lasStatus, itemEntity, barcodeList, requestIdList, simpleDateFormat, itemStatusEntity, requestItemEntity);
-                    } else {
+                        statusReconciliationCSVRecord = getStatusReconciliationCSVRecord(lasStatus, itemEntity, barcodeList, requestIdList, simpleDateFormat, itemStatusEntity, requestItemEntity, isUnknownCode, refileRequired, isRefileCapNotExceeded);
+                    } else if (!isUnknownCode && isRefileCapNotExceeded && refileRequired) {
                         RequestStatusEntity byRequestStatusCode = requestItemStatusDetailsRepository.findByRequestStatusCode(ScsbCommonConstants.REQUEST_STATUS_REFILED);
                         requestItemEntity.setRequestStatusId(byRequestStatusCode.getId());
                         requestItemEntity.setLastUpdatedDate(new Date());
@@ -150,24 +157,30 @@ public class StatusReconciliationService {
                 }
             }
         } else {
-            statusReconciliationCSVRecord = getStatusReconciliationCSVRecord(itemEntity.getBarcode(), "No", null, lasStatus, simpleDateFormat.format(new Date()), itemStatusEntity, itemEntity.getImsLocationEntity().getImsLocationCode());
-            itemDetailsRepository.updateAvailabilityStatus(1, ScsbConstants.GUEST_USER, itemEntity.getBarcode());
-            ItemChangeLogEntity itemChangeLogEntity = saveItemChangeLogEntity(itemEntity.getId(), itemEntity.getBarcode());
-            itemChangeLogEntityList.add(itemChangeLogEntity);
-            solrDocIndexService.updateSolrIndex(itemEntity);
-            log.info("found mismatch in item status and updated availability status for the item barcode: {}", itemEntity.getBarcode());
+            statusReconciliationCSVRecord = getStatusReconciliationCSVRecord(itemEntity.getBarcode(), itemEntity.getInstitutionEntity().getInstitutionCode(), null, ScsbConstants.NO, null, lasStatus, simpleDateFormat.format(new Date()),  null, itemStatusEntity, itemEntity.getImsLocationEntity().getImsLocationCode(), isUnknownCode, refileRequired, isRefileCapNotExceeded);
+            if (!isUnknownCode && isRefileCapNotExceeded && refileRequired) {
+                refileCount = refileCount + 1;
+                itemDetailsRepository.updateAvailabilityStatus(1, ScsbConstants.GUEST_USER, itemEntity.getBarcode());
+                ItemChangeLogEntity itemChangeLogEntity = saveItemChangeLogEntity(itemEntity.getId(), itemEntity.getBarcode());
+                itemChangeLogEntityList.add(itemChangeLogEntity);
+                solrDocIndexService.updateSolrIndex(itemEntity);
+                log.info("found mismatch in item status and updated availability status for the item barcode: {}", itemEntity.getBarcode());
+            }
         }
-        if (!barcodeList.isEmpty() && !requestIdList.isEmpty()) {
-            reFileItems(barcodeList, requestIdList);
+        if (!barcodeList.isEmpty() && !requestIdList.isEmpty() && isRefileCapNotExceeded && refileRequired) {
+            refileCount = refileCount + barcodeList.size();
         }
         statusReconciliationCSVRecordList.add(statusReconciliationCSVRecord);
+        return refileCount;
     }
 
-    private StatusReconciliationCSVRecord getStatusReconciliationCSVRecord(String lasStatus, ItemEntity itemEntity, List<String> barcodeList, List<Integer> requestIdList, SimpleDateFormat simpleDateFormat, ItemStatusEntity itemStatusEntity, RequestItemEntity requestItemEntity) {
-        StatusReconciliationCSVRecord statusReconciliationCSVRecord = getStatusReconciliationCSVRecord(itemEntity.getBarcode(), "yes", requestItemEntity.getId().toString(), lasStatus, simpleDateFormat.format(new Date()), itemStatusEntity, itemEntity.getImsLocationEntity().getImsLocationCode());
-        barcodeList.add(itemEntity.getBarcode());
-        requestIdList.add(requestItemEntity.getId());
-        log.info("found mismatch in item status and refilled for the item id: {}", requestItemEntity.getItemId());
+    private StatusReconciliationCSVRecord getStatusReconciliationCSVRecord(String lasStatus, ItemEntity itemEntity, List<String> barcodeList, List<Integer> requestIdList, SimpleDateFormat simpleDateFormat, ItemStatusEntity itemStatusEntity, RequestItemEntity requestItemEntity, boolean isUnknownCode, boolean refileRequired, boolean isRefileCapNotExceeded) {
+        StatusReconciliationCSVRecord statusReconciliationCSVRecord = getStatusReconciliationCSVRecord(itemEntity.getBarcode(), itemEntity.getInstitutionEntity().getInstitutionCode(), requestItemEntity.getInstitutionEntity().getInstitutionCode(), ScsbConstants.YES, requestItemEntity.getId().toString(), lasStatus, simpleDateFormat.format(new Date()), simpleDateFormat.format(requestItemEntity.getLastUpdatedDate()), itemStatusEntity, itemEntity.getImsLocationEntity().getImsLocationCode(), isUnknownCode, refileRequired, isRefileCapNotExceeded);
+        if (!isUnknownCode && isRefileCapNotExceeded && refileRequired) {
+            barcodeList.add(itemEntity.getBarcode());
+            requestIdList.add(requestItemEntity.getId());
+            log.info("found mismatch in item status and refilled for the item id: {}", requestItemEntity.getItemId());
+        }
         return statusReconciliationCSVRecord;
     }
 
@@ -192,21 +205,32 @@ public class StatusReconciliationService {
      * @param availability     the availability
      * @param requestId        the request id
      * @param statusInLas      the status in las
-     * @param dateTime         the date time
+     * @param requestedDateTime the requested date time
+     * @param updatedDateTime  the updated date time
      * @param itemStatusEntity the item status entity
      * @return the status reconciliation csv record
      */
-    public StatusReconciliationCSVRecord getStatusReconciliationCSVRecord(String barcode, String availability, String requestId, String statusInLas, String dateTime, ItemStatusEntity itemStatusEntity, String imsLocationCode) {
+    public StatusReconciliationCSVRecord getStatusReconciliationCSVRecord(String barcode, String owningInstitution, String requestingInstitution, String availability, String requestId, String statusInLas, String updatedDateTime, String requestedDateTime, ItemStatusEntity itemStatusEntity, String imsLocationCode, boolean isUnknownCode, boolean refileRequired, boolean isRefileCapNotExceeded) {
         StatusReconciliationCSVRecord statusReconciliationCSVRecord = new StatusReconciliationCSVRecord();
         statusReconciliationCSVRecord.setBarcode(barcode);
         statusReconciliationCSVRecord.setRequestAvailability(availability);
+        statusReconciliationCSVRecord.setOwningInstitution(owningInstitution);
+        statusReconciliationCSVRecord.setRequestingInstitution(requestingInstitution);
         statusReconciliationCSVRecord.setRequestId(requestId);
         statusReconciliationCSVRecord.setStatusInLas(statusInLas);
         if (itemStatusEntity != null) {
             statusReconciliationCSVRecord.setStatusInScsb(itemStatusEntity.getStatusDescription());
         }
         statusReconciliationCSVRecord.setImsLocation(imsLocationCode);
-        statusReconciliationCSVRecord.setDateTime(dateTime);
+        statusReconciliationCSVRecord.setRequestedDateTime(requestedDateTime);
+        statusReconciliationCSVRecord.setUpdatedDateTime(updatedDateTime);
+        if (isUnknownCode) {
+            statusReconciliationCSVRecord.setReconciliationStatus(ScsbConstants.UNKNOWN_CODE);
+        } else if (isRefileCapNotExceeded && refileRequired) {
+            statusReconciliationCSVRecord.setReconciliationStatus(ScsbConstants.CHANGED_TO_AVAILABLE);
+        } else {
+            statusReconciliationCSVRecord.setReconciliationStatus(ScsbConstants.UNCHANGED);
+        }
         return statusReconciliationCSVRecord;
     }
 
