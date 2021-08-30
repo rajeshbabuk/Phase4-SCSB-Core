@@ -22,8 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class CommonUtilUT extends BaseTestCaseUT {
 
@@ -53,6 +52,9 @@ public class CommonUtilUT extends BaseTestCaseUT {
 
     @Mock
     Record record;
+
+    @Mock
+    PropertyUtil propertyUtil;
 
     @Value("${" + PropertyKeyConstants.SCSB_SUPPORT_INSTITUTION + "}")
     private String supportInstitution;
@@ -256,6 +258,20 @@ public class CommonUtilUT extends BaseTestCaseUT {
     public void getBibRecordsForSCSBFormat(){
         BibRecords bibRecords=commonUtil.getBibRecordsForSCSBFormat(scsbXmlContent);
         assertNotNull(bibRecords);
+    }
+
+    @Test
+    public void checkIfImsItemStatusIsAvailableOrNotAvailable(){
+        Mockito.when(propertyUtil.getPropertyByImsLocationAndKey(Mockito.anyString(),Mockito.anyString())).thenReturn("IN");
+        boolean status=commonUtil.checkIfImsItemStatusIsAvailableOrNotAvailable("RECAP","IN",true);
+        assertTrue(status);
+    }
+
+    @Test
+    public void checkIfImsItemStatusIsRequestableNotRetrievable(){
+        Mockito.when(propertyUtil.getPropertyByImsLocationAndKey(Mockito.anyString(),Mockito.anyString())).thenReturn("IN");
+        boolean status=commonUtil.checkIfImsItemStatusIsRequestableNotRetrievable("RECAP","IN");
+        assertTrue(status);
     }
 
     @Test

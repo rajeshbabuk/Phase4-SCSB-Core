@@ -8,6 +8,7 @@ import org.marc4j.MarcReader;
 import org.marc4j.MarcXmlReader;
 import org.marc4j.marc.DataField;
 import org.marc4j.marc.Record;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -894,6 +895,16 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
     }
 
     @Test
+    public void partialIndexData()  {
+        Set<Integer> bibliographicIdList=new HashSet<>();
+        Mockito.doReturn(ScsbCommonConstants.SUCCESS).when(restTemplate).postForObject( ArgumentMatchers.anyString(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.<Class<Map>>any());
+        String partialindex=submitCollectionService.partialIndexData(bibliographicIdList);
+        assertEquals(ScsbCommonConstants.SUCCESS,partialindex);
+    }
+
+    @Test
     public void processForCUL() throws JAXBException {
         BibliographicEntity savedBibliographicEntity = getBibliographicEntity(1,"202304","222420","1110846",1,"32101062128309",bibMarcContentForPUL,holdingMarcContentForPUL, ScsbCommonConstants.INCOMPLETE_STATUS);
         Set<Integer> processedBibIds = new HashSet<>();
@@ -941,7 +952,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         savedReportEntity.setId(1);
         Mockito.when(reportDetailRepository.save(Mockito.any())).thenReturn(savedReportEntity);
         List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null);
-       assertNotNull(submitCollectionResponseList);
+        assertNotNull(submitCollectionResponseList);
 
     }
 

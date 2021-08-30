@@ -21,6 +21,7 @@ import org.recap.model.jpa.RequestItemEntity;
 import org.recap.model.jpa.RequestTypeEntity;
 import org.recap.repository.jpa.ItemDetailsRepository;
 import org.recap.repository.jpa.RequestItemDetailsRepository;
+import org.recap.util.PropertyUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -63,6 +64,10 @@ public class DailyReconciliationProcessorUT extends BaseTestCaseUT {
     @Mock
     AmazonS3 awsS3Client;
 
+    @Mock
+    PropertyUtil propertyUtil;
+
+
     @Value("${" + PropertyKeyConstants.DAILY_RECONCILIATION_FILE + "}")
     private String filePath;
     
@@ -72,6 +77,9 @@ public class DailyReconciliationProcessorUT extends BaseTestCaseUT {
     public void processInput() throws Exception {
         ReflectionTestUtils.setField(dailyReconciliationProcessor,"imsLocationCode","RECAP");
         Mockito.when(exchange.getIn()).thenReturn(message);
+        Mockito.when(propertyUtil.getPropertyByImsLocationAndKey("RECAP",PropertyKeyConstants.IMS.IMS_AVAILABLE_ITEM_STATUS_CODES)).thenReturn("RECAP");
+        Mockito.when(propertyUtil.getPropertyByImsLocationAndKey("RECAP",PropertyKeyConstants.IMS.IMS_NOT_AVAILABLE_ITEM_STATUS_CODES)).thenReturn("RECAP");
+        Mockito.when(propertyUtil.getPropertyByImsLocationAndKey("RECAP",PropertyKeyConstants.IMS.IMS_REQUESTABLE_NOT_RETRIEVABLE_ITEM_STATUS_CODES)).thenReturn("RECAP");
         List<DailyReconcilationRecord> dailyReconcilationRecords=new ArrayList<>();
         dailyReconcilationRecords.add(getDailyReconcilationRecord("12345","1", ScsbConstants.GFA_STATUS_IN));
         dailyReconcilationRecords.add(getDailyReconcilationRecord("2345","1", ScsbConstants.GFA_STATUS_IN ));

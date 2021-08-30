@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
 import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.controller.StatusReconciliationController;
 import org.recap.model.csv.StatusReconciliationCSVRecord;
 import org.recap.model.csv.StatusReconciliationErrorCSVRecord;
@@ -21,13 +22,17 @@ import org.recap.repository.jpa.RequestItemStatusDetailsRepository;
 import org.recap.service.statusreconciliation.StatusReconciliationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by hemalathas on 2/6/17.
@@ -76,7 +81,7 @@ public class StatusReconciliationControllerUT extends BaseTestCaseUT {
         requestStatusEntityList.add(getRequestStatusEntity(9,ScsbCommonConstants.REQUEST_STATUS_INITIAL_LOAD));
         Mockito.when(requestItemStatusDetailsRepository.findByRequestStatusCodeIn(Mockito.any())).thenReturn(requestStatusEntityList);
         List<StatusReconciliationErrorCSVRecord> statusReconciliationErrorCSVRecords=new ArrayList<>();
-       statusReconciliationErrorCSVRecords.add(statusReconciliationErrorCSVRecord);
+        statusReconciliationErrorCSVRecords.add(statusReconciliationErrorCSVRecord);
         Map<String, List<StatusReconciliationErrorCSVRecord>> imsLocationsStatusReconciliationErrorList=new HashMap<>();
         imsLocationsStatusReconciliationErrorList.put("",statusReconciliationErrorCSVRecords);
         ReflectionTestUtils.invokeMethod(statusReconciliationController,"sendStatusReconciliationErrorRecordsToQueueAndEmail",imsLocationsStatusReconciliationErrorList,"");
@@ -88,7 +93,11 @@ public class StatusReconciliationControllerUT extends BaseTestCaseUT {
         List<StatusReconciliationCSVRecord> itemStatusComparison=new ArrayList<>();
         itemStatusComparison.add(statusReconciliationCSVRecord);
         Mockito.when(statusReconciliationCSVRecord.getImsLocation()).thenReturn("RECAP");
-        Mockito.when(statusReconciliationService.itemStatusComparison(Mockito.anyList(),Mockito.anyList(),0)).thenReturn(itemStatusComparison);
+        Mockito.when(statusReconciliationCSVRecord.getRequestId()).thenReturn("1");
+        Mockito.when(statusReconciliationCSVRecord.getBarcode()).thenReturn("123456");
+        Mockito.when(statusReconciliationCSVRecord.getRequestAvailability()).thenReturn(ScsbConstants.YES);
+        Mockito.when(statusReconciliationCSVRecord.getReconciliationStatus()).thenReturn(ScsbConstants.CHANGED_TO_AVAILABLE);
+        Mockito.when(statusReconciliationService.itemStatusComparison(Mockito.anyList(),Mockito.anyList(),Mockito.anyInt())).thenReturn(itemStatusComparison);
         ResponseEntity responseEntity = statusReconciliationController.itemStatusReconciliation();
         assertEquals("Success", responseEntity.getBody().toString());
     }
