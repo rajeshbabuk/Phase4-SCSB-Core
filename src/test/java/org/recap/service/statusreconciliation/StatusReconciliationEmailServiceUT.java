@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.recap.BaseTestCaseUT;
+import org.recap.ScsbConstants;
 import org.recap.util.PropertyUtil;
 
 
@@ -38,15 +39,10 @@ public class StatusReconciliationEmailServiceUT extends BaseTestCaseUT {
     public void processInput(){
         CamelContext ctx = new DefaultCamelContext();
         Exchange exchange = new DefaultExchange(ctx);
-        exchange.getIn().setHeader("CamelFileName", "StatusReconciliationFile");
+        exchange.getIn().setHeader("CamelFileName", "DailyReconciliationFile");
+        exchange.getIn().setHeader(ScsbConstants.CHANGED_TO_AVAILABLE, 1l);
+        exchange.getIn().setHeader(ScsbConstants.UNCHANGED,1l);
+        exchange.getIn().setHeader(ScsbConstants.UNKNOWN_CODE, 1l);
         statusReconciliationEmailService.processInput(exchange);
-    }
-
-    @Test
-    public void processInputForFailure(){
-        CamelContext ctx = new DefaultCamelContext();
-        Exchange exchange = new DefaultExchange(ctx);
-        exchange.getIn().setHeader("CamelFileName", "StatusReconciliationFailureFile");
-        statusReconciliationEmailService.processInputForFailure(exchange);
     }
 }
