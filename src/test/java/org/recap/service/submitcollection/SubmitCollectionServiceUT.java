@@ -8,22 +8,19 @@ import org.marc4j.MarcReader;
 import org.marc4j.MarcXmlReader;
 import org.marc4j.marc.DataField;
 import org.marc4j.marc.Record;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
 import org.recap.PropertyKeyConstants;
-import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.converter.MarcToBibEntityConverter;
 import org.recap.converter.SCSBToBibEntityConverter;
 import org.recap.model.jaxb.BibRecord;
 import org.recap.model.jaxb.marc.BibRecords;
-import org.recap.model.jpa.BibliographicEntity;
-import org.recap.model.jpa.HoldingsEntity;
-import org.recap.model.jpa.InstitutionEntity;
-import org.recap.model.jpa.ItemEntity;
-import org.recap.model.jpa.ReportEntity;
+import org.recap.model.jpa.*;
 import org.recap.model.submitcollection.SubmitCollectionResponse;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
@@ -42,20 +39,9 @@ import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 /**
@@ -894,6 +880,16 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
     }
 
     @Test
+    public void partialIndexData()  {
+        Set<Integer> bibliographicIdList=new HashSet<>();
+        Mockito.doReturn(ScsbCommonConstants.SUCCESS).when(restTemplate).postForObject( ArgumentMatchers.anyString(),
+                ArgumentMatchers.any(),
+                ArgumentMatchers.<Class<Map>>any());
+        String partialindex=submitCollectionService.partialIndexData(bibliographicIdList);
+        assertEquals(ScsbCommonConstants.SUCCESS,partialindex);
+    }
+
+    @Test
     public void processForCUL() throws JAXBException {
         BibliographicEntity savedBibliographicEntity = getBibliographicEntity(1,"202304","222420","1110846",1,"32101062128309",bibMarcContentForPUL,holdingMarcContentForPUL, ScsbCommonConstants.INCOMPLETE_STATUS);
         Set<Integer> processedBibIds = new HashSet<>();
@@ -941,7 +937,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         savedReportEntity.setId(1);
         Mockito.when(reportDetailRepository.save(Mockito.any())).thenReturn(savedReportEntity);
         List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null);
-       assertNotNull(submitCollectionResponseList);
+        assertNotNull(submitCollectionResponseList);
 
     }
 
