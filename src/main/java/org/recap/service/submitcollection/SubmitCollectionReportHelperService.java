@@ -542,7 +542,7 @@ public class SubmitCollectionReportHelperService {
         String owningInstitution = setupDataService.getInstitutionIdCodeMap().get(fetchedBibliographicEntity.getOwningInstitutionId());
         for(Map.Entry<String,String> incomingOwningInstitutionBibIdBarcodeMapEntry : incomingBarcodeOwningInstitutionBibIdMap.entrySet()){
                 ItemEntity incomingItemEntity = incomingBarcodeItemEntityMap.get(incomingOwningInstitutionBibIdBarcodeMapEntry.getKey());
-                SubmitCollectionReportInfo submitCollectionReportInfo = new SubmitCollectionReportInfo();
+                SubmitCollectionReportInfo submitCollectionReportInfo = null;
 
             if(!fetchedTitle.equals(incomingTitle)) {
                 submitCollectionReportInfo = setSubmitCollectionInfo(owningInstitution, fetchedBibliographicEntity, incomingOwningInstitutionBibIdBarcodeMapEntry, incomingItemEntity, ScsbCommonConstants.TITLE,fetchedTitle, incomingTitle);

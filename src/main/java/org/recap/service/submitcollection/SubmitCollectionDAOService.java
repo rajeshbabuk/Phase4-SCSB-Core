@@ -25,6 +25,7 @@ import org.springframework.util.StopWatch;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -759,6 +760,8 @@ public class SubmitCollectionDAOService {
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
         List<ItemEntity> updatedItemEntityList = new ArrayList<>();
+        List<ItemEntity> cgdUpdatedItemEntityList = new ArrayList<>();
+        Map<String,String> cgdUpdatedItemMessageMap = new HashMap<>();
         boolean isAnyValidHoldingToUpdate = false;
         boolean isAnyValidItemToUpdate = false;
         String[] nonHoldingIdInstitutionArray = nonHoldingIdInstitution.split(",");
@@ -799,7 +802,13 @@ public class SubmitCollectionDAOService {
                 if (fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId())
                         && fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode())) {
                     if(!isDeAccessionedItem(fetchedItemEntity)) {
-                        copyItemEntity(fetchedItemEntity, incomingItemEntity, updatedItemEntityList);
+                        Integer oldCgd = fetchedItemEntity.getCollectionGroupId();
+                        ItemEntity updatedItem = copyItemEntity(fetchedItemEntity, incomingItemEntity, updatedItemEntityList);
+                        Integer newCgd = updatedItem.getCollectionGroupId();
+                        if (oldCgd.intValue() != newCgd.intValue()) {
+                            cgdUpdatedItemMessageMap.put(updatedItem.getBarcode(), MessageFormat.format(ScsbConstants.SUBMIT_COLLECTION_CGD_UPDATED_RECORD, setupDataService.getCollectionGroupIdCodeMap().get(oldCgd), setupDataService.getCollectionGroupIdCodeMap().get(newCgd)));
+                            cgdUpdatedItemEntityList.add(updatedItem);
+                        }
                         isAnyValidItemToUpdate = true;
                     } else {//add exception report for deaccession record
                         addExceptionReport(Collections.singletonList(incomingItemEntity),submitCollectionReportInfoMap, ScsbConstants.SUBMIT_COLLECTION_DEACCESSION_EXCEPTION_RECORD);
@@ -817,6 +826,7 @@ public class SubmitCollectionDAOService {
             if (isAnyValidHoldingToUpdate && isAnyValidItemToUpdate) {
                 savedOrUnsavedBibliographicEntity = bibliographicRepositoryDAO.saveOrUpdate(fetchBibliographicEntity);
                 saveItemChangeLogEntity(ScsbConstants.SUBMIT_COLLECTION, ScsbConstants.SUBMIT_COLLECTION_COMPLETE_RECORD_UPDATE,updatedItemEntityList);
+                saveItemChangeLogEntityForCgdUpdatedItems(cgdUpdatedItemEntityList, cgdUpdatedItemMessageMap);
             }
             submitCollectionReportHelperService.buildSubmitCollectionReportInfo(submitCollectionReportInfoMap,fetchBibliographicEntity,incomingBibliographicEntity);
             return savedOrUnsavedBibliographicEntity;
@@ -850,6 +860,8 @@ public class SubmitCollectionDAOService {
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
         List<ItemEntity> updatedItemEntityList = new ArrayList<>();
+        List<ItemEntity> cgdUpdatedItemEntityList = new ArrayList<>();
+        Map<String,String> cgdUpdatedItemMessageMap = new HashMap<>();
         boolean isAnyValidHoldingToUpdate = false;
         boolean isAnyValidItemToUpdate = false;
         String[] nonHoldingIdInstitutionArray = nonHoldingIdInstitution.split(",");
@@ -892,7 +904,13 @@ public class SubmitCollectionDAOService {
                 if (fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId()) &&
                         (fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode()) && !barcodeHavingMismatchHoldingsId.contains(incomingItemEntity.getBarcode()))) {
                     if(!isDeAccessionedItem(fetchedItemEntity)) {
-                        copyItemEntity(fetchedItemEntity, incomingItemEntity, updatedItemEntityList);
+                        Integer oldCgd = fetchedItemEntity.getCollectionGroupId();
+                        ItemEntity updatedItem = copyItemEntity(fetchedItemEntity, incomingItemEntity, updatedItemEntityList);
+                        Integer newCgd = updatedItem.getCollectionGroupId();
+                        if (oldCgd.intValue() != newCgd.intValue()) {
+                            cgdUpdatedItemMessageMap.put(updatedItem.getBarcode(), MessageFormat.format(ScsbConstants.SUBMIT_COLLECTION_CGD_UPDATED_RECORD, setupDataService.getCollectionGroupIdCodeMap().get(oldCgd), setupDataService.getCollectionGroupIdCodeMap().get(newCgd)));
+                            cgdUpdatedItemEntityList.add(updatedItem);
+                        }
                         isAnyValidItemToUpdate = true;
                     } else {//add exception report for deaccession record
                         addExceptionReport(Collections.singletonList(incomingItemEntity),submitCollectionReportInfoMap, ScsbConstants.SUBMIT_COLLECTION_DEACCESSION_EXCEPTION_RECORD);
@@ -911,6 +929,8 @@ public class SubmitCollectionDAOService {
                 processedBibIds.add(bibliographicEntityToSave.getId());
                 List<ItemChangeLogEntity> preparedItemChangeLogEntityList = prepareItemChangeLogEntity(ScsbConstants.SUBMIT_COLLECTION, ScsbConstants.SUBMIT_COLLECTION_COMPLETE_RECORD_UPDATE,updatedItemEntityList);
                 itemChangeLogEntityList.addAll(preparedItemChangeLogEntityList);
+                List<ItemChangeLogEntity> preparedItemChangeLogEntityListForCgdUpdates = prepareItemChangeLogEntitiesForCgdUpdates(cgdUpdatedItemEntityList, cgdUpdatedItemMessageMap);
+                itemChangeLogEntityList.addAll(preparedItemChangeLogEntityListForCgdUpdates);
             }
             submitCollectionReportHelperService.buildSubmitCollectionReportInfo(submitCollectionReportInfoMap,fetchBibliographicEntity,incomingBibliographicEntity);
             return bibliographicEntityToSave;
@@ -1100,6 +1120,25 @@ public class SubmitCollectionDAOService {
         return itemChangeLogEntity;
     }
 
+    private void saveItemChangeLogEntityForCgdUpdatedItems(List<ItemEntity> cgdUpdatedItemEntityList, Map<String, String> cgdUpdatedItemMessageMap) {
+        List<ItemChangeLogEntity> itemChangeLogEntityList = prepareItemChangeLogEntitiesForCgdUpdates(cgdUpdatedItemEntityList, cgdUpdatedItemMessageMap);
+        repositoryService.getItemChangeLogDetailsRepository().saveAll(itemChangeLogEntityList);
+    }
+
+    private List<ItemChangeLogEntity> prepareItemChangeLogEntitiesForCgdUpdates(List<ItemEntity> cgdUpdatedItemEntityList, Map<String, String> cgdUpdatedItemMessageMap) {
+        List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
+        for (ItemEntity itemEntity : cgdUpdatedItemEntityList) {
+            ItemChangeLogEntity itemChangeLogEntity = new ItemChangeLogEntity();
+            itemChangeLogEntity.setOperationType(ScsbConstants.SUBMIT_COLLECTION_CGD_UPDATED);
+            itemChangeLogEntity.setUpdatedBy(ScsbConstants.SUBMIT_COLLECTION);
+            itemChangeLogEntity.setUpdatedDate(new Date());
+            itemChangeLogEntity.setRecordId(itemEntity.getId());
+            itemChangeLogEntity.setNotes(cgdUpdatedItemMessageMap.get(itemEntity.getBarcode()));
+            itemChangeLogEntityList.add(itemChangeLogEntity);
+        }
+        return itemChangeLogEntityList;
+    }
+
     private void updateCustomerCode(BibliographicEntity dummyBibliographicEntity, BibliographicEntity updatedBibliographicEntity) {
         updatedBibliographicEntity.getItemEntities().get(0).setCustomerCode(dummyBibliographicEntity.getItemEntities().get(0).getCustomerCode());
     }
@@ -1196,7 +1235,7 @@ public class SubmitCollectionDAOService {
                 ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
                 if (fetchedItemEntity != null && fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId())
                         && fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode()) && !isDeAccessionedItem(fetchedItemEntity)) {
-                    if (!fetchedItemEntity.getCollectionGroupEntity().getCollectionGroupCode().equals(incomingItemEntity.getCollectionGroupEntity().getCollectionGroupCode())) {
+                    if (fetchedItemEntity.getCollectionGroupId().intValue() != incomingItemEntity.getCollectionGroupId().intValue()) {
                         isCGDChanged = true;
                         break;
                     }
@@ -1211,7 +1250,6 @@ public class SubmitCollectionDAOService {
                 bibliographicDetailsRepository.save(fetchBibliographicEntity);
             }
         } else {
-            logger.info("Inside if >>>");
             if ((isCGDChanged || !fetchedTitle.equals(incomingTitle)) || (!fetchedLccnValue.equals(incomingLccnValue)) || !submitCollectionHelperService.listEquals(fetchedIsbnNumbers, incomingIsbnNumbers) ||
                     !submitCollectionHelperService.listEquals(fetchedIssnNumbers, incomingIssnNumbers) || !submitCollectionHelperService.listEquals(fetchedOclcNumbers, incomingOclcNumbers)) {
                 if (!bibliographicEntities.isEmpty() && bibliographicEntities.size() > 2) {
