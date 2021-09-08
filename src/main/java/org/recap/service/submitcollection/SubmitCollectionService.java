@@ -133,6 +133,7 @@ public class SubmitCollectionService {
                     generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SUBMIT_COLLECTION_FAILURE_REPORT, xmlFileName,reportRecordNumberList);
                     generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_REJECTION_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SUBMIT_COLLECTION_REJECTION_REPORT, xmlFileName,reportRecordNumberList);
                     generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_EXCEPTION_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SUBMIT_COLLECTION_EXCEPTION_REPORT, xmlFileName,reportRecordNumberList);
+                    generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SC_MATCH_POINT_CHANGE_REPORT, xmlFileName,reportRecordNumberList);
                     getResponseMessage(submitCollectionReportInfoMap,submitCollectionResponseList);
                 }
             }catch (Exception e) {
@@ -251,7 +252,7 @@ public class SubmitCollectionService {
             if (errorMessage != null && errorMessage.length()==0) {
                 setCGDProtectionForItems(bibliographicEntity,isCGDProtected);
                 if (bibliographicEntity != null) {
-                    savedBibliographicEntity = getSubmitCollectionDAOService().updateBibliographicEntity(bibliographicEntity, submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+                    savedBibliographicEntity = getSubmitCollectionDAOService().updateBibliographicEntity(bibliographicEntity, submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, isCGDProtected);
                 }
             } else {
                 if (errorMessage != null && errorMessage.length()>0) {
@@ -467,11 +468,13 @@ public class SubmitCollectionService {
         List<SubmitCollectionReportInfo> submitCollectionFailureInfoList = new ArrayList<>();
         List<SubmitCollectionReportInfo> submitCollectionRejectionInfoList = new ArrayList<>();
         List<SubmitCollectionReportInfo> submitCollectionExceptionInfoList = new ArrayList<>();
+        List<SubmitCollectionReportInfo> submitCollectionmatchPointChangeInfoList = new ArrayList<>();
         Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = new HashMap<>();
         submitCollectionReportInfoMap.put(ScsbConstants.SUBMIT_COLLECTION_SUCCESS_LIST,submitCollectionSuccessInfoList);
         submitCollectionReportInfoMap.put(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST,submitCollectionFailureInfoList);
         submitCollectionReportInfoMap.put(ScsbConstants.SUBMIT_COLLECTION_REJECTION_LIST,submitCollectionRejectionInfoList);
         submitCollectionReportInfoMap.put(ScsbConstants.SUBMIT_COLLECTION_EXCEPTION_LIST,submitCollectionExceptionInfoList);
+        submitCollectionReportInfoMap.put(ScsbConstants.SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST,submitCollectionmatchPointChangeInfoList);
         return submitCollectionReportInfoMap;
     }
 

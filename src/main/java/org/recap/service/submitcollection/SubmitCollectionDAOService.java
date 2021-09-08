@@ -1,6 +1,7 @@
 package org.recap.service.submitcollection;
 
 import org.apache.commons.collections.map.HashedMap;
+import org.marc4j.marc.Record;
 import org.recap.PropertyKeyConstants;
 import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
@@ -13,6 +14,8 @@ import org.recap.repository.jpa.ImsLocationDetailsRepository;
 import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.service.common.RepositoryService;
 import org.recap.service.common.SetupDataService;
+import org.recap.util.BibJSONUtil;
+import org.recap.util.MarcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +64,9 @@ public class SubmitCollectionDAOService {
     BibliographicDetailsRepository bibliographicDetailsRepository;
 
     @Autowired
+    private SubmitCollectionService submitCollectionService;
+
+    @Autowired
     BibliographicRepositoryDAO bibliographicRepositoryDAO;
 
     @PersistenceContext
@@ -71,6 +77,9 @@ public class SubmitCollectionDAOService {
 
     @Autowired
     ImsLocationDetailsRepository imsLocationDetailsRepository;
+
+    @Autowired
+    private MarcUtil marcUtil;
 
     /**
      * Update bibliographic entity in batch for non bound with list.
@@ -529,12 +538,12 @@ public class SubmitCollectionDAOService {
      * @return the bibliographic entity
      */
     public BibliographicEntity updateBibliographicEntity(BibliographicEntity bibliographicEntity, Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, List<Map<String,String>> idMapToRemoveIndexList,
-                                                         Set<String> processedBarcodeSetForDummyRecords) {
+                                                         Set<String> processedBarcodeSetForDummyRecords, boolean isCGDProtected) {
         BibliographicEntity savedBibliographicEntity = null;
         BibliographicEntity fetchBibliographicEntity = getBibEntityUsingBarcode(bibliographicEntity);
         if(fetchBibliographicEntity != null ){//update existing record
             if(fetchBibliographicEntity.getOwningInstitutionBibId().equals(bibliographicEntity.getOwningInstitutionBibId())){//update existing complete record
-                savedBibliographicEntity = updateExistingRecord(fetchBibliographicEntity,bibliographicEntity,submitCollectionReportInfoMap);
+                savedBibliographicEntity = updateExistingRecord(fetchBibliographicEntity,bibliographicEntity,submitCollectionReportInfoMap, isCGDProtected);
             } else if(!fetchBibliographicEntity.getOwningInstitutionBibId().equals(bibliographicEntity.getOwningInstitutionBibId()) && !fetchBibliographicEntity.getOwningInstitutionBibId().substring(0,1).equals("d")){
                 submitCollectionReportHelperService.setSubmitCollectionReportInfoForOwningInstitutionBibIdMismatch(fetchBibliographicEntity,bibliographicEntity,submitCollectionReportInfoMap);
             } else {//update existing dummy record if any (Removes existing dummy record and creates new record for the same barcode based on the input xml)
@@ -578,7 +587,7 @@ public class SubmitCollectionDAOService {
         if (fetchedItemBasedOnOwningInstitutionItemId.isEmpty() || boundWith) {//To check there should not be existing item record with same own item id and for bound with own item id can be different
             boolean isCheckCGDNotNull = checkIsCGDNotNull(bibliographicEntity);
             if (isCheckCGDNotNull) {
-                savedBibliographicEntity = saveBibliographicEntity(bibliographicEntity, idMapToRemoveIndexList, fetchBibliographicEntity);
+                savedBibliographicEntity = saveBibliographicEntity(bibliographicEntity, idMapToRemoveIndexList, fetchBibliographicEntity, submitCollectionReportInfoMap);
                 saveItemChangeLogEntity(ScsbConstants.SUBMIT_COLLECTION, ScsbConstants.SUBMIT_COLLECTION_DUMMY_RECORD_UPDATE, savedBibliographicEntity.getItemEntities());
                 setProcessedBarcode(bibliographicEntity, processedBarcodeSet);
                 submitCollectionReportHelperService.buildSubmitCollectionReportInfo(submitCollectionReportInfoMap, savedBibliographicEntity, bibliographicEntity);
@@ -591,7 +600,7 @@ public class SubmitCollectionDAOService {
         return savedBibliographicEntity;
     }
 
-    private BibliographicEntity saveBibliographicEntity(BibliographicEntity bibliographicEntity, List<Map<String, String>> idMapToRemoveIndexList, BibliographicEntity fetchBibliographicEntity) {
+    private BibliographicEntity saveBibliographicEntity(BibliographicEntity bibliographicEntity, List<Map<String, String>> idMapToRemoveIndexList, BibliographicEntity fetchBibliographicEntity, Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap) {
         BibliographicEntity savedBibliographicEntity;
         updateCustomerCode(fetchBibliographicEntity, bibliographicEntity);//Added to get customer code for existing dummy record, this value is used when the input xml dosent have the customer code in it
         ImsLocationEntity dummyRecordItemLocationEntity = fetchBibliographicEntity.getItemEntities().get(0).getImsLocationEntity();
@@ -606,7 +615,7 @@ public class SubmitCollectionDAOService {
         updateImsLocationForItem(bibliographicEntityToSave, dummyRecordItemLocationEntity);
         updateCatalogingStatusForBib(bibliographicEntityToSave);
         if (fetchedBibliographicEntity != null) {//1Bib n holding n item
-            bibliographicEntityToSave = updateExistingRecordForDummy(fetchedBibliographicEntity, bibliographicEntity);
+            bibliographicEntityToSave = updateExistingRecordForDummy(fetchedBibliographicEntity, bibliographicEntity, submitCollectionReportInfoMap);
         }
         savedBibliographicEntity = bibliographicRepositoryDAO.saveOrUpdate(bibliographicEntityToSave);
         entityManager.refresh(savedBibliographicEntity);
@@ -641,7 +650,7 @@ public class SubmitCollectionDAOService {
         if (fetchedItemBasedOnOwningInstitutionItemId.isEmpty()) {//To check there should not be existing item record with same own item id and for bound with own item id can be different
             boolean isCheckCGDNotNull = checkIsCGDNotNull(incomingBibliographicEntity);
             if (isCheckCGDNotNull) {
-                savedBibliographicEntity = saveBibliographicEntity(incomingBibliographicEntity, idMapToRemoveIndexList, fetchBibliographicEntity);
+                savedBibliographicEntity = saveBibliographicEntity(incomingBibliographicEntity, idMapToRemoveIndexList, fetchBibliographicEntity, submitCollectionReportInfoMap);
                 List<ItemChangeLogEntity> preparedItemChangeLogEntityList = prepareItemChangeLogEntity(ScsbConstants.SUBMIT_COLLECTION, ScsbConstants.SUBMIT_COLLECTION_DUMMY_RECORD_UPDATE, savedBibliographicEntity.getItemEntities());
                 itemChangeLogEntityList.addAll(preparedItemChangeLogEntityList);
                 setProcessedBarcode(incomingBibliographicEntity, processedBarcodeSet);
@@ -687,7 +696,7 @@ public class SubmitCollectionDAOService {
                 updateCatalogingStatusForItem(bibliographicEntityToSave);
                 updateCatalogingStatusForBib(bibliographicEntityToSave);
                 if (fetchedBibliographicEntity != null) {//1Bib n holding n item
-                    bibliographicEntityToSave = updateExistingRecordForDummy(fetchedBibliographicEntity, incomingBibliographicEntity);
+                    bibliographicEntityToSave = updateExistingRecordForDummy(fetchedBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap);
                     processedBibIds.add(fetchedBibliographicEntity.getId());
                 }
                 savedBibliographicEntity = bibliographicEntityToSave;
@@ -739,8 +748,13 @@ public class SubmitCollectionDAOService {
     }
 
     private BibliographicEntity updateExistingRecord(BibliographicEntity fetchBibliographicEntity, BibliographicEntity incomingBibliographicEntity,
-                                                     Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap) {
+                                                     Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, boolean isCGDProtected) {
         BibliographicEntity savedOrUnsavedBibliographicEntity = null;
+        List<ItemEntity> fetchedItemEntityList = fetchBibliographicEntity.getItemEntities();
+        List<ItemEntity> incomingItemEntityList = new ArrayList<>(incomingBibliographicEntity.getItemEntities());
+        Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
+        Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
+        updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected);
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -778,11 +792,6 @@ public class SubmitCollectionDAOService {
             }
         }
 
-        List<ItemEntity> fetchedItemEntityList = fetchBibliographicEntity.getItemEntities();
-        List<ItemEntity> incomingItemEntityList = new ArrayList<>(incomingBibliographicEntity.getItemEntities());
-
-        Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
-        Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
         for(Map.Entry<String,ItemEntity> incomingBarcodeItemEntityMapEntry:incomingBarcodeItemEntityMap.entrySet()){
             ItemEntity incomingItemEntity = incomingBarcodeItemEntityMapEntry.getValue();
             ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
@@ -831,6 +840,12 @@ public class SubmitCollectionDAOService {
     public BibliographicEntity updateExistingRecordToEntityObject(BibliographicEntity fetchBibliographicEntity, BibliographicEntity incomingBibliographicEntity,
                                                                   Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, Set<Integer> processedBibIds,List<ItemChangeLogEntity> itemChangeLogEntityList) {
         BibliographicEntity bibliographicEntityToSave = null;
+        boolean isCGDProtected = checkIsCGDProtected(incomingBibliographicEntity);
+        List<ItemEntity> fetchedItemEntityList = fetchBibliographicEntity.getItemEntities();
+        List<ItemEntity> incomingItemEntityList = new ArrayList<>(incomingBibliographicEntity.getItemEntities());
+        Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
+        Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
+        updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap,isCGDProtected);
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -868,13 +883,8 @@ public class SubmitCollectionDAOService {
             }
         }
 
-        List<ItemEntity> fetchedItemEntityList = fetchBibliographicEntity.getItemEntities();
-        List<ItemEntity> incomingItemEntityList = new ArrayList<>(incomingBibliographicEntity.getItemEntities());
-
         StopWatch itemStopWatch = new StopWatch();
         itemStopWatch.start();
-        Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
-        Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
         for(Map.Entry<String,ItemEntity> incomingBarcodeItemEntityMapEntry:incomingBarcodeItemEntityMap.entrySet()){
             ItemEntity incomingItemEntity = incomingBarcodeItemEntityMapEntry.getValue();
             ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
@@ -919,7 +929,13 @@ public class SubmitCollectionDAOService {
         return fetchedItemEntity.isDeleted();
     }
 
-    private BibliographicEntity updateExistingRecordForDummy(BibliographicEntity fetchBibliographicEntity, BibliographicEntity bibliographicEntity) {
+    private BibliographicEntity updateExistingRecordForDummy(BibliographicEntity fetchBibliographicEntity, BibliographicEntity bibliographicEntity, Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap) {
+        boolean isCGDProtected = checkIsCGDProtected(bibliographicEntity);
+        List<ItemEntity> fetchedItemEntityList = fetchBibliographicEntity.getItemEntities();
+        List<ItemEntity> incomingItemEntityList = new ArrayList<>(bibliographicEntity.getItemEntities());
+        Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
+        Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
+        updateMatchingRecords(fetchBibliographicEntity, bibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected);
         copyBibliographicEntity(fetchBibliographicEntity, bibliographicEntity);
         fetchBibliographicEntity.setDeleted(false);
         Map<String,HoldingsEntity> fetchedOwningInstHoldingIdHoldingsEntityMap = getOwningInstHoldingIdHoldingsEntityMap(fetchBibliographicEntity.getHoldingsEntities());
@@ -1133,6 +1149,123 @@ public class SubmitCollectionDAOService {
         return fetchBibliographicEntity;
     }
 
+    private BibliographicEntity updateMatchingRecords(BibliographicEntity fetchBibliographicEntity, BibliographicEntity incomingBibliographicEntity, Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap,
+                                                      Map<String, ItemEntity> fetchedBarcodeItemEntityMap, Map<String, ItemEntity> incomingBarcodeItemEntityMap, boolean isCGDProtected) {
+        String matchingIdentity = fetchBibliographicEntity.getMatchingIdentity();
+        List<BibliographicEntity> bibliographicEntities = new ArrayList<>();
+        Set<Integer> updatedBibIdList = new HashSet<>();
+        BibJSONUtil bibJSONUtil = new BibJSONUtil();
+        String[] nonHoldingIdInstitutionArray = nonHoldingIdInstitution.split(",");
+        bibJSONUtil.setNonHoldingInstitutions(new ArrayList<>(Arrays.asList(nonHoldingIdInstitutionArray)));
+        List<Record> fetchedRecords = marcUtil.convertMarcXmlToRecord(new String(fetchBibliographicEntity.getContent()));
+        List<Record> incomingRecords = marcUtil.convertMarcXmlToRecord(new String(incomingBibliographicEntity.getContent()));
+        InstitutionEntity fetchedInstitutionEntity = null != fetchBibliographicEntity ? fetchBibliographicEntity.getInstitutionEntity() : null;
+        String fetchedInstitutionCode = null != fetchedInstitutionEntity ? fetchedInstitutionEntity.getInstitutionCode() : ScsbCommonConstants.NA;
+        InstitutionEntity incomingInstitutionEntity = null != incomingBibliographicEntity ? incomingBibliographicEntity.getInstitutionEntity() : null;
+        String incomingInstitutionCode = null != incomingInstitutionEntity ? incomingInstitutionEntity.getInstitutionCode() : ScsbCommonConstants.NA;
+        boolean isCGDChanged = false;
+        List<BibliographicEntity> updatedBibliographicEntities = new ArrayList<>();
+        Record fetchedMarcRecord = fetchedRecords.get(0);
+        List<String> fetchedIsbnNumbers = bibJSONUtil.getISBNNumber(fetchedMarcRecord);
+        List<String> fetchedIssnNumbers = bibJSONUtil.getISSNNumber(fetchedMarcRecord);
+        List<String> fetchedOclcNumbers = bibJSONUtil.getOCLCNumbers(fetchedMarcRecord, fetchedInstitutionCode);
+        String fetchedLccnValue = bibJSONUtil.getLCCNValue(fetchedMarcRecord);
+        String fetchedTitle = bibJSONUtil.getTitle(fetchedMarcRecord);
+        fetchedTitle = fetchedTitle != null ? fetchedTitle.trim() : "";
+        fetchedLccnValue = fetchedLccnValue != null ? fetchedLccnValue : "";
+
+        Record incomingMarcRecord = incomingRecords.get(0);
+        List<String> incomingIsbnNumbers = bibJSONUtil.getISBNNumber(incomingMarcRecord);
+
+        List<String> incomingIssnNumbers = bibJSONUtil.getISSNNumber(incomingMarcRecord);
+        List<String> incomingOclcNumbers = bibJSONUtil.getOCLCNumbers(incomingMarcRecord, incomingInstitutionCode);
+        String incomingLccnValue = bibJSONUtil.getLCCNValue(incomingMarcRecord);
+        String incomingTitle = bibJSONUtil.getTitle(incomingMarcRecord);
+        incomingTitle = incomingTitle != null ? incomingTitle.trim() : "";
+        incomingLccnValue = incomingLccnValue != null ? incomingLccnValue : "";
+
+        if (matchingIdentity != null) {
+            bibliographicEntities = bibliographicDetailsRepository.findByMatchingIdentity(matchingIdentity);
+        }
+        if (bibliographicEntities.isEmpty()) {
+            bibliographicEntities.add(fetchBibliographicEntity);
+        }
+        if (!isCGDProtected) {
+            for (Map.Entry<String, ItemEntity> incomingBarcodeItemEntityMapEntry : incomingBarcodeItemEntityMap.entrySet()) {
+                ItemEntity incomingItemEntity = incomingBarcodeItemEntityMapEntry.getValue();
+                ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
+                if (fetchedItemEntity != null && fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId())
+                        && fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode()) && !isDeAccessionedItem(fetchedItemEntity)) {
+                    if (!fetchedItemEntity.getCollectionGroupEntity().getCollectionGroupCode().equals(incomingItemEntity.getCollectionGroupEntity().getCollectionGroupCode())) {
+                        isCGDChanged = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (bibliographicEntities.size() == 1) {
+            if ((isCGDChanged || !fetchedTitle.equals(incomingTitle)) || (!fetchedLccnValue.equals(incomingLccnValue)) || !submitCollectionHelperService.listEquals(fetchedIsbnNumbers, incomingIsbnNumbers) ||
+                    !submitCollectionHelperService.listEquals(fetchedIssnNumbers, incomingIssnNumbers) || !submitCollectionHelperService.listEquals(fetchedOclcNumbers, incomingOclcNumbers)) {
+                fetchBibliographicEntity.setMaQualifier(Boolean.TRUE);
+                bibliographicDetailsRepository.save(fetchBibliographicEntity);
+            }
+        } else {
+            logger.info("Inside if >>>");
+            if ((isCGDChanged || !fetchedTitle.equals(incomingTitle)) || (!fetchedLccnValue.equals(incomingLccnValue)) || !submitCollectionHelperService.listEquals(fetchedIsbnNumbers, incomingIsbnNumbers) ||
+                    !submitCollectionHelperService.listEquals(fetchedIssnNumbers, incomingIssnNumbers) || !submitCollectionHelperService.listEquals(fetchedOclcNumbers, incomingOclcNumbers)) {
+                if (!bibliographicEntities.isEmpty() && bibliographicEntities.size() > 2) {
+                    boolean matchScoreEqual = true;
+                    for (int counter = 0; counter < bibliographicEntities.size() - 1; counter++) {
+                        if ((bibliographicEntities.get(counter).getMatchScore().intValue() != bibliographicEntities.get(counter + 1).getMatchScore().intValue())) {
+                            matchScoreEqual = false;
+                            break;
+                        }
+                    }
+                    if (matchScoreEqual) {
+                        fetchBibliographicEntity.setMatchingIdentity(null);
+                        fetchBibliographicEntity.setMatchScore(null);
+                        fetchBibliographicEntity.setAnamolyFlag(Boolean.FALSE);
+                        fetchBibliographicEntity.setMiCreatedDate(null);
+                        fetchBibliographicEntity.setMiUpdatedDate(null);
+                        fetchBibliographicEntity.setMaQualifier(Boolean.TRUE);
+                        bibliographicDetailsRepository.save(fetchBibliographicEntity);
+                    } else {
+                        updatedBibliographicEntities = setBibliographicEntitiesValue(bibliographicEntities);
+                        repositoryService.getBibliographicDetailsRepository().saveAll(updatedBibliographicEntities);
+                    }
+                } else if (!bibliographicEntities.isEmpty() && bibliographicEntities.size() == 2) {
+                    updatedBibliographicEntities = setBibliographicEntitiesValue(bibliographicEntities);
+                    repositoryService.getBibliographicDetailsRepository().saveAll(updatedBibliographicEntities);
+
+                }
+            }
+            for (BibliographicEntity bibliographicEntity : updatedBibliographicEntities) {
+                if (!bibliographicEntity.getId().equals(fetchBibliographicEntity.getId())) {
+                    updatedBibIdList.add(bibliographicEntity.getId());
+                }
+            }
+        }
+        if (!updatedBibIdList.isEmpty()) {
+            submitCollectionService.indexData(updatedBibIdList);
+        }
+        submitCollectionReportHelperService.setSubmitCollectionReportInfoForMatchPointChange(fetchBibliographicEntity, incomingBibliographicEntity, fetchedTitle, fetchedIsbnNumbers, fetchedIssnNumbers, fetchedOclcNumbers, fetchedLccnValue, incomingTitle, incomingIsbnNumbers, incomingIssnNumbers, incomingOclcNumbers, incomingLccnValue, submitCollectionReportInfoMap);
+        return fetchBibliographicEntity;
+    }
+
+    private List<BibliographicEntity> setBibliographicEntitiesValue(List<BibliographicEntity> bibliographicEntities) {
+        List<BibliographicEntity> updatedBibliographicEntityList = new ArrayList<>();
+        for (BibliographicEntity bibliographicEntity : bibliographicEntities) {
+            bibliographicEntity.setMatchingIdentity(null);
+            bibliographicEntity.setMatchScore(null);
+            bibliographicEntity.setAnamolyFlag(Boolean.FALSE);
+            bibliographicEntity.setMiCreatedDate(null);
+            bibliographicEntity.setMiUpdatedDate(null);
+            bibliographicEntity.setMaQualifier(Boolean.TRUE);
+            updatedBibliographicEntityList.add(bibliographicEntity);
+        }
+        return updatedBibliographicEntityList;
+    }
     private ItemEntity copyItemEntity(ItemEntity fetchItemEntity, ItemEntity itemEntity, List<ItemEntity> itemEntityList) {
         fetchItemEntity.setLastUpdatedBy(itemEntity.getLastUpdatedBy());
         fetchItemEntity.setLastUpdatedDate(itemEntity.getLastUpdatedDate());
@@ -1183,5 +1316,19 @@ public class SubmitCollectionDAOService {
                 itemEntity.setItemAvailabilityStatusId(setupDataService.getItemStatusCodeIdMap().get("Available"));
             }
         }
+    }
+
+    private boolean checkIsCGDProtected(BibliographicEntity bibliographicEntity) {
+        boolean isCGDProtected = false;
+        if(bibliographicEntity != null && bibliographicEntity.getHoldingsEntities() != null) {
+            for (HoldingsEntity holdingsEntity : bibliographicEntity.getHoldingsEntities()) {
+                if (holdingsEntity.getItemEntities() != null) {
+                    for (ItemEntity itemEntity : holdingsEntity.getItemEntities()) {
+                        isCGDProtected = itemEntity.isCgdProtection();
+                    }
+                }
+            }
+        }
+       return isCGDProtected;
     }
 }

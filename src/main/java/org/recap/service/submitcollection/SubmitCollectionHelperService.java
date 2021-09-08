@@ -74,4 +74,14 @@ public class SubmitCollectionHelperService {
     public void setRepositoryService(RepositoryService repositoryService) {
         this.repositoryService = repositoryService;
     }
+
+    public boolean listEquals(List<String> fetchedNumbers, List<String> incomingNumbers)
+    {
+        for(int counter=0;counter<fetchedNumbers.size();counter++) {
+            if (!fetchedNumbers.contains(incomingNumbers.get(counter))) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
