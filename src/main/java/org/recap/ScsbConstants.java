@@ -30,6 +30,7 @@ public final class ScsbConstants {
     public static final String SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE = "Maximum allowed input record is ";
     public static final String BIBRECORD_TAG = "<bibRecords>";
     public static final String SUBMIT_COLLECTION = "submitCollection";
+    public static final String SUBMIT_COLLECTION_CGD_UPDATED = "submitCollection-cgd-updated";
     public static final String SUBMIT_COLLECTION_FOR_NO_FILES = "submitCollectionForNoFiles";
     public static final String BIBLIOGRAPHIC_ENTITY = "bibliographicEntity";
     public static final String GUEST_USER = "Guest";
@@ -133,6 +134,7 @@ public final class ScsbConstants {
     public static final String PROCESS_INPUT_FAILURE = "processInputForFailure";
     public static final String SUBMIT_COLLECTION_COMPLETE_RECORD_UPDATE = "Complete item record info updated through submit collection";
     public static final String SUBMIT_COLLECTION_DUMMY_RECORD_UPDATE = "Dummy item record removed and actual record added through submit collection";
+    public static final String SUBMIT_COLLECTION_CGD_UPDATED_RECORD = "CGD info updated from {0} to {1} through submit collection";
     public static final String COUNT_OF_PURGED_EXCEPTION_REQUESTS = "countOfPurgedExceptionRequests";
     public static final String USE_RESTRICTION_UNAVAILABLE = "use restriction is unavailable in the input xml";
     public static final String RECORD_INCOMPLETE = "Record continue to be incomplete because ";
