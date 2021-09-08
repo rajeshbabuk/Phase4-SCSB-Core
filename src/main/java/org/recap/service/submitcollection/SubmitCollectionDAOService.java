@@ -1226,8 +1226,6 @@ public class SubmitCollectionDAOService {
                         fetchBibliographicEntity.setMatchingIdentity(null);
                         fetchBibliographicEntity.setMatchScore(null);
                         fetchBibliographicEntity.setAnamolyFlag(Boolean.FALSE);
-                        fetchBibliographicEntity.setMiCreatedDate(null);
-                        fetchBibliographicEntity.setMiUpdatedDate(null);
                         fetchBibliographicEntity.setMaQualifier(Boolean.TRUE);
                         bibliographicDetailsRepository.save(fetchBibliographicEntity);
                     } else {
@@ -1259,8 +1257,6 @@ public class SubmitCollectionDAOService {
             bibliographicEntity.setMatchingIdentity(null);
             bibliographicEntity.setMatchScore(null);
             bibliographicEntity.setAnamolyFlag(Boolean.FALSE);
-            bibliographicEntity.setMiCreatedDate(null);
-            bibliographicEntity.setMiUpdatedDate(null);
             bibliographicEntity.setMaQualifier(Boolean.TRUE);
             updatedBibliographicEntityList.add(bibliographicEntity);
         }
