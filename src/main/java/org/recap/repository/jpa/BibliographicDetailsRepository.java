@@ -79,5 +79,12 @@ public interface BibliographicDetailsRepository extends BaseRepository<Bibliogra
      */
     BibliographicEntity findByOwningInstitutionIdAndOwningInstitutionBibIdAndIsDeletedFalse(Integer owningInstitutionId, String owningInstitutionBibId);
 
+    /**
+     * Find by matchingIdentity list.
+     *
+     * @param matchingIdentity the matching Identifier
+     * @return the list
+     */
+    List<BibliographicEntity> findByMatchingIdentity(String matchingIdentity);
 
 }
