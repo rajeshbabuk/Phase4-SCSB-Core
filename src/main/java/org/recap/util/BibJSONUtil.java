@@ -61,8 +61,6 @@ public class BibJSONUtil extends MarcUtil {
                 oclcNumbers.add(modifiedOclc);
             }
         }
-        logger.info("oclcNumbers >>>> " + oclcNumbers.size());
-        logger.info("nonHoldingInstitutions >>>> " + nonHoldingInstitutions.size());
         if (CollectionUtils.isEmpty(oclcNumbers) && StringUtils.isNotBlank(institutionCode) && nonHoldingInstitutions.contains(institutionCode)) {
             String oclcTag = getControlFieldValue(record, "003");
             if (StringUtils.isNotBlank(oclcTag) && "OCoLC".equalsIgnoreCase(oclcTag)) {
