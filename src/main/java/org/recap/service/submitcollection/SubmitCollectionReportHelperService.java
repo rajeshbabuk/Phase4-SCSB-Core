@@ -194,13 +194,16 @@ public class SubmitCollectionReportHelperService {
      * @param submitCollectionReportInfoMap the submit collection report info map
      * @return the boolean
      */
-    public boolean isBarcodeAlreadyAdded(String barcode,Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap){
-        for (Map.Entry<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoIndividualMap : submitCollectionReportInfoMap.entrySet()) {
-            List<SubmitCollectionReportInfo> submitCollectionReportInfoList = submitCollectionReportInfoIndividualMap.getValue();
-            if(!submitCollectionReportInfoList.isEmpty()){
-                for(SubmitCollectionReportInfo submitCollectionReportInfo : submitCollectionReportInfoList){
-                    if((submitCollectionReportInfo.getItemBarcode() != null) && submitCollectionReportInfo.getItemBarcode().equals(barcode)){
-                        return true;
+    public boolean isBarcodeAlreadyAdded(String barcode, Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap) {
+        for (Map.Entry<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoIndividualMap : submitCollectionReportInfoMap.entrySet()) {
+            String submitCollectionReportInfoKey = submitCollectionReportInfoIndividualMap.getKey();
+            if (!ScsbConstants.SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST.equalsIgnoreCase(submitCollectionReportInfoKey)) {
+                List<SubmitCollectionReportInfo> submitCollectionReportInfoList = submitCollectionReportInfoIndividualMap.getValue();
+                if (!submitCollectionReportInfoList.isEmpty()) {
+                    for (SubmitCollectionReportInfo submitCollectionReportInfo : submitCollectionReportInfoList) {
+                        if ((submitCollectionReportInfo.getItemBarcode() != null) && submitCollectionReportInfo.getItemBarcode().equals(barcode)) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -540,62 +543,56 @@ public class SubmitCollectionReportHelperService {
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingBibliographicEntity.getItemEntities());
         List<SubmitCollectionReportInfo> submitCollectionmatchPointChangeReportInfos = submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST);
         String owningInstitution = setupDataService.getInstitutionIdCodeMap().get(fetchedBibliographicEntity.getOwningInstitutionId());
-        for(Map.Entry<String,String> incomingOwningInstitutionBibIdBarcodeMapEntry : incomingBarcodeOwningInstitutionBibIdMap.entrySet()){
-                ItemEntity incomingItemEntity = incomingBarcodeItemEntityMap.get(incomingOwningInstitutionBibIdBarcodeMapEntry.getKey());
-                SubmitCollectionReportInfo submitCollectionReportInfo = null;
+        for (Map.Entry<String, String> incomingOwningInstitutionBibIdBarcodeMapEntry : incomingBarcodeOwningInstitutionBibIdMap.entrySet()) {
+            ItemEntity incomingItemEntity = incomingBarcodeItemEntityMap.get(incomingOwningInstitutionBibIdBarcodeMapEntry.getKey());
+            boolean hasChangeInfo = false;
+            StringBuilder messageBuilder = new StringBuilder();
+            if (!fetchedTitle.equals(incomingTitle)) {
+                hasChangeInfo = checkAndSetChangeInfo(hasChangeInfo, messageBuilder, getSubmitCollectionInfoMessage(ScsbCommonConstants.TITLE, fetchedTitle, incomingTitle));
+            }
+            if (!fetchedLccn.equals(incomingLccn)) {
+                hasChangeInfo = checkAndSetChangeInfo(hasChangeInfo, messageBuilder, getSubmitCollectionInfoMessage(ScsbCommonConstants.MATCH_POINT_FIELD_LCCN, fetchedLccn, incomingLccn));
+            }
+            if (!submitCollectionHelperService.listEquals(fetchedIsbnNumbers, incomingIsbnNumbers)) {
+                hasChangeInfo = checkAndSetChangeInfo(hasChangeInfo, messageBuilder, getSubmitCollectionInfoListMessage(ScsbCommonConstants.MATCH_POINT_FIELD_ISBN, fetchedIsbnNumbers, incomingIsbnNumbers));
+            }
+            if (!submitCollectionHelperService.listEquals(fetchedIssnNumbers, incomingIssnNumbers)) {
+                hasChangeInfo = checkAndSetChangeInfo(hasChangeInfo, messageBuilder, getSubmitCollectionInfoListMessage(ScsbCommonConstants.MATCH_POINT_FIELD_ISSN, fetchedIssnNumbers, incomingIssnNumbers));
+            }
+            if (!submitCollectionHelperService.listEquals(fetchedOclcNumbers, incomingOclcNumbers)) {
+                hasChangeInfo = checkAndSetChangeInfo(hasChangeInfo, messageBuilder, getSubmitCollectionInfoListMessage(ScsbCommonConstants.MATCH_POINT_FIELD_OCLC, fetchedOclcNumbers, incomingOclcNumbers));
+            }
 
-            if(!fetchedTitle.equals(incomingTitle)) {
-                submitCollectionReportInfo = setSubmitCollectionInfo(owningInstitution, fetchedBibliographicEntity, incomingOwningInstitutionBibIdBarcodeMapEntry, incomingItemEntity, ScsbCommonConstants.TITLE,fetchedTitle, incomingTitle);
-            }
-            if(!fetchedLccn.equals(incomingLccn)) {
-                submitCollectionReportInfo = setSubmitCollectionInfo(owningInstitution, fetchedBibliographicEntity, incomingOwningInstitutionBibIdBarcodeMapEntry, incomingItemEntity, ScsbCommonConstants.MATCH_POINT_FIELD_LCCN, fetchedLccn, incomingLccn);
-            }
-            if(!submitCollectionHelperService.listEquals(fetchedIsbnNumbers, incomingIsbnNumbers)) {
-                submitCollectionReportInfo = setSubmitCollectionInfoList(owningInstitution, fetchedBibliographicEntity, incomingOwningInstitutionBibIdBarcodeMapEntry, incomingItemEntity, ScsbCommonConstants.MATCH_POINT_FIELD_ISBN, fetchedIsbnNumbers, incomingIsbnNumbers);
-            }
-            if(!submitCollectionHelperService.listEquals(fetchedIssnNumbers, incomingIssnNumbers)) {
-                submitCollectionReportInfo = setSubmitCollectionInfoList(owningInstitution, fetchedBibliographicEntity, incomingOwningInstitutionBibIdBarcodeMapEntry, incomingItemEntity, ScsbCommonConstants.MATCH_POINT_FIELD_ISSN, fetchedIssnNumbers, incomingIssnNumbers);
-            }
-            if(!submitCollectionHelperService.listEquals(fetchedOclcNumbers, incomingOclcNumbers)) {
-                submitCollectionReportInfo = setSubmitCollectionInfoList(owningInstitution, fetchedBibliographicEntity, incomingOwningInstitutionBibIdBarcodeMapEntry, incomingItemEntity, ScsbCommonConstants.MATCH_POINT_FIELD_OCLC, fetchedOclcNumbers, incomingOclcNumbers);
-            }
-            if(submitCollectionReportInfo != null) {
+            if (hasChangeInfo) {
+                SubmitCollectionReportInfo submitCollectionReportInfo = getSubmitCollectionReportInfo(fetchedBibliographicEntity, owningInstitution, incomingOwningInstitutionBibIdBarcodeMapEntry, incomingItemEntity, messageBuilder);
                 submitCollectionmatchPointChangeReportInfos.add(submitCollectionReportInfo);
             }
         }
     }
-    public SubmitCollectionReportInfo setSubmitCollectionInfo(String owningInstitution, BibliographicEntity fetchedBibliographicEntity, Map.Entry<String,String> incomingOwningInstitutionBibIdBarcodeMapEntry,
-                                                              ItemEntity incomingItemEntity, String matchPointField, String fetchedField, String incomingField)
-    {
+
+    private boolean checkAndSetChangeInfo(boolean hasChangeInfo, StringBuilder messageBuilder, String submitCollectionInfoMessage) {
+        if (hasChangeInfo) {
+            messageBuilder.append(",");
+        }
+        messageBuilder.append(submitCollectionInfoMessage);
+        return true;
+    }
+
+    private SubmitCollectionReportInfo getSubmitCollectionReportInfo(BibliographicEntity fetchedBibliographicEntity, String owningInstitution, Map.Entry<String, String> incomingOwningInstitutionBibIdBarcodeMapEntry, ItemEntity incomingItemEntity, StringBuilder messageBuilder) {
         SubmitCollectionReportInfo submitCollectionReportInfo = new SubmitCollectionReportInfo();
         submitCollectionReportInfo.setOwningInstitution(owningInstitution);
         submitCollectionReportInfo.setItemBarcode(incomingOwningInstitutionBibIdBarcodeMapEntry.getKey());
         submitCollectionReportInfo.setCustomerCode(incomingItemEntity.getCustomerCode());
-
-        submitCollectionReportInfo.setMessage(ScsbConstants.MATCH_POINT_CHANGE_RECORD + " for Owning Institution BibId -" + fetchedBibliographicEntity.getOwningInstitutionBibId() +
-                                              " - " + matchPointField  + " - " + "existing "+ matchPointField + " " + fetchedField + " incoming " + matchPointField + " " + incomingField);
+        submitCollectionReportInfo.setMessage(ScsbConstants.MATCH_POINT_CHANGE_RECORD + " for Owning Institution BibId - " + fetchedBibliographicEntity.getOwningInstitutionBibId() + " - " + messageBuilder.toString());
         return submitCollectionReportInfo;
     }
 
-    public SubmitCollectionReportInfo setSubmitCollectionInfoList(String owningInstitution, BibliographicEntity fetchedBibliographicEntity, Map.Entry<String,String> incomingOwningInstitutionBibIdBarcodeMapEntry,
-                                                              ItemEntity incomingItemEntity, String matchPointField, List<String> fetchedFieldList, List<String> incomingFieldList)
-    {
-        SubmitCollectionReportInfo submitCollectionReportInfo = new SubmitCollectionReportInfo();
-        submitCollectionReportInfo.setOwningInstitution(owningInstitution);
-        submitCollectionReportInfo.setItemBarcode(incomingOwningInstitutionBibIdBarcodeMapEntry.getKey());
-        submitCollectionReportInfo.setCustomerCode(incomingItemEntity.getCustomerCode());
-        StringBuilder fetchedFieldBuild = new StringBuilder();
-        StringBuilder incomingFieldBuild = new StringBuilder();
-        for(String fetchedField : fetchedFieldList) {
-            fetchedFieldBuild.append(fetchedField);
-        }
-        for(String incomingField : incomingFieldList) {
-            incomingFieldBuild.append(incomingField);
-        }
-        submitCollectionReportInfo.setMessage(ScsbConstants.MATCH_POINT_CHANGE_RECORD + "-" +  " for Owning Institution BibId -" + fetchedBibliographicEntity.getOwningInstitutionBibId() +
-                                                " - " + matchPointField  + " - " + "existing "+ matchPointField + " " + fetchedFieldBuild.toString() + " incoming " + matchPointField + " " + incomingFieldBuild.toString());
-        return submitCollectionReportInfo;
+    public String getSubmitCollectionInfoMessage(String matchPointField, String fetchedField, String incomingField) {
+        return matchPointField + ":" + " existing " + matchPointField + " " + fetchedField + " incoming " + matchPointField + " " + incomingField;
+    }
 
+    public String getSubmitCollectionInfoListMessage(String matchPointField, List<String> fetchedFieldList, List<String> incomingFieldList) {
+        return matchPointField + ": " + " existing " + matchPointField + " " + StringUtils.join(fetchedFieldList, ",") + " incoming " + matchPointField + " " + StringUtils.join(incomingFieldList, ",");
     }
 
 }
