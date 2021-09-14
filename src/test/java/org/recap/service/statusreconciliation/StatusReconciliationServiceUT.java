@@ -16,7 +16,11 @@ import org.recap.model.jpa.ItemEntity;
 import org.recap.model.jpa.ItemStatusEntity;
 import org.recap.model.jpa.RequestItemEntity;
 import org.recap.model.jpa.RequestStatusEntity;
-import org.recap.repository.jpa.*;
+import org.recap.repository.jpa.ItemChangeLogDetailsRepository;
+import org.recap.repository.jpa.ItemDetailsRepository;
+import org.recap.repository.jpa.ItemStatusDetailsRepository;
+import org.recap.repository.jpa.RequestItemDetailsRepository;
+import org.recap.repository.jpa.RequestItemStatusDetailsRepository;
 import org.recap.service.SolrDocIndexService;
 import org.recap.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -214,7 +218,6 @@ public class StatusReconciliationServiceUT {
         List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList=mockStatusReconciliationService.itemStatusComparison(itemEntityChunkList,statusReconciliationErrorCSVRecordList, 0);
         assertNotNull(statusReconciliationCSVRecordList);
     }
-
 
 
 }

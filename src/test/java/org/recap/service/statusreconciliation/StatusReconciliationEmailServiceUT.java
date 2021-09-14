@@ -42,6 +42,7 @@ public class StatusReconciliationEmailServiceUT extends BaseTestCaseUT {
         statusReconciliationEmailService.processInput(exchange);
     }
 
+
     @Test
     public void processInputForFailure(){
         CamelContext ctx = new DefaultCamelContext();
@@ -53,4 +54,5 @@ public class StatusReconciliationEmailServiceUT extends BaseTestCaseUT {
         exchange.getIn().setHeader(ScsbConstants.FAILED, 1);
         statusReconciliationEmailService.processInputForFailure(exchange);
     }
+
 }
