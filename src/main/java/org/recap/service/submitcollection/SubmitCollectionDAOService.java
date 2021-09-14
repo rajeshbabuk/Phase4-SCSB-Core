@@ -1225,6 +1225,8 @@ public class SubmitCollectionDAOService {
 
         if (matchingIdentity != null) {
             bibliographicEntities = bibliographicDetailsRepository.findByMatchingIdentity(matchingIdentity);
+            logger.info("Matching Id: {} - Bibs Size: {}", matchingIdentity, bibliographicEntities.size());
+            logger.info("Matching Id: {} - Matched Bib Ids: {}", matchingIdentity, bibliographicEntities.stream().map(BibliographicAbstractEntity::getId).collect(Collectors.toList()));
         }
         if (bibliographicEntities.isEmpty()) {
             bibliographicEntities.add(fetchBibliographicEntity);
@@ -1247,6 +1249,7 @@ public class SubmitCollectionDAOService {
             if ((isCGDChanged || !fetchedTitle.equals(incomingTitle)) || (!fetchedLccnValue.equals(incomingLccnValue)) || !submitCollectionHelperService.listEquals(fetchedIsbnNumbers, incomingIsbnNumbers) ||
                     !submitCollectionHelperService.listEquals(fetchedIssnNumbers, incomingIssnNumbers) || !submitCollectionHelperService.listEquals(fetchedOclcNumbers, incomingOclcNumbers)) {
                 fetchBibliographicEntity.setMaQualifier(Boolean.TRUE);
+                logger.info("Saving Fetched Bib: {}", fetchBibliographicEntity.getId());
                 bibliographicDetailsRepository.save(fetchBibliographicEntity);
             }
         } else {
@@ -1265,13 +1268,16 @@ public class SubmitCollectionDAOService {
                         fetchBibliographicEntity.setMatchScore(null);
                         fetchBibliographicEntity.setAnamolyFlag(Boolean.FALSE);
                         fetchBibliographicEntity.setMaQualifier(Boolean.TRUE);
+                        logger.info("Saving Fetched Bib when match score equal: {}", fetchBibliographicEntity.getId());
                         bibliographicDetailsRepository.save(fetchBibliographicEntity);
                     } else {
                         updatedBibliographicEntities = setBibliographicEntitiesValue(bibliographicEntities);
+                        logger.info("Saving Bibs when match score not equal: {}", updatedBibliographicEntities.stream().map(BibliographicAbstractEntity::getId).collect(Collectors.toList()));
                         repositoryService.getBibliographicDetailsRepository().saveAll(updatedBibliographicEntities);
                     }
                 } else if (!bibliographicEntities.isEmpty() && bibliographicEntities.size() == 2) {
                     updatedBibliographicEntities = setBibliographicEntitiesValue(bibliographicEntities);
+                    logger.info("Saving Bibs when matched bibs > 2: {}", updatedBibliographicEntities.stream().map(BibliographicAbstractEntity::getId).collect(Collectors.toList()));
                     repositoryService.getBibliographicDetailsRepository().saveAll(updatedBibliographicEntities);
 
                 }
@@ -1283,6 +1289,7 @@ public class SubmitCollectionDAOService {
             }
         }
         if (!updatedBibIdList.isEmpty()) {
+            logger.info("Indexing Bibs {} for matched: {}", updatedBibIdList.size(), updatedBibIdList);
             submitCollectionService.indexData(updatedBibIdList);
         }
         submitCollectionReportHelperService.setSubmitCollectionReportInfoForMatchPointChange(fetchBibliographicEntity, incomingBibliographicEntity, fetchedTitle, fetchedIsbnNumbers, fetchedIssnNumbers, fetchedOclcNumbers, fetchedLccnValue, incomingTitle, incomingIsbnNumbers, incomingIssnNumbers, incomingOclcNumbers, incomingLccnValue, submitCollectionReportInfoMap);
