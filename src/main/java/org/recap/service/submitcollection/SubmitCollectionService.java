@@ -133,7 +133,7 @@ public class SubmitCollectionService {
                     generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SUBMIT_COLLECTION_FAILURE_REPORT, xmlFileName,reportRecordNumberList);
                     generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_REJECTION_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SUBMIT_COLLECTION_REJECTION_REPORT, xmlFileName,reportRecordNumberList);
                     generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_EXCEPTION_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SUBMIT_COLLECTION_EXCEPTION_REPORT, xmlFileName,reportRecordNumberList);
-                    generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SC_MATCH_POINT_CHANGE_REPORT, xmlFileName,reportRecordNumberList);
+                    generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SUBMIT_COLLECTION_MA_QUALIFIED_REPORT, xmlFileName,reportRecordNumberList);
                     getResponseMessage(submitCollectionReportInfoMap,submitCollectionResponseList);
                 }
             }catch (Exception e) {
@@ -163,12 +163,15 @@ public class SubmitCollectionService {
         }
     }
 
-    private List<SubmitCollectionResponse> getResponseMessage(Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, List<SubmitCollectionResponse> submitColletionResponseList){
+    private List<SubmitCollectionResponse> getResponseMessage(Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, List<SubmitCollectionResponse> submitColletionResponseList) {
         for (Map.Entry<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMapEntry : submitCollectionReportInfoMap.entrySet()) {
+            String submitCollectionReportInfoKey = submitCollectionReportInfoMapEntry.getKey();
             List<SubmitCollectionReportInfo> submitCollectionReportInfoList = submitCollectionReportInfoMapEntry.getValue();
-            for(SubmitCollectionReportInfo submitCollectionReportInfo:submitCollectionReportInfoList){
-                SubmitCollectionResponse submitCollectionResponse = new SubmitCollectionResponse();
-                setSubmitCollectionResponse(submitCollectionReportInfo,submitColletionResponseList,submitCollectionResponse);
+            if (!ScsbConstants.SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST.equalsIgnoreCase(submitCollectionReportInfoKey)) {
+                for (SubmitCollectionReportInfo submitCollectionReportInfo : submitCollectionReportInfoList) {
+                    SubmitCollectionResponse submitCollectionResponse = new SubmitCollectionResponse();
+                    setSubmitCollectionResponse(submitCollectionReportInfo, submitColletionResponseList, submitCollectionResponse);
+                }
             }
         }
         return submitColletionResponseList;
