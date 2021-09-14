@@ -1277,8 +1277,9 @@ public class SubmitCollectionDAOService {
                     }
                 } else if (!bibliographicEntities.isEmpty() && bibliographicEntities.size() == 2) {
                     updatedBibliographicEntities = setBibliographicEntitiesValue(bibliographicEntities);
-                    logger.info("Saving Bibs when matched bibs > 2: {}", updatedBibliographicEntities.stream().map(BibliographicAbstractEntity::getId).collect(Collectors.toList()));
+                    logger.info("Saving Bibs when matched bibs size == 2: {}", updatedBibliographicEntities.stream().map(BibliographicAbstractEntity::getId).collect(Collectors.toList()));
                     repositoryService.getBibliographicDetailsRepository().saveAll(updatedBibliographicEntities);
+                    repositoryService.getBibliographicDetailsRepository().flush();
 
                 }
             }
