@@ -408,9 +408,11 @@ public class AccessionUtil {
         BibliographicEntity savedBibliographicEntity=null;
         BibliographicEntity fetchBibliographicEntity = bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibId(bibliographicEntity.getOwningInstitutionId(),bibliographicEntity.getOwningInstitutionBibId());
         if(fetchBibliographicEntity ==null) { // New Bib Record
+            bibliographicEntity.setMaQualifier(true);
             savedBibliographicEntity = bibliographicRepositoryDAO.saveOrUpdate(bibliographicEntity);
         }else{ // Existing bib Record
             // Bib
+            fetchBibliographicEntity.setMaQualifier(true);
             fetchBibliographicEntity.setContent(bibliographicEntity.getContent());
             fetchBibliographicEntity.setLastUpdatedBy(bibliographicEntity.getLastUpdatedBy());
             fetchBibliographicEntity.setLastUpdatedDate(bibliographicEntity.getLastUpdatedDate());

@@ -13,11 +13,7 @@ import org.recap.model.accession.AccessionResponse;
 import org.recap.model.jaxb.marc.BibRecords;
 import org.recap.model.jpa.*;
 import org.recap.model.report.SubmitCollectionReportInfo;
-import org.recap.repository.jpa.CollectionGroupDetailsRepository;
-import org.recap.repository.jpa.InstitutionDetailsRepository;
-import org.recap.repository.jpa.ItemChangeLogDetailsRepository;
-import org.recap.repository.jpa.ItemDetailsRepository;
-import org.recap.repository.jpa.ItemStatusDetailsRepository;
+import org.recap.repository.jpa.*;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;

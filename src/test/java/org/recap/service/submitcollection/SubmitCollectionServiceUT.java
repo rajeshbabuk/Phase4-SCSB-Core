@@ -14,17 +14,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.recap.BaseTestCaseUT;
 import org.recap.PropertyKeyConstants;
-import org.recap.ScsbConstants;
 import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.converter.MarcToBibEntityConverter;
 import org.recap.converter.SCSBToBibEntityConverter;
 import org.recap.model.jaxb.BibRecord;
 import org.recap.model.jaxb.marc.BibRecords;
-import org.recap.model.jpa.BibliographicEntity;
-import org.recap.model.jpa.HoldingsEntity;
-import org.recap.model.jpa.InstitutionEntity;
-import org.recap.model.jpa.ItemEntity;
-import org.recap.model.jpa.ReportEntity;
+import org.recap.model.jpa.*;
 import org.recap.model.submitcollection.SubmitCollectionResponse;
 import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.repository.jpa.ItemDetailsRepository;
@@ -43,20 +39,9 @@ import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 /**
@@ -844,7 +829,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -929,7 +914,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet())).thenReturn(savedBibliographicEntity);
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenReturn(savedBibliographicEntity);
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -982,7 +967,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -1033,7 +1018,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -1084,7 +1069,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenThrow(NullPointerException.class);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -1144,7 +1129,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -1237,7 +1222,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(scsbToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -1289,7 +1274,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(scsbToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet())).thenReturn(savedBibliographicEntity);
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenReturn(savedBibliographicEntity);
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);

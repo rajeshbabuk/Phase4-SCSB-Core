@@ -33,6 +33,8 @@ public class SetupDataService {
 
     private Map<String,Integer> collectionGroupMap;
 
+    private Map<Integer,String> collectionGroupIdCodeMap;
+
     /**
      * Gets item status id and item status code from db and puts it into a map where status id as key and status code as value.
      *
@@ -121,5 +123,20 @@ public class SetupDataService {
             }
         }
         return collectionGroupMap;
+    }
+
+    public Map<Integer, String> getCollectionGroupIdCodeMap() {
+        if (null == collectionGroupIdCodeMap) {
+            collectionGroupIdCodeMap = new HashMap<>();
+            try {
+                Iterable<CollectionGroupEntity> collectionGroupEntities = repositoryService.getCollectionGroupDetailsRepository().findAll();
+                for (CollectionGroupEntity collectionGroupEntity : collectionGroupEntities) {
+                    collectionGroupIdCodeMap.put(collectionGroupEntity.getId(), collectionGroupEntity.getCollectionGroupCode());
+                }
+            } catch (Exception e) {
+                logger.error(ScsbCommonConstants.LOG_ERROR,e);
+            }
+        }
+        return collectionGroupIdCodeMap;
     }
 }

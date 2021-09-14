@@ -13,8 +13,6 @@ import org.recap.repository.jpa.ItemDetailsRepository;
 import org.recap.service.common.RepositoryService;
 import org.recap.service.common.SetupDataService;
 import org.recap.util.CommonUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,8 +29,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SubmitCollectionReportHelperService {
-
-    private static final Logger logger = LoggerFactory.getLogger(SubmitCollectionReportHelperService.class);
 
     @Autowired
     private ItemDetailsRepository itemDetailsRepository;
@@ -65,7 +61,6 @@ public class SubmitCollectionReportHelperService {
      */
     public void setSubmitCollectionExceptionReportInfo(List<ItemEntity> itemEntityList, List<SubmitCollectionReportInfo> submitCollectionExceptionInfos, String message) {
         for (ItemEntity itemEntity : itemEntityList) {
-          //  logger.info("Report data for item {}",itemEntity.getBarcode());
             StringBuilder sbMessage = new StringBuilder();
             sbMessage.append(message);
             appendCompleteStatus(itemEntity, sbMessage);
@@ -535,6 +530,72 @@ public class SubmitCollectionReportHelperService {
         submitCollectionReportInfo.setOwningInstitution(owningInstitution);
         submitCollectionReportInfo.setMessage(message);
         submitCollectionReportInfoList.add(submitCollectionReportInfo);
+    }
+
+    public void setSubmitCollectionReportInfoForMatchPointChange(BibliographicEntity fetchedBibliographicEntity, BibliographicEntity incomingBibliographicEntity,
+                                                                 String fetchedTitle, List<String> fetchedIsbnNumbers, List<String> fetchedIssnNumbers, List<String> fetchedOclcNumbers, String fetchedLccn,
+                                                                 String incomingTitle, List<String> incomingIsbnNumbers, List<String> incomingIssnNumbers, List<String> incomingOclcNumbers, String incomingLccn,
+                                                                 Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap) {
+        Map<String,String> incomingBarcodeOwningInstitutionBibIdMap = getBarcodeOwningInstitutionBibIdMap(incomingBibliographicEntity);
+        Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingBibliographicEntity.getItemEntities());
+        List<SubmitCollectionReportInfo> submitCollectionmatchPointChangeReportInfos = submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST);
+        String owningInstitution = setupDataService.getInstitutionIdCodeMap().get(fetchedBibliographicEntity.getOwningInstitutionId());
+        for(Map.Entry<String,String> incomingOwningInstitutionBibIdBarcodeMapEntry : incomingBarcodeOwningInstitutionBibIdMap.entrySet()){
+                ItemEntity incomingItemEntity = incomingBarcodeItemEntityMap.get(incomingOwningInstitutionBibIdBarcodeMapEntry.getKey());
+                SubmitCollectionReportInfo submitCollectionReportInfo = null;
+
+            if(!fetchedTitle.equals(incomingTitle)) {
+                submitCollectionReportInfo = setSubmitCollectionInfo(owningInstitution, fetchedBibliographicEntity, incomingOwningInstitutionBibIdBarcodeMapEntry, incomingItemEntity, ScsbCommonConstants.TITLE,fetchedTitle, incomingTitle);
+            }
+            if(!fetchedLccn.equals(incomingLccn)) {
+                submitCollectionReportInfo = setSubmitCollectionInfo(owningInstitution, fetchedBibliographicEntity, incomingOwningInstitutionBibIdBarcodeMapEntry, incomingItemEntity, ScsbCommonConstants.MATCH_POINT_FIELD_LCCN, fetchedLccn, incomingLccn);
+            }
+            if(!submitCollectionHelperService.listEquals(fetchedIsbnNumbers, incomingIsbnNumbers)) {
+                submitCollectionReportInfo = setSubmitCollectionInfoList(owningInstitution, fetchedBibliographicEntity, incomingOwningInstitutionBibIdBarcodeMapEntry, incomingItemEntity, ScsbCommonConstants.MATCH_POINT_FIELD_ISBN, fetchedIsbnNumbers, incomingIsbnNumbers);
+            }
+            if(!submitCollectionHelperService.listEquals(fetchedIssnNumbers, incomingIssnNumbers)) {
+                submitCollectionReportInfo = setSubmitCollectionInfoList(owningInstitution, fetchedBibliographicEntity, incomingOwningInstitutionBibIdBarcodeMapEntry, incomingItemEntity, ScsbCommonConstants.MATCH_POINT_FIELD_ISSN, fetchedIssnNumbers, incomingIssnNumbers);
+            }
+            if(!submitCollectionHelperService.listEquals(fetchedOclcNumbers, incomingOclcNumbers)) {
+                submitCollectionReportInfo = setSubmitCollectionInfoList(owningInstitution, fetchedBibliographicEntity, incomingOwningInstitutionBibIdBarcodeMapEntry, incomingItemEntity, ScsbCommonConstants.MATCH_POINT_FIELD_OCLC, fetchedOclcNumbers, incomingOclcNumbers);
+            }
+            if(submitCollectionReportInfo != null) {
+                submitCollectionmatchPointChangeReportInfos.add(submitCollectionReportInfo);
+            }
+        }
+    }
+    public SubmitCollectionReportInfo setSubmitCollectionInfo(String owningInstitution, BibliographicEntity fetchedBibliographicEntity, Map.Entry<String,String> incomingOwningInstitutionBibIdBarcodeMapEntry,
+                                                              ItemEntity incomingItemEntity, String matchPointField, String fetchedField, String incomingField)
+    {
+        SubmitCollectionReportInfo submitCollectionReportInfo = new SubmitCollectionReportInfo();
+        submitCollectionReportInfo.setOwningInstitution(owningInstitution);
+        submitCollectionReportInfo.setItemBarcode(incomingOwningInstitutionBibIdBarcodeMapEntry.getKey());
+        submitCollectionReportInfo.setCustomerCode(incomingItemEntity.getCustomerCode());
+
+        submitCollectionReportInfo.setMessage(ScsbConstants.MATCH_POINT_CHANGE_RECORD + " for Owning Institution BibId -" + fetchedBibliographicEntity.getOwningInstitutionBibId() +
+                                              " - " + matchPointField  + " - " + "existing "+ matchPointField + " " + fetchedField + " incoming " + matchPointField + " " + incomingField);
+        return submitCollectionReportInfo;
+    }
+
+    public SubmitCollectionReportInfo setSubmitCollectionInfoList(String owningInstitution, BibliographicEntity fetchedBibliographicEntity, Map.Entry<String,String> incomingOwningInstitutionBibIdBarcodeMapEntry,
+                                                              ItemEntity incomingItemEntity, String matchPointField, List<String> fetchedFieldList, List<String> incomingFieldList)
+    {
+        SubmitCollectionReportInfo submitCollectionReportInfo = new SubmitCollectionReportInfo();
+        submitCollectionReportInfo.setOwningInstitution(owningInstitution);
+        submitCollectionReportInfo.setItemBarcode(incomingOwningInstitutionBibIdBarcodeMapEntry.getKey());
+        submitCollectionReportInfo.setCustomerCode(incomingItemEntity.getCustomerCode());
+        StringBuilder fetchedFieldBuild = new StringBuilder();
+        StringBuilder incomingFieldBuild = new StringBuilder();
+        for(String fetchedField : fetchedFieldList) {
+            fetchedFieldBuild.append(fetchedField);
+        }
+        for(String incomingField : incomingFieldList) {
+            incomingFieldBuild.append(incomingField);
+        }
+        submitCollectionReportInfo.setMessage(ScsbConstants.MATCH_POINT_CHANGE_RECORD + "-" +  " for Owning Institution BibId -" + fetchedBibliographicEntity.getOwningInstitutionBibId() +
+                                                " - " + matchPointField  + " - " + "existing "+ matchPointField + " " + fetchedFieldBuild.toString() + " incoming " + matchPointField + " " + incomingFieldBuild.toString());
+        return submitCollectionReportInfo;
+
     }
 
 }

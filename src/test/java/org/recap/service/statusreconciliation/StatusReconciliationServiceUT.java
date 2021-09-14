@@ -12,7 +12,6 @@ import org.recap.TestUtil;
 import org.recap.model.csv.StatusReconciliationCSVRecord;
 import org.recap.model.csv.StatusReconciliationErrorCSVRecord;
 import org.recap.model.gfa.ScsbLasItemStatusCheckModel;
-import org.recap.model.jpa.ItemChangeLogEntity;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.model.jpa.ItemStatusEntity;
 import org.recap.model.jpa.RequestItemEntity;
@@ -29,11 +28,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -222,5 +218,6 @@ public class StatusReconciliationServiceUT {
         List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList=mockStatusReconciliationService.itemStatusComparison(itemEntityChunkList,statusReconciliationErrorCSVRecordList, 0);
         assertNotNull(statusReconciliationCSVRecordList);
     }
+
 
 }
