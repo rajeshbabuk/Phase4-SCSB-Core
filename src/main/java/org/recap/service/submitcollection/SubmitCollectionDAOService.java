@@ -1208,26 +1208,33 @@ public class SubmitCollectionDAOService {
         BibJSONUtil bibJSONUtil = new BibJSONUtil();
         String[] nonHoldingIdInstitutionArray = nonHoldingIdInstitution.split(",");
         bibJSONUtil.setNonHoldingInstitutions(new ArrayList<>(Arrays.asList(nonHoldingIdInstitutionArray)));
-        List<Record> fetchedRecords = marcUtil.convertMarcXmlToRecord(new String(fetchBibliographicEntity.getContent()));
         List<Record> incomingRecords = marcUtil.convertMarcXmlToRecord(new String(incomingBibliographicEntity.getContent()));
-        InstitutionEntity fetchedInstitutionEntity = null != fetchBibliographicEntity ? fetchBibliographicEntity.getInstitutionEntity() : null;
-        String fetchedInstitutionCode = null != fetchedInstitutionEntity ? fetchedInstitutionEntity.getInstitutionCode() : ScsbCommonConstants.NA;
         InstitutionEntity incomingInstitutionEntity = null != incomingBibliographicEntity ? incomingBibliographicEntity.getInstitutionEntity() : null;
         String incomingInstitutionCode = null != incomingInstitutionEntity ? incomingInstitutionEntity.getInstitutionCode() : ScsbCommonConstants.NA;
         boolean isCGDChanged = false;
         List<BibliographicEntity> updatedBibliographicEntities = new ArrayList<>();
-        Record fetchedMarcRecord = fetchedRecords.get(0);
-        List<String> fetchedIsbnNumbers = bibJSONUtil.getISBNNumber(fetchedMarcRecord);
-        List<String> fetchedIssnNumbers = bibJSONUtil.getISSNNumber(fetchedMarcRecord);
-        List<String> fetchedOclcNumbers = bibJSONUtil.getOCLCNumbers(fetchedMarcRecord, fetchedInstitutionCode);
-        String fetchedLccnValue = bibJSONUtil.getLCCNValue(fetchedMarcRecord);
-        String fetchedTitle = bibJSONUtil.getTitle(fetchedMarcRecord);
-        fetchedTitle = fetchedTitle != null ? fetchedTitle.trim() : "";
-        fetchedLccnValue = fetchedLccnValue != null ? fetchedLccnValue : "";
+        List<String> fetchedIsbnNumbers = new ArrayList<>();
+        List<String> fetchedIssnNumbers = new ArrayList<>();
+        List<String> fetchedOclcNumbers = new ArrayList<>();
+        String fetchedLccnValue = "";
+        String fetchedTitle = "";
+        Map responseMap = submitCollectionService.getMatchPointValuesByBibIds(new HashSet<>(Arrays.asList(fetchBibliographicEntity.getId())));
+        if (!responseMap.isEmpty()) {
+            Map fetchedBibMatchPointsMap = (Map) responseMap.get(String.valueOf(fetchBibliographicEntity.getId()));
+            fetchedTitle = (String) fetchedBibMatchPointsMap.get(ScsbCommonConstants.TITLE_SEARCH);
+            fetchedLccnValue = (String) fetchedBibMatchPointsMap.get(ScsbCommonConstants.MATCH_POINT_FIELD_LCCN);
+            fetchedIsbnNumbers = (List<String>) fetchedBibMatchPointsMap.get(ScsbCommonConstants.MATCH_POINT_FIELD_ISBN);
+            fetchedIssnNumbers = (List<String>) fetchedBibMatchPointsMap.get(ScsbCommonConstants.MATCH_POINT_FIELD_ISSN);
+            fetchedOclcNumbers = (List<String>) fetchedBibMatchPointsMap.get(ScsbCommonConstants.MATCH_POINT_FIELD_OCLC);
+            fetchedTitle = fetchedTitle != null ? fetchedTitle.trim() : "";
+            fetchedLccnValue = fetchedLccnValue != null ? fetchedLccnValue : "";
+            fetchedIsbnNumbers = fetchedIsbnNumbers != null ? fetchedIsbnNumbers : new ArrayList<>();
+            fetchedIssnNumbers = fetchedIssnNumbers != null ? fetchedIssnNumbers : new ArrayList<>();
+            fetchedOclcNumbers = fetchedOclcNumbers != null ? fetchedOclcNumbers : new ArrayList<>();
+        }
 
         Record incomingMarcRecord = incomingRecords.get(0);
         List<String> incomingIsbnNumbers = bibJSONUtil.getISBNNumber(incomingMarcRecord);
-
         List<String> incomingIssnNumbers = bibJSONUtil.getISSNNumber(incomingMarcRecord);
         List<String> incomingOclcNumbers = bibJSONUtil.getOCLCNumbers(incomingMarcRecord, incomingInstitutionCode);
         String incomingLccnValue = bibJSONUtil.getLCCNValue(incomingMarcRecord);
