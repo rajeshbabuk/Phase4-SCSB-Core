@@ -755,11 +755,11 @@ public class SubmitCollectionDAOService {
         List<ItemEntity> incomingItemEntityList = new ArrayList<>(incomingBibliographicEntity.getItemEntities());
         Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
-        /*StopWatch stopWatch = new StopWatch();
+        StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected);
         stopWatch.stop();
-        logger.info("Fetched Bib Id - {}, IncomingBib Id - {}, Time taken for updating matching records : {}", fetchBibliographicEntity.getId(), incomingBibliographicEntity.getId(), stopWatch.getTotalTimeSeconds());*/
+        logger.info("Fetched Bib Id - {}, IncomingBib Id - {}, Time taken for updating matching records : {}", fetchBibliographicEntity.getId(), incomingBibliographicEntity.getId(), stopWatch.getTotalTimeSeconds());
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -859,11 +859,11 @@ public class SubmitCollectionDAOService {
         List<ItemEntity> incomingItemEntityList = new ArrayList<>(incomingBibliographicEntity.getItemEntities());
         Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
-        /*StopWatch stopWatch = new StopWatch();
+        StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap,isCGDProtected);
         stopWatch.stop();
-        logger.info("Fetched Bib Id - {}, IncomingBib Id - {}, Time taken for updating matching records : {}", fetchBibliographicEntity.getId(), incomingBibliographicEntity.getId(), stopWatch.getTotalTimeSeconds());*/
+        logger.info("Fetched Bib Id - {}, IncomingBib Id - {}, Time taken for updating matching records : {}", fetchBibliographicEntity.getId(), incomingBibliographicEntity.getId(), stopWatch.getTotalTimeSeconds());
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -963,11 +963,11 @@ public class SubmitCollectionDAOService {
         List<ItemEntity> incomingItemEntityList = new ArrayList<>(bibliographicEntity.getItemEntities());
         Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
-        /*StopWatch stopWatch = new StopWatch();
+        StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         updateMatchingRecords(fetchBibliographicEntity, bibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected);
         stopWatch.stop();
-        logger.info("Fetched Bib Id - {}, IncomingBib Id - {}, Time taken for updating matching records : {}", fetchBibliographicEntity.getId(), bibliographicEntity.getId(), stopWatch.getTotalTimeSeconds());*/
+        logger.info("Fetched Bib Id - {}, IncomingBib Id - {}, Time taken for updating matching records : {}", fetchBibliographicEntity.getId(), bibliographicEntity.getId(), stopWatch.getTotalTimeSeconds());
         copyBibliographicEntity(fetchBibliographicEntity, bibliographicEntity);
         fetchBibliographicEntity.setDeleted(false);
         Map<String,HoldingsEntity> fetchedOwningInstHoldingIdHoldingsEntityMap = getOwningInstHoldingIdHoldingsEntityMap(fetchBibliographicEntity.getHoldingsEntities());
