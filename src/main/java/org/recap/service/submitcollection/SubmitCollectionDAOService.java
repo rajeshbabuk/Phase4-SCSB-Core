@@ -755,7 +755,11 @@ public class SubmitCollectionDAOService {
         List<ItemEntity> incomingItemEntityList = new ArrayList<>(incomingBibliographicEntity.getItemEntities());
         Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected);
+        stopWatch.stop();
+        logger.info("Fetched Bib Id - {}, IncomingBib Id - {}, Time taken for updating matching records : {}", fetchBibliographicEntity.getId(), incomingBibliographicEntity.getId(), stopWatch.getTotalTimeSeconds());
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -855,7 +859,11 @@ public class SubmitCollectionDAOService {
         List<ItemEntity> incomingItemEntityList = new ArrayList<>(incomingBibliographicEntity.getItemEntities());
         Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap,isCGDProtected);
+        stopWatch.stop();
+        logger.info("Fetched Bib Id - {}, IncomingBib Id - {}, Time taken for updating matching records : {}", fetchBibliographicEntity.getId(), incomingBibliographicEntity.getId(), stopWatch.getTotalTimeSeconds());
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -955,7 +963,11 @@ public class SubmitCollectionDAOService {
         List<ItemEntity> incomingItemEntityList = new ArrayList<>(bibliographicEntity.getItemEntities());
         Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         updateMatchingRecords(fetchBibliographicEntity, bibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected);
+        stopWatch.stop();
+        logger.info("Fetched Bib Id - {}, IncomingBib Id - {}, Time taken for updating matching records : {}", fetchBibliographicEntity.getId(), bibliographicEntity.getId(), stopWatch.getTotalTimeSeconds());
         copyBibliographicEntity(fetchBibliographicEntity, bibliographicEntity);
         fetchBibliographicEntity.setDeleted(false);
         Map<String,HoldingsEntity> fetchedOwningInstHoldingIdHoldingsEntityMap = getOwningInstHoldingIdHoldingsEntityMap(fetchBibliographicEntity.getHoldingsEntities());
@@ -1229,6 +1241,11 @@ public class SubmitCollectionDAOService {
         if (bibliographicEntities.isEmpty()) {
             bibliographicEntities.add(fetchBibliographicEntity);
         }
+        boolean titleEquals = fetchedTitle.equals(incomingTitle);
+        boolean lccnEquals = fetchedLccnValue.equals(incomingLccnValue);
+        boolean isbnEquals = fetchedIsbnNumbers.equals(incomingIsbnNumbers);
+        boolean issnEquals = fetchedIssnNumbers.equals(incomingIssnNumbers);
+        boolean oclcEquals = fetchedOclcNumbers.equals(incomingOclcNumbers);
         if (!isCGDProtected) {
             for (Map.Entry<String, ItemEntity> incomingBarcodeItemEntityMapEntry : incomingBarcodeItemEntityMap.entrySet()) {
                 ItemEntity incomingItemEntity = incomingBarcodeItemEntityMapEntry.getValue();
@@ -1244,14 +1261,15 @@ public class SubmitCollectionDAOService {
         }
 
         if (bibliographicEntities.size() == 1) {
-            if ((isCGDChanged || !fetchedTitle.equals(incomingTitle)) || (!fetchedLccnValue.equals(incomingLccnValue)) || !submitCollectionHelperService.listEquals(fetchedIsbnNumbers, incomingIsbnNumbers) ||
-                    !submitCollectionHelperService.listEquals(fetchedIssnNumbers, incomingIssnNumbers) || !submitCollectionHelperService.listEquals(fetchedOclcNumbers, incomingOclcNumbers)) {
-                fetchBibliographicEntity.setMaQualifier(Boolean.TRUE);
-                bibliographicDetailsRepository.save(fetchBibliographicEntity);
+            if (isCGDChanged || !titleEquals || !lccnEquals || !isbnEquals || !issnEquals || !oclcEquals) {
+                     fetchBibliographicEntity.setMaQualifier(Boolean.TRUE);
+                     logger.info("Match Id - {}, Saving Bib when size = 1 - {}", matchingIdentity, fetchBibliographicEntity.getId());
+                     bibliographicDetailsRepository.save(fetchBibliographicEntity);
+                     bibliographicDetailsRepository.flush();
+                     repositoryService.getBibliographicDetailsRepository().flush();
             }
         } else {
-            if ((isCGDChanged || !fetchedTitle.equals(incomingTitle)) || (!fetchedLccnValue.equals(incomingLccnValue)) || !submitCollectionHelperService.listEquals(fetchedIsbnNumbers, incomingIsbnNumbers) ||
-                    !submitCollectionHelperService.listEquals(fetchedIssnNumbers, incomingIssnNumbers) || !submitCollectionHelperService.listEquals(fetchedOclcNumbers, incomingOclcNumbers)) {
+            if (isCGDChanged || !titleEquals || !lccnEquals || !isbnEquals || !issnEquals || !oclcEquals) {
                 if (!bibliographicEntities.isEmpty() && bibliographicEntities.size() > 2) {
                     boolean matchScoreEqual = true;
                     for (int counter = 0; counter < bibliographicEntities.size() - 1; counter++) {
@@ -1265,14 +1283,19 @@ public class SubmitCollectionDAOService {
                         fetchBibliographicEntity.setMatchScore(null);
                         fetchBibliographicEntity.setAnamolyFlag(Boolean.FALSE);
                         fetchBibliographicEntity.setMaQualifier(Boolean.TRUE);
+                        logger.info("Match Id - {}, Saving Bib when match score is equal - {}", matchingIdentity, fetchBibliographicEntity.getId());
                         bibliographicDetailsRepository.save(fetchBibliographicEntity);
                     } else {
                         updatedBibliographicEntities = setBibliographicEntitiesValue(bibliographicEntities);
+                        logger.info("Match Id - {}, Saving Bibs when match score is not equal - Size - {}, Bib Ids - {}", matchingIdentity, updatedBibliographicEntities.size(), updatedBibliographicEntities.stream().map(BibliographicEntity::getId).collect(Collectors.toList()));
                         repositoryService.getBibliographicDetailsRepository().saveAll(updatedBibliographicEntities);
+                        repositoryService.getBibliographicDetailsRepository().flush();
                     }
                 } else if (!bibliographicEntities.isEmpty() && bibliographicEntities.size() == 2) {
                     updatedBibliographicEntities = setBibliographicEntitiesValue(bibliographicEntities);
+                    logger.info("Match Id - {}, Saving Bibs when size == 2, Bib Ids - {}", matchingIdentity, updatedBibliographicEntities.stream().map(BibliographicEntity::getId).collect(Collectors.toList()));
                     repositoryService.getBibliographicDetailsRepository().saveAll(updatedBibliographicEntities);
+                    repositoryService.getBibliographicDetailsRepository().flush();
 
                 }
             }
@@ -1283,9 +1306,11 @@ public class SubmitCollectionDAOService {
             }
         }
         if (!updatedBibIdList.isEmpty()) {
+            logger.info("Calling index data - Size: {}, BibIds: {} ", updatedBibIdList.size(), updatedBibIdList);
             submitCollectionService.indexData(updatedBibIdList);
         }
-        submitCollectionReportHelperService.setSubmitCollectionReportInfoForMatchPointChange(fetchBibliographicEntity, incomingBibliographicEntity, fetchedTitle, fetchedIsbnNumbers, fetchedIssnNumbers, fetchedOclcNumbers, fetchedLccnValue, incomingTitle, incomingIsbnNumbers, incomingIssnNumbers, incomingOclcNumbers, incomingLccnValue, submitCollectionReportInfoMap);
+        submitCollectionReportHelperService.setSubmitCollectionReportInfoForMatchPointChange(fetchBibliographicEntity, incomingBibliographicEntity, fetchedTitle, fetchedIsbnNumbers, fetchedIssnNumbers, fetchedOclcNumbers, fetchedLccnValue, incomingTitle, incomingIsbnNumbers, incomingIssnNumbers, incomingOclcNumbers, incomingLccnValue, submitCollectionReportInfoMap,
+                titleEquals, lccnEquals, isbnEquals, issnEquals, oclcEquals);
         return fetchBibliographicEntity;
     }
 

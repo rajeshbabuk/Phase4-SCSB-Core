@@ -538,7 +538,8 @@ public class SubmitCollectionReportHelperService {
     public void setSubmitCollectionReportInfoForMatchPointChange(BibliographicEntity fetchedBibliographicEntity, BibliographicEntity incomingBibliographicEntity,
                                                                  String fetchedTitle, List<String> fetchedIsbnNumbers, List<String> fetchedIssnNumbers, List<String> fetchedOclcNumbers, String fetchedLccn,
                                                                  String incomingTitle, List<String> incomingIsbnNumbers, List<String> incomingIssnNumbers, List<String> incomingOclcNumbers, String incomingLccn,
-                                                                 Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap) {
+                                                                 Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, boolean titleEquals,
+                                                                 boolean lccnEquals, boolean isbnEquals, boolean issnEquals, boolean oclcEquals) {
         Map<String,String> incomingBarcodeOwningInstitutionBibIdMap = getBarcodeOwningInstitutionBibIdMap(incomingBibliographicEntity);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingBibliographicEntity.getItemEntities());
         List<SubmitCollectionReportInfo> submitCollectionmatchPointChangeReportInfos = submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST);
@@ -547,19 +548,19 @@ public class SubmitCollectionReportHelperService {
             ItemEntity incomingItemEntity = incomingBarcodeItemEntityMap.get(incomingOwningInstitutionBibIdBarcodeMapEntry.getKey());
             boolean hasChangeInfo = false;
             StringBuilder messageBuilder = new StringBuilder();
-            if (!fetchedTitle.equals(incomingTitle)) {
+            if (!titleEquals) {
                 hasChangeInfo = checkAndSetChangeInfo(hasChangeInfo, messageBuilder, getSubmitCollectionInfoMessage(ScsbCommonConstants.TITLE, fetchedTitle, incomingTitle));
             }
-            if (!fetchedLccn.equals(incomingLccn)) {
+            if (!lccnEquals) {
                 hasChangeInfo = checkAndSetChangeInfo(hasChangeInfo, messageBuilder, getSubmitCollectionInfoMessage(ScsbCommonConstants.MATCH_POINT_FIELD_LCCN, fetchedLccn, incomingLccn));
             }
-            if (!submitCollectionHelperService.listEquals(fetchedIsbnNumbers, incomingIsbnNumbers)) {
+            if (!isbnEquals) {
                 hasChangeInfo = checkAndSetChangeInfo(hasChangeInfo, messageBuilder, getSubmitCollectionInfoListMessage(ScsbCommonConstants.MATCH_POINT_FIELD_ISBN, fetchedIsbnNumbers, incomingIsbnNumbers));
             }
-            if (!submitCollectionHelperService.listEquals(fetchedIssnNumbers, incomingIssnNumbers)) {
+            if (!issnEquals) {
                 hasChangeInfo = checkAndSetChangeInfo(hasChangeInfo, messageBuilder, getSubmitCollectionInfoListMessage(ScsbCommonConstants.MATCH_POINT_FIELD_ISSN, fetchedIssnNumbers, incomingIssnNumbers));
             }
-            if (!submitCollectionHelperService.listEquals(fetchedOclcNumbers, incomingOclcNumbers)) {
+            if (!oclcEquals) {
                 hasChangeInfo = checkAndSetChangeInfo(hasChangeInfo, messageBuilder, getSubmitCollectionInfoListMessage(ScsbCommonConstants.MATCH_POINT_FIELD_OCLC, fetchedOclcNumbers, incomingOclcNumbers));
             }
 
