@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 
 import brave.sampler.Sampler;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -14,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @PropertySource("classpath:application.properties")
 @SpringBootApplication
+@EnableAsync
 public class ScsbCoreApplication {
 
 	/**

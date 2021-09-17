@@ -79,5 +79,21 @@ public interface BibliographicDetailsRepository extends BaseRepository<Bibliogra
      */
     BibliographicEntity findByOwningInstitutionIdAndOwningInstitutionBibIdAndIsDeletedFalse(Integer owningInstitutionId, String owningInstitutionBibId);
 
+    /**
+     * Find by matchingIdentity list.
+     *
+     * @param matchingIdentity the matching Identifier
+     * @return the list
+     */
+    List<BibliographicEntity> findByMatchingIdentity(String matchingIdentity);
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = "UPDATE `BIBLIOGRAPHIC_T` SET `MATCHING_IDENTITY`=null, `MATCH_SCORE`='0', `ANAMOLY_FLAG`='0', `MA_QUALIFIER`='1' WHERE `BIBLIOGRAPHIC_ID` in (:bibliographicIds)",nativeQuery = true)
+    int resetMatchingColumnsAndUpdateMaQualifier(@Param("bibliographicIds") List<Integer> bibIds);
+
+    @Query(value = "SELECT BIBLIOGRAPHIC_ID FROM BIBLIOGRAPHIC_T WHERE MATCHING_IDENTITY = :matchingIdentity", nativeQuery = true)
+    List<Integer> findIdByMatchingIdentity(@Param("matchingIdentity") String matchingIdentity);
+
 
 }

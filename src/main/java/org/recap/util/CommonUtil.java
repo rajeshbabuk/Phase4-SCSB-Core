@@ -5,6 +5,7 @@ import org.marc4j.marc.Record;
 import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
+import org.recap.model.submitcollection.BibMatchPointInfo;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
 import org.recap.model.gfa.ScsbLasItemStatusCheckModel;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -62,8 +64,20 @@ public class CommonUtil {
     @Autowired
     private PropertyUtil propertyUtil;
 
+    @Autowired
+    private BibJSONUtil bibJSONUtil;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
     @Value("${" + PropertyKeyConstants.SCSB_SUPPORT_INSTITUTION + "}")
     private String supportInstitution;
+
+    @Value("${" + PropertyKeyConstants.NONHOLDINGID_INSTITUTION + "}")
+    private String nonHoldingIdInstitution;
+
+    @Value("${" + PropertyKeyConstants.SCSB_SOLR_DOC_URL + "}")
+    private String scsbSolrClientUrl;
 
     /**
      * This method builds Holdings Entity from holdings content
@@ -402,5 +416,48 @@ public class CommonUtil {
     public boolean checkIfImsItemStatusIsRequestableNotRetrievable(String imsLocationCode, String imsItemStatus) {
         String imsItemStatusCodes = propertyUtil.getPropertyByImsLocationAndKey(imsLocationCode, PropertyKeyConstants.IMS.IMS_REQUESTABLE_NOT_RETRIEVABLE_ITEM_STATUS_CODES);
         return StringUtils.isNotBlank(imsItemStatusCodes) && StringUtils.startsWithAny(imsItemStatus, imsItemStatusCodes.split(","));
+    }
+
+    public BibMatchPointInfo getBibMatchPointInfoForMarcRecord(Record marcRecord, String institutionCode) {
+        BibMatchPointInfo bibMatchPointInfo = new BibMatchPointInfo();
+        bibJSONUtil.setNonHoldingInstitutions(Arrays.asList(nonHoldingIdInstitution.split(",")));
+        bibMatchPointInfo.setTitle(bibJSONUtil.getTitle(marcRecord));
+        bibMatchPointInfo.setLccn(bibJSONUtil.getLCCNValue(marcRecord));
+        bibMatchPointInfo.setIsbn(bibJSONUtil.getISBNNumber(marcRecord));
+        bibMatchPointInfo.setIssn(bibJSONUtil.getISSNNumber(marcRecord));
+        bibMatchPointInfo.setOclc(bibJSONUtil.getOCLCNumbers(marcRecord, institutionCode));
+        return bibMatchPointInfo;
+    }
+
+    public boolean compareMatchPoints(Record incomingMarcRecord, Record existingMarcRecord, String institutionCode) {
+        BibMatchPointInfo incomingBibMatchPointInfo = getBibMatchPointInfoForMarcRecord(incomingMarcRecord, institutionCode);
+        BibMatchPointInfo existingBibMatchPointInfo = getBibMatchPointInfoForMarcRecord(existingMarcRecord, institutionCode);
+        return incomingBibMatchPointInfo.equals(existingBibMatchPointInfo);
+    }
+
+    public boolean compareMatchPointsByMarcXml(String incomingMarcXml, String existingMarcXml, String institutionCode) {
+        List<Record> incomingMarcRecords = marcUtil.convertMarcXmlToRecord(incomingMarcXml);
+        List<Record> existingMarcRecords = marcUtil.convertMarcXmlToRecord(existingMarcXml);
+       return compareMatchPoints(incomingMarcRecords.get(0), existingMarcRecords.get(0), institutionCode);
+    }
+
+    public boolean isCgdChanged(Map<String, ItemEntity> fetchedBarcodeItemEntityMap, Map<String, ItemEntity> incomingBarcodeItemEntityMap) {
+        boolean isCGDChanged = false;
+        for (Map.Entry<String, ItemEntity> incomingBarcodeItemEntityMapEntry : incomingBarcodeItemEntityMap.entrySet()) {
+            ItemEntity incomingItemEntity = incomingBarcodeItemEntityMapEntry.getValue();
+            ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
+            if (fetchedItemEntity != null && fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId())
+                    && fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode()) && !fetchedItemEntity.isDeleted()) {
+                if (fetchedItemEntity.getCollectionGroupId().intValue() != incomingItemEntity.getCollectionGroupId().intValue()) {
+                    isCGDChanged = true;
+                    break;
+                }
+            }
+        }
+        return isCGDChanged;
+    }
+
+    public void indexData(Set<Integer> bibliographicIdList){
+        restTemplate.postForObject(scsbSolrClientUrl + "solrIndexer/indexByBibliographicId", bibliographicIdList, String.class);
     }
 }
