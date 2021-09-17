@@ -38,13 +38,9 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.transaction.Transactional;
 import javax.xml.bind.JAXBException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * Created by premkb on 20/12/16.
@@ -105,7 +101,7 @@ public class SubmitCollectionService {
      */
     @Transactional
     public List<SubmitCollectionResponse> process(String institutionCode, String inputRecords, Set<Integer> processedBibIds, List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, String xmlFileName, List<Integer> reportRecordNumberList, boolean checkLimit
-            , boolean isCGDProtected, Set<String> updatedDummyRecordOwnInstBibIdSet, Exchange exchange) {
+            , boolean isCGDProtected, Set<String> updatedDummyRecordOwnInstBibIdSet, Exchange exchange, ExecutorService executorService, List<Future> futures) {
         logger.info("Submit Collection : Input record processing started");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -118,9 +114,9 @@ public class SubmitCollectionService {
             try {
                 if (!"".equals(inputRecords)) {
                     if (inputRecords.contains(ScsbConstants.BIBRECORD_TAG)) {
-                        response = processSCSB(inputRecords, processedBibIds, submitCollectionReportInfoMap, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, checkLimit,isCGDProtected,institutionEntity,updatedDummyRecordOwnInstBibIdSet);
+                        response = processSCSB(inputRecords, processedBibIds, submitCollectionReportInfoMap, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, checkLimit,isCGDProtected,institutionEntity,updatedDummyRecordOwnInstBibIdSet, executorService, futures);
                     } else {
-                        response = processMarc(inputRecords, processedBibIds, submitCollectionReportInfoMap, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, checkLimit,isCGDProtected,institutionEntity,updatedDummyRecordOwnInstBibIdSet);
+                        response = processMarc(inputRecords, processedBibIds, submitCollectionReportInfoMap, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, checkLimit,isCGDProtected,institutionEntity,updatedDummyRecordOwnInstBibIdSet, executorService, futures);
                     }
                     if (response != null){//This happens when there is a failure
                         exchange.setException(new Exception(response));
@@ -178,7 +174,7 @@ public class SubmitCollectionService {
     }
 
     public String processMarc(String inputRecords, Set<Integer> processedBibIds, Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, boolean checkLimit
-            ,boolean isCGDProtection,InstitutionEntity institutionEntity,Set<String> updatedDummyRecordOwnInstBibIdSet) {
+            ,boolean isCGDProtection,InstitutionEntity institutionEntity,Set<String> updatedDummyRecordOwnInstBibIdSet, ExecutorService executorService, List<Future> futures) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String format = ScsbConstants.FORMAT_MARC;
@@ -189,7 +185,7 @@ public class SubmitCollectionService {
                 int count = 1;
                 Set<String> processedBarcodeSetForDummyRecords = new HashSet<>();
                 for (Record record : records) {
-                    BibliographicEntity bibliographicEntity = loadData(record, format, submitCollectionReportInfoMap, idMapToRemoveIndexList, isCGDProtection, institutionEntity, processedBarcodeSetForDummyRecords);
+                    BibliographicEntity bibliographicEntity = loadData(record, format, submitCollectionReportInfoMap, idMapToRemoveIndexList, isCGDProtection, institutionEntity, processedBarcodeSetForDummyRecords, executorService, futures);
                     if (null != bibliographicEntity && null != bibliographicEntity.getId()) {
                         processedBibIds.add(bibliographicEntity.getId());
                     }
@@ -205,7 +201,8 @@ public class SubmitCollectionService {
     }
 
     public String processSCSB(String inputRecords, Set<Integer> processedBibIds, Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap,
-                              List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, boolean checkLimit,boolean isCGDProtected,InstitutionEntity institutionEntity,Set<String> updatedDummyRecordOwnInstBibIdSet) {
+                              List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, boolean checkLimit,boolean isCGDProtected,InstitutionEntity institutionEntity,Set<String> updatedDummyRecordOwnInstBibIdSet,
+                              ExecutorService executorService, List<Future> futures) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String format;
@@ -226,7 +223,7 @@ public class SubmitCollectionService {
         for (BibRecord bibRecord : bibRecords.getBibRecordList()) {
             logger.info("Processing Bib record no: {}",count);
             try {
-                BibliographicEntity bibliographicEntity = loadData(bibRecord, format, submitCollectionReportInfoMap, idMapToRemoveIndexList,isCGDProtected,institutionEntity,processedBarcodeSetForDummyRecords);
+                BibliographicEntity bibliographicEntity = loadData(bibRecord, format, submitCollectionReportInfoMap, idMapToRemoveIndexList,isCGDProtected,institutionEntity,processedBarcodeSetForDummyRecords, executorService, futures);
                 if (null!=bibliographicEntity && null != bibliographicEntity.getId()) {
                     processedBibIds.add(bibliographicEntity.getId());
                 }
@@ -245,7 +242,7 @@ public class SubmitCollectionService {
     }
 
     public BibliographicEntity loadData(Object record, String format, Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, List<Map<String,String>> idMapToRemoveIndexList
-            , boolean isCGDProtected, InstitutionEntity institutionEntity, Set<String> processedBarcodeSetForDummyRecords){
+            , boolean isCGDProtected, InstitutionEntity institutionEntity, Set<String> processedBarcodeSetForDummyRecords, ExecutorService executorService, List<Future> futures){
         BibliographicEntity savedBibliographicEntity = null;
         BibliographicEntity bibliographicEntity = null;
         try {
@@ -255,7 +252,7 @@ public class SubmitCollectionService {
             if (errorMessage != null && errorMessage.length()==0) {
                 setCGDProtectionForItems(bibliographicEntity,isCGDProtected);
                 if (bibliographicEntity != null) {
-                    savedBibliographicEntity = getSubmitCollectionDAOService().updateBibliographicEntity(bibliographicEntity, submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, isCGDProtected);
+                    savedBibliographicEntity = getSubmitCollectionDAOService().updateBibliographicEntity(bibliographicEntity, submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, isCGDProtected, executorService, futures);
                 }
             } else {
                 if (errorMessage != null && errorMessage.length()>0) {

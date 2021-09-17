@@ -29,6 +29,10 @@ import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * Created by premkb on 21/12/16.
@@ -170,7 +174,9 @@ public class SharedCollectionRestController {
         Set<String> updatedBoundWithDummyRecordOwnInstBibIdSet = new HashSet<>();
         List<SubmitCollectionResponse> submitCollectionResponseList;
         try {
-            submitCollectionResponseList = submitCollectionBatchService.process(institution,inputRecords,processedBibIdSet,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,"",reportRecordNumberList, true,isCGDProtection,updatedBoundWithDummyRecordOwnInstBibIdSet, null);
+            ExecutorService executorService = Executors.newFixedThreadPool(1);
+            List<Future> futures = new ArrayList<>();
+            submitCollectionResponseList = submitCollectionBatchService.process(institution,inputRecords,processedBibIdSet,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,"",reportRecordNumberList, true,isCGDProtection,updatedBoundWithDummyRecordOwnInstBibIdSet, null, executorService, futures);
             if (!processedBibIdSet.isEmpty()) {
                 logger.info("Calling indexing service to update data");
                 submitCollectionService.indexData(processedBibIdSet);
@@ -188,6 +194,8 @@ public class SharedCollectionRestController {
                 }).start();
             }
             submitCollectionBatchService.generateSubmitCollectionReportFile(reportRecordNumberList);
+            collectFutures(futures);
+            executorService.shutdown();
             responseEntity = new ResponseEntity(submitCollectionResponseList,getHttpHeaders(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error(ScsbCommonConstants.LOG_ERROR,e);
@@ -202,5 +210,17 @@ public class SharedCollectionRestController {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add(ScsbCommonConstants.RESPONSE_DATE, new Date().toString());
         return responseHeaders;
+    }
+
+    private void collectFutures(List<Future> futures) {
+        List collectedFutures = futures.stream().map(future -> {
+            try {
+                future.get();
+                return future;
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }).collect(Collectors.toList());
+        logger.info("Submit Collection API - Number of Futures Collected for Match Point Checks: {}", collectedFutures.size());
     }
 }

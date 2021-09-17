@@ -1,8 +1,8 @@
 package org.recap.service.submitcollection.callable;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.recap.ScsbCommonConstants;
-import org.recap.ScsbConstants;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.util.CommonUtil;
@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by rajeshbabuk on 17/Sep/2021
  */
+@Slf4j
 @Component
 @Scope("prototype")
 @Data

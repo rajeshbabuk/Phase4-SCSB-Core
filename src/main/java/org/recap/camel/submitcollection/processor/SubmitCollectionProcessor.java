@@ -25,6 +25,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * Created by premkb on 19/3/17.
@@ -109,7 +113,9 @@ public class SubmitCollectionProcessor {
             xmlFileName = submitCollectionS3BasePath+ institutionCode+ ScsbCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + ScsbCommonConstants.PATH_SEPARATOR + xmlFileName;
             logger.info("Processing xmlFileName----->{}", xmlFileName);
             Integer institutionId = setupDataService.getInstitutionCodeIdMap().get(institutionCode);
-            submitCollectionBatchService.process(institutionCode, inputXml, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, xmlFileName, reportRecordNumList, false, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, exchange);
+            ExecutorService executorService = Executors.newFixedThreadPool(10);
+            List<Future> futures = new ArrayList<>();
+            submitCollectionBatchService.process(institutionCode, inputXml, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, xmlFileName, reportRecordNumList, false, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, exchange, executorService, futures);
             logger.info("Submit Collection : Solr indexing started for {} records", processedBibIds.size());
             logger.info("idMapToRemoveIndex---> {}", idMapToRemoveIndexList.size());
             if (!processedBibIds.isEmpty()) {
@@ -146,6 +152,8 @@ public class SubmitCollectionProcessor {
                 stopWatchRemovingDummy.stop();
                 logger.info("Time take to call and execute solr call to remove dummy-->{} sec", stopWatchRemovingDummy.getTotalTimeSeconds());
             }
+            collectFutures(futures);
+            executorService.shutdown();
             ReportDataRequest reportRequest = getReportDataRequest(xmlFileName);
             String generatedReportFileName = submitCollectionReportGenerator.generateReport(reportRequest);
             producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoad(xmlFileName, generatedReportFileName), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION);
@@ -177,6 +185,18 @@ public class SubmitCollectionProcessor {
             logger.info("Exception occured is - {}", exception.getMessage());
             producer.sendBodyAndHeader(ScsbConstants.EMAIL_Q, getEmailPayLoadForExcepion(institutionCode1, fileName, filePath, exception, exception.getMessage()), ScsbConstants.EMAIL_BODY_FOR, ScsbConstants.SUBMIT_COLLECTION_EXCEPTION);
         }
+    }
+
+    private void collectFutures(List<Future> futures) {
+        List collectedFutures = futures.stream().map(future -> {
+            try {
+                future.get();
+                return future;
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }).collect(Collectors.toList());
+        logger.info("Number of Futures Collected for Match Point Checks: {}", collectedFutures.size());
     }
 
     private EmailPayLoad getEmailPayLoadForExcepion(String institutionCode, String name, String filePath, Exception exception, String exceptionMessage) {
