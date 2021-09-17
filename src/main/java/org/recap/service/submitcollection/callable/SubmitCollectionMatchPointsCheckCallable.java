@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<String
     @Autowired
     private BibliographicDetailsRepository bibliographicDetailsRepository;
 
+    Integer fetchedBibId;
     String incomingMarcXml;
     String existingMarcXml;
     String matchingIdentifier;
@@ -47,7 +49,12 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<String
             }
             boolean isMatchPointsEqual = commonUtil.compareMatchPointsByMarcXml(incomingMarcXml, existingMarcXml, institutionCode);
             if (isCGDChanged || !isMatchPointsEqual) {
-                List<Integer> bibIds = bibliographicDetailsRepository.findIdByMatchingIdentity(matchingIdentifier);
+                List<Integer> bibIds = new ArrayList<>();
+                if (matchingIdentifier != null) {
+                    bibIds = bibliographicDetailsRepository.findIdByMatchingIdentity(matchingIdentifier);
+                } else {
+                    bibIds.add(fetchedBibId);
+                }
                 log.info("Matching Id - {}, Resetting {} Bib Ids: {}", matchingIdentifier, bibIds.size(), bibIds);
                 bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(bibIds);
                 bibliographicDetailsRepository.flush();
