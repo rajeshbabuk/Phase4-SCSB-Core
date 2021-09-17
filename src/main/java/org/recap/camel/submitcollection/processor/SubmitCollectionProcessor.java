@@ -106,6 +106,7 @@ public class SubmitCollectionProcessor {
         List<Map<String, String>> bibIdMapToRemoveIndexList = new ArrayList<>();
         List<Integer> reportRecordNumList = new ArrayList<>();
         String xmlFileName = null;
+        ExecutorService executorService = null;
         try {
             logger.info("Submit Collection : Route started and started processing the records from s3 for submitcollection");
             String inputXml = exchange.getIn().getBody(String.class);
@@ -113,7 +114,7 @@ public class SubmitCollectionProcessor {
             xmlFileName = submitCollectionS3BasePath+ institutionCode+ ScsbCommonConstants.PATH_SEPARATOR + "cgd_" + cgdType + ScsbCommonConstants.PATH_SEPARATOR + xmlFileName;
             logger.info("Processing xmlFileName----->{}", xmlFileName);
             Integer institutionId = setupDataService.getInstitutionCodeIdMap().get(institutionCode);
-            ExecutorService executorService = Executors.newFixedThreadPool(10);
+            executorService = Executors.newFixedThreadPool(10);
             List<Future> futures = new ArrayList<>();
             submitCollectionBatchService.process(institutionCode, inputXml, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, xmlFileName, reportRecordNumList, false, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, exchange, executorService, futures);
             logger.info("Submit Collection : Solr indexing started for {} records", processedBibIds.size());
@@ -169,6 +170,9 @@ public class SubmitCollectionProcessor {
             logger.info("Caught for institution inside catch block {} ",institutionCode);
             logger.error(ScsbCommonConstants.LOG_ERROR, e);
             exchange.setException(e);
+            if (executorService != null) {
+                executorService.shutdown();
+            }
         }
     }
 
@@ -188,6 +192,7 @@ public class SubmitCollectionProcessor {
     }
 
     private void collectFutures(List<Future> futures) {
+        logger.info("Before Completion - Number of Futures Collected for Match Point Checks: {}", futures.size());
         List collectedFutures = futures.stream().map(future -> {
             try {
                 future.get();
@@ -196,7 +201,7 @@ public class SubmitCollectionProcessor {
                 throw new IllegalStateException(e);
             }
         }).collect(Collectors.toList());
-        logger.info("Number of Futures Collected for Match Point Checks: {}", collectedFutures.size());
+        logger.info("After Completion - Number of Futures Collected for Match Point Checks: {}", collectedFutures.size());
     }
 
     private EmailPayLoad getEmailPayLoadForExcepion(String institutionCode, String name, String filePath, Exception exception, String exceptionMessage) {

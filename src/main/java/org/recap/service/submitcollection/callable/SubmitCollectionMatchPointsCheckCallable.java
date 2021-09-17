@@ -48,6 +48,7 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<String
             boolean isMatchPointsEqual = commonUtil.compareMatchPointsByMarcXml(incomingMarcXml, existingMarcXml, institutionCode);
             if (isCGDChanged || !isMatchPointsEqual) {
                 List<Integer> bibIds = bibliographicDetailsRepository.findIdByMatchingIdentity(matchingIdentifier);
+                log.info("Matching Id - {}, Resetting {} Bib Ids: {}", matchingIdentifier, bibIds.size(), bibIds);
                 bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(bibIds);
                 bibliographicDetailsRepository.flush();
                 commonUtil.indexData(new HashSet<>(bibIds));

@@ -173,8 +173,9 @@ public class SharedCollectionRestController {
         List<Map<String,String>> bibIdMapToRemoveIndexList = new ArrayList<>();//Added to remove orphan record while unlinking
         Set<String> updatedBoundWithDummyRecordOwnInstBibIdSet = new HashSet<>();
         List<SubmitCollectionResponse> submitCollectionResponseList;
+        ExecutorService executorService = null;
         try {
-            ExecutorService executorService = Executors.newFixedThreadPool(1);
+            executorService = Executors.newFixedThreadPool(1);
             List<Future> futures = new ArrayList<>();
             submitCollectionResponseList = submitCollectionBatchService.process(institution,inputRecords,processedBibIdSet,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,"",reportRecordNumberList, true,isCGDProtection,updatedBoundWithDummyRecordOwnInstBibIdSet, null, executorService, futures);
             if (!processedBibIdSet.isEmpty()) {
@@ -200,6 +201,9 @@ public class SharedCollectionRestController {
         } catch (Exception e) {
             logger.error(ScsbCommonConstants.LOG_ERROR,e);
             responseEntity = new ResponseEntity(ScsbConstants.SUBMIT_COLLECTION_INTERNAL_ERROR,getHttpHeaders(), HttpStatus.OK);
+            if (executorService != null) {
+                executorService.shutdown();
+            }
         }
         stopWatch.stop();
         logger.info("Total time taken to process submit collection through rest api--->{} sec",stopWatch.getTotalTimeSeconds());
