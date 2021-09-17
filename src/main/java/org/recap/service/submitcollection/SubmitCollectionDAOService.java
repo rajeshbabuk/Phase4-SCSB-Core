@@ -1210,11 +1210,11 @@ public class SubmitCollectionDAOService {
     private BibliographicEntity updateMatchingRecords(BibliographicEntity fetchBibliographicEntity, BibliographicEntity incomingBibliographicEntity, Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap,
                                                       Map<String, ItemEntity> fetchedBarcodeItemEntityMap, Map<String, ItemEntity> incomingBarcodeItemEntityMap, boolean isCGDProtected, ExecutorService executorService, List<Future> futures) {
         String fetchedInstitutionCode = null != fetchBibliographicEntity.getInstitutionEntity() ? fetchBibliographicEntity.getInstitutionEntity().getInstitutionCode() : ScsbCommonConstants.NA;
-
         SubmitCollectionMatchPointsCheckCallable submitCollectionMatchPointsCheckCallable = applicationContext.getBean(SubmitCollectionMatchPointsCheckCallable.class);
         submitCollectionMatchPointsCheckCallable.setFetchedBibId(fetchBibliographicEntity.getId());
         submitCollectionMatchPointsCheckCallable.setExistingMarcXml(new String(fetchBibliographicEntity.getContent()));
         submitCollectionMatchPointsCheckCallable.setIncomingMarcXml(new String(incomingBibliographicEntity.getContent()));
+        submitCollectionMatchPointsCheckCallable.setMatchingIdentifier(fetchBibliographicEntity.getMatchingIdentity());
         submitCollectionMatchPointsCheckCallable.setInstitutionCode(fetchedInstitutionCode);
         submitCollectionMatchPointsCheckCallable.setFetchedBarcodeItemEntityMap(fetchedBarcodeItemEntityMap);
         submitCollectionMatchPointsCheckCallable.setIncomingBarcodeItemEntityMap(incomingBarcodeItemEntityMap);
