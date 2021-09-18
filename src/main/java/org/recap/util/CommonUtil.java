@@ -452,7 +452,9 @@ public class CommonUtil {
             ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
             if (fetchedItemEntity != null && fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId())
                     && fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode()) && !fetchedItemEntity.isDeleted()) {
-                if (fetchedItemEntity.getCollectionGroupEntity().getId().intValue() != incomingItemEntity.getCollectionGroupId().intValue()) {
+                CollectionGroupEntity collectionGroupEntity = fetchedItemEntity.getCollectionGroupEntity();
+                Integer fetchedCgdId = null != collectionGroupEntity ? collectionGroupEntity.getId() : fetchedItemEntity.getCollectionGroupId();
+                if (fetchedCgdId.intValue() != incomingItemEntity.getCollectionGroupId().intValue()) {
                     String incomingCgdCode = collectionGroupIdCodeMap.get(incomingItemEntity.getCollectionGroupId());
                     if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(incomingCgdCode)) {
                         isCgdChangedToShared = true;
