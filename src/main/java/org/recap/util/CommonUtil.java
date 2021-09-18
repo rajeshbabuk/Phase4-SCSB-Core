@@ -452,13 +452,17 @@ public class CommonUtil {
             ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
             if (fetchedItemEntity != null && fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId())
                     && fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode()) && !fetchedItemEntity.isDeleted()) {
-                CollectionGroupEntity collectionGroupEntity = fetchedItemEntity.getCollectionGroupEntity();
-                Integer fetchedCgdId = null != collectionGroupEntity ? collectionGroupEntity.getId() : fetchedItemEntity.getCollectionGroupId();
-                if (fetchedCgdId.intValue() != incomingItemEntity.getCollectionGroupId().intValue()) {
-                    String incomingCgdCode = collectionGroupIdCodeMap.get(incomingItemEntity.getCollectionGroupId());
-                    if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(incomingCgdCode)) {
-                        isCgdChangedToShared = true;
-                        break;
+                CollectionGroupEntity fetchedCollectionGroupEntity = fetchedItemEntity.getCollectionGroupEntity();
+                CollectionGroupEntity incomingCollectionGroupEntity = incomingItemEntity.getCollectionGroupEntity();
+                Integer fetchedCgdId = null != fetchedCollectionGroupEntity ? fetchedCollectionGroupEntity.getId() : fetchedItemEntity.getCollectionGroupId();
+                Integer incomingCgdId = null != incomingCollectionGroupEntity ? incomingCollectionGroupEntity.getId() : incomingItemEntity.getCollectionGroupId();
+                if (fetchedCgdId != null && incomingCgdId != null) {
+                    if (fetchedCgdId.intValue() != incomingCgdId.intValue()) {
+                        String incomingCgdCode = collectionGroupIdCodeMap.get(incomingItemEntity.getCollectionGroupId());
+                        if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(incomingCgdCode)) {
+                            isCgdChangedToShared = true;
+                            break;
+                        }
                     }
                 }
             }
