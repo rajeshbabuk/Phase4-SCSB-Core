@@ -226,4 +226,8 @@ public final class ScsbConstants {
     public static final String NO = "No";
     public static final String NUMBER_PATTERN="[^0-9]";
     public static final String MATCH_POINT_CHANGE_RECORD = "Match Point Change Record";
+
+    public static final Integer MA_QUALIFIER_1 = 1;
+    public static final Integer MA_QUALIFIER_2 = 2;
+    public static final Integer MA_QUALIFIER_3 = 3;
 }

@@ -8,6 +8,7 @@ import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.EmailPayLoad;
 import org.recap.model.reports.ReportDataRequest;
+import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.service.common.SetupDataService;
 import org.recap.service.submitcollection.SubmitCollectionBatchService;
 import org.recap.service.submitcollection.SubmitCollectionReportGenerator;
@@ -24,11 +25,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 /**
  * Created by premkb on 19/3/17.
@@ -82,6 +83,9 @@ public class SubmitCollectionProcessor {
     @Value("${" + PropertyKeyConstants.SUBMIT_COLLECTION_USE_SOLR_PARTIAL_INDEX_TOTAL_DOCS_SIZE + ":1000}")
     private int solrMaxDocSizeToUsePartialIndex;
 
+    @Autowired
+    private BibliographicDetailsRepository bibliographicDetailsRepository;
+
     public SubmitCollectionProcessor() {
     }
 
@@ -118,42 +122,10 @@ public class SubmitCollectionProcessor {
             List<Future> futures = new ArrayList<>();
             submitCollectionBatchService.process(institutionCode, inputXml, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, xmlFileName, reportRecordNumList, false, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, exchange, executorService, futures);
             logger.info("Submit Collection : Solr indexing started for {} records", processedBibIds.size());
-            logger.info("idMapToRemoveIndex---> {}", idMapToRemoveIndexList.size());
-            if (!processedBibIds.isEmpty()) {
-                StopWatch stopWatchSolrIndexing = new StopWatch();
-                stopWatchSolrIndexing.start();
-                String indexingStatus = null;
-                if (processedBibIds.size() > solrMaxDocSizeToUsePartialIndex) { // If the number of bib Ids is greater than configured value, default is 1000, index data with multi-threading using partial index api
-                    indexingStatus = submitCollectionBatchService.partialIndexData(processedBibIds);
-                } else { // If the number of bib Ids is less than configured value, default is 1000, index data without multi-threading
-                    indexingStatus = submitCollectionBatchService.indexData(processedBibIds);
-                }
-                logger.info("Submit Collection : Solr indexing Status - {}", indexingStatus);
-                logger.info("Submit Collection : Solr indexing completed and remove the incomplete record from solr index for {} records", idMapToRemoveIndexList.size());
-                stopWatchSolrIndexing.stop();
-                logger.info("Submit Collection : Total Time taken to do solr indexing : {} sec", stopWatchSolrIndexing.getTotalTimeSeconds());
-            }
-            if (!updatedBoundWithDummyRecordOwnInstBibIdSet.isEmpty()) {
-                logger.info("Updated boundwith dummy record own inst bib id size-->{}", updatedBoundWithDummyRecordOwnInstBibIdSet.size());
-                submitCollectionService.indexDataUsingOwningInstBibId(new ArrayList<>(updatedBoundWithDummyRecordOwnInstBibIdSet), institutionId);
-            }
-            if (!idMapToRemoveIndexList.isEmpty() || !bibIdMapToRemoveIndexList.isEmpty()) {//remove the incomplete record from solr index
-                StopWatch stopWatchRemovingDummy = new StopWatch();
-                stopWatchRemovingDummy.start();
-                logger.info("Calling indexing to remove dummy records");
-                new Thread(() -> {
-                    try {
-                        submitCollectionBatchService.removeBibFromSolrIndex(bibIdMapToRemoveIndexList);
-                        submitCollectionBatchService.removeSolrIndex(idMapToRemoveIndexList);
-                        logger.info("Removed dummy records from solr");
-                    } catch (Exception e) {
-                        logger.error(ScsbCommonConstants.LOG_ERROR, e);
-                    }
-                }).start();
-                stopWatchRemovingDummy.stop();
-                logger.info("Time take to call and execute solr call to remove dummy-->{} sec", stopWatchRemovingDummy.getTotalTimeSeconds());
-            }
-            collectFutures(futures);
+            performIndexing(processedBibIds);
+            performIndexingByOwningInstitutionBibIds(updatedBoundWithDummyRecordOwnInstBibIdSet, institutionId);
+            performIndexingToRemoveBibs(idMapToRemoveIndexList, bibIdMapToRemoveIndexList);
+            collectFuturesAndProcess(futures);
             executorService.shutdown();
             ReportDataRequest reportRequest = getReportDataRequest(xmlFileName);
             String generatedReportFileName = submitCollectionReportGenerator.generateReport(reportRequest);
@@ -176,6 +148,49 @@ public class SubmitCollectionProcessor {
         }
     }
 
+    private void performIndexingToRemoveBibs(List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList) {
+        logger.info("Submit Collection : Solr indexing completed and remove the incomplete record from solr index for {} records", idMapToRemoveIndexList.size());
+        if (!idMapToRemoveIndexList.isEmpty() || !bibIdMapToRemoveIndexList.isEmpty()) {//remove the incomplete record from solr index
+            StopWatch stopWatchRemovingDummy = new StopWatch();
+            stopWatchRemovingDummy.start();
+            logger.info("Calling indexing to remove dummy records");
+            new Thread(() -> {
+                try {
+                    submitCollectionBatchService.removeBibFromSolrIndex(bibIdMapToRemoveIndexList);
+                    submitCollectionBatchService.removeSolrIndex(idMapToRemoveIndexList);
+                    logger.info("Removed dummy records from solr");
+                } catch (Exception e) {
+                    logger.error(ScsbCommonConstants.LOG_ERROR, e);
+                }
+            }).start();
+            stopWatchRemovingDummy.stop();
+            logger.info("Time take to call and execute solr call to remove dummy-->{} sec", stopWatchRemovingDummy.getTotalTimeSeconds());
+        }
+    }
+
+    private void performIndexingByOwningInstitutionBibIds(Set<String> updatedBoundWithDummyRecordOwnInstBibIdSet, Integer institutionId) {
+        if (!updatedBoundWithDummyRecordOwnInstBibIdSet.isEmpty()) {
+            logger.info("Updated boundwith dummy record own inst bib id size-->{}", updatedBoundWithDummyRecordOwnInstBibIdSet.size());
+            submitCollectionService.indexDataUsingOwningInstBibId(new ArrayList<>(updatedBoundWithDummyRecordOwnInstBibIdSet), institutionId);
+        }
+    }
+
+    private void performIndexing(Set<Integer> processedBibIds) {
+        if (!processedBibIds.isEmpty()) {
+            StopWatch stopWatchSolrIndexing = new StopWatch();
+            stopWatchSolrIndexing.start();
+            String indexingStatus = null;
+            if (processedBibIds.size() > solrMaxDocSizeToUsePartialIndex) { // If the number of bib Ids is greater than configured value, default is 1000, index data with multi-threading using partial index api
+                indexingStatus = submitCollectionBatchService.partialIndexData(processedBibIds);
+            } else { // If the number of bib Ids is less than configured value, default is 1000, index data without multi-threading
+                indexingStatus = submitCollectionBatchService.indexData(processedBibIds);
+            }
+            logger.info("Submit Collection : Solr indexing Status - {}", indexingStatus);
+            stopWatchSolrIndexing.stop();
+            logger.info("Submit Collection : Total Time taken to do solr indexing : {} sec", stopWatchSolrIndexing.getTotalTimeSeconds());
+        }
+    }
+
     public void caughtException(Exchange exchange) {
         logger.info("inside caught exception..........");
         Exception exception = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
@@ -191,17 +206,49 @@ public class SubmitCollectionProcessor {
         }
     }
 
-    private void collectFutures(List<Future> futures) {
-        logger.info("Before Completion - Number of Futures Collected for Match Point Checks: {}", futures.size());
-        List collectedFutures = futures.stream().map(future -> {
+    private void collectFuturesAndProcess(List<Future> futures) {
+        logger.info("Before Collecting Futures - Number of Futures for Match Point Checks: {}", futures.size());
+        Map<Integer, Set<Integer>> responseMap = new HashMap<>();
+        Set<Integer> bibIds = new HashSet<>();
+        Set<Integer> bibIdsToResetAndSetQualifierTo1 = new HashSet<>();
+        Set<Integer> bibIdsToSetQualifierTo2 = new HashSet<>();
+        Set<Integer> bibIdsToResetAndSetQualifierTo3 = new HashSet<>();
+        for (Future future : futures) {
             try {
-                future.get();
-                return future;
+                responseMap = (Map<Integer, Set<Integer>>) future.get();
+                if (!responseMap.isEmpty()) {
+                    bibIdsToResetAndSetQualifierTo1 = responseMap.get(ScsbConstants.MA_QUALIFIER_1);
+                    bibIdsToSetQualifierTo2 = responseMap.get(ScsbConstants.MA_QUALIFIER_2);
+                    bibIdsToResetAndSetQualifierTo3 = responseMap.get(ScsbConstants.MA_QUALIFIER_3);
+                    if (bibIdsToResetAndSetQualifierTo1 != null) {
+                        bibIds.addAll(bibIdsToResetAndSetQualifierTo1);
+                    } else if (bibIdsToSetQualifierTo2 != null) {
+                        bibIds.addAll(bibIdsToSetQualifierTo2);
+                    } else if (bibIdsToResetAndSetQualifierTo3 != null) {
+                        bibIds.addAll(bibIdsToResetAndSetQualifierTo3);
+                    }
+                }
             } catch (Exception e) {
-                throw new IllegalStateException(e);
+                logger.error(ScsbCommonConstants.LOG_ERROR, e);
             }
-        }).collect(Collectors.toList());
-        logger.info("After Completion - Number of Futures Collected for Match Point Checks: {}", collectedFutures.size());
+        }
+        logger.info("After Collecting Futures - Number of Bib Ids Collected for MA Qualifier Update: {}", bibIds.size());
+        if (bibIdsToResetAndSetQualifierTo1 != null && !bibIdsToResetAndSetQualifierTo1.isEmpty()) {
+            int countOfUpdatedTo1 = bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(bibIdsToResetAndSetQualifierTo1, ScsbConstants.MA_QUALIFIER_1);
+            logger.info("Number of Bib Ids Updated with MA Qualifier - {} : {}", ScsbConstants.MA_QUALIFIER_1, countOfUpdatedTo1);
+        }
+        if (bibIdsToSetQualifierTo2 != null && !bibIdsToSetQualifierTo2.isEmpty()) {
+            int countOfUpdatedTo2 = bibliographicDetailsRepository.updateMaQualifier(bibIdsToSetQualifierTo2, ScsbConstants.MA_QUALIFIER_2);
+            logger.info("Number of Bib Ids Updated with MA Qualifier - {} : {}", ScsbConstants.MA_QUALIFIER_2, countOfUpdatedTo2);
+        }
+        if (bibIdsToResetAndSetQualifierTo3 != null && !bibIdsToResetAndSetQualifierTo3.isEmpty()) {
+            int countOfUpdatedTo3 = bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(bibIdsToResetAndSetQualifierTo3, ScsbConstants.MA_QUALIFIER_3);
+            logger.info("Number of Bib Ids Updated with MA Qualifier - {} : {}", ScsbConstants.MA_QUALIFIER_3, countOfUpdatedTo3);
+        }
+        if (!bibIds.isEmpty()) {
+            logger.info("Submit Collection : Solr indexing started for MA Qualifier Update. Total Bib Records : {}", bibIds.size());
+            performIndexing(bibIds);
+        }
     }
 
     private EmailPayLoad getEmailPayLoadForExcepion(String institutionCode, String name, String filePath, Exception exception, String exceptionMessage) {

@@ -418,6 +418,22 @@ public class CommonUtil {
         return StringUtils.isNotBlank(imsItemStatusCodes) && StringUtils.startsWithAny(imsItemStatus, imsItemStatusCodes.split(","));
     }
 
+    public boolean checkIfMatchPointsChanged(String incomingMarcXml, String existingMarcXml, String institutionCode) {
+        return !compareMatchPointsByMarcXml(incomingMarcXml, existingMarcXml, institutionCode);
+    }
+
+    public boolean compareMatchPointsByMarcXml(String incomingMarcXml, String existingMarcXml, String institutionCode) {
+        List<Record> incomingMarcRecords = marcUtil.convertMarcXmlToRecord(incomingMarcXml);
+        List<Record> existingMarcRecords = marcUtil.convertMarcXmlToRecord(existingMarcXml);
+       return compareMatchPoints(incomingMarcRecords.get(0), existingMarcRecords.get(0), institutionCode);
+    }
+
+    public boolean compareMatchPoints(Record incomingMarcRecord, Record existingMarcRecord, String institutionCode) {
+        BibMatchPointInfo incomingBibMatchPointInfo = getBibMatchPointInfoForMarcRecord(incomingMarcRecord, institutionCode);
+        BibMatchPointInfo existingBibMatchPointInfo = getBibMatchPointInfoForMarcRecord(existingMarcRecord, institutionCode);
+        return incomingBibMatchPointInfo.equals(existingBibMatchPointInfo);
+    }
+
     public BibMatchPointInfo getBibMatchPointInfoForMarcRecord(Record marcRecord, String institutionCode) {
         BibMatchPointInfo bibMatchPointInfo = new BibMatchPointInfo();
         bibJSONUtil.setNonHoldingInstitutions(Arrays.asList(nonHoldingIdInstitution.split(",")));
@@ -429,35 +445,23 @@ public class CommonUtil {
         return bibMatchPointInfo;
     }
 
-    public boolean compareMatchPoints(Record incomingMarcRecord, Record existingMarcRecord, String institutionCode) {
-        BibMatchPointInfo incomingBibMatchPointInfo = getBibMatchPointInfoForMarcRecord(incomingMarcRecord, institutionCode);
-        BibMatchPointInfo existingBibMatchPointInfo = getBibMatchPointInfoForMarcRecord(existingMarcRecord, institutionCode);
-        return incomingBibMatchPointInfo.equals(existingBibMatchPointInfo);
-    }
-
-    public boolean compareMatchPointsByMarcXml(String incomingMarcXml, String existingMarcXml, String institutionCode) {
-        List<Record> incomingMarcRecords = marcUtil.convertMarcXmlToRecord(incomingMarcXml);
-        List<Record> existingMarcRecords = marcUtil.convertMarcXmlToRecord(existingMarcXml);
-       return compareMatchPoints(incomingMarcRecords.get(0), existingMarcRecords.get(0), institutionCode);
-    }
-
-    public boolean isCgdChanged(Map<String, ItemEntity> fetchedBarcodeItemEntityMap, Map<String, ItemEntity> incomingBarcodeItemEntityMap) {
-        boolean isCGDChanged = false;
+    public boolean isCgdChangedToShared(Map<String, ItemEntity> fetchedBarcodeItemEntityMap, Map<String, ItemEntity> incomingBarcodeItemEntityMap, Map<Integer, String> collectionGroupIdCodeMap) {
+        boolean isCgdChangedToShared = false;
         for (Map.Entry<String, ItemEntity> incomingBarcodeItemEntityMapEntry : incomingBarcodeItemEntityMap.entrySet()) {
             ItemEntity incomingItemEntity = incomingBarcodeItemEntityMapEntry.getValue();
             ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
             if (fetchedItemEntity != null && fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId())
                     && fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode()) && !fetchedItemEntity.isDeleted()) {
-                if (fetchedItemEntity.getCollectionGroupId().intValue() != incomingItemEntity.getCollectionGroupId().intValue()) {
-                    isCGDChanged = true;
-                    break;
+                if (fetchedItemEntity.getCollectionGroupEntity().getId().intValue() != incomingItemEntity.getCollectionGroupId().intValue()) {
+                    String incomingCgdCode = collectionGroupIdCodeMap.get(incomingItemEntity.getCollectionGroupId());
+                    if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(incomingCgdCode)) {
+                        isCgdChangedToShared = true;
+                        break;
+                    }
                 }
             }
         }
-        return isCGDChanged;
+        return isCgdChangedToShared;
     }
 
-    public void indexData(Set<Integer> bibliographicIdList){
-        restTemplate.postForObject(scsbSolrClientUrl + "solrIndexer/indexByBibliographicId", bibliographicIdList, String.class);
-    }
 }

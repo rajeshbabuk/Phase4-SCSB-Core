@@ -129,7 +129,7 @@ public class SubmitCollectionService {
                     generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_FAILURE_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SUBMIT_COLLECTION_FAILURE_REPORT, xmlFileName,reportRecordNumberList);
                     generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_REJECTION_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SUBMIT_COLLECTION_REJECTION_REPORT, xmlFileName,reportRecordNumberList);
                     generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_EXCEPTION_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SUBMIT_COLLECTION_EXCEPTION_REPORT, xmlFileName,reportRecordNumberList);
-                    generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SUBMIT_COLLECTION_MA_QUALIFIED_REPORT, xmlFileName,reportRecordNumberList);
+                    //generateSubmitCollectionReport(submitCollectionReportInfoMap.get(ScsbConstants.SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST), ScsbCommonConstants.SUBMIT_COLLECTION_REPORT, ScsbCommonConstants.SUBMIT_COLLECTION_MA_QUALIFIED_REPORT, xmlFileName,reportRecordNumberList);
                     getResponseMessage(submitCollectionReportInfoMap,submitCollectionResponseList);
                 }
             }catch (Exception e) {

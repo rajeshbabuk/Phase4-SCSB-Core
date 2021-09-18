@@ -12,6 +12,7 @@ import org.recap.model.accession.AccessionResponse;
 import org.recap.model.accession.AccessionSummary;
 import org.recap.model.jpa.AccessionEntity;
 import org.recap.model.submitcollection.SubmitCollectionResponse;
+import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.service.accession.AccessionService;
 import org.recap.service.accession.BulkAccessionService;
 import org.recap.service.common.SetupDataService;
@@ -32,7 +33,6 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 /**
  * Created by premkb on 21/12/16.
@@ -57,6 +57,9 @@ public class SharedCollectionRestController {
 
     @Autowired
     BulkAccessionService bulkAccessionService;
+
+    @Autowired
+    BibliographicDetailsRepository bibliographicDetailsRepository;
 
     @Value("${" + PropertyKeyConstants.ONGOING_ACCESSION_INPUT_LIMIT + "}")
     private Integer inputLimit;
@@ -195,7 +198,7 @@ public class SharedCollectionRestController {
                 }).start();
             }
             submitCollectionBatchService.generateSubmitCollectionReportFile(reportRecordNumberList);
-            collectFutures(futures);
+            collectFuturesAndProcess(futures);
             executorService.shutdown();
             responseEntity = new ResponseEntity(submitCollectionResponseList,getHttpHeaders(), HttpStatus.OK);
         } catch (Exception e) {
@@ -216,15 +219,48 @@ public class SharedCollectionRestController {
         return responseHeaders;
     }
 
-    private void collectFutures(List<Future> futures) {
-        List collectedFutures = futures.stream().map(future -> {
+    private void collectFuturesAndProcess(List<Future> futures) {
+        logger.info("Submit Collection API - Before Collecting Futures - Number of Futures for Match Point Checks: {}", futures.size());
+        Map<Integer, Set<Integer>> responseMap = new HashMap<>();
+        Set<Integer> bibIds = new HashSet<>();
+        Set<Integer> bibIdsToResetAndSetQualifierTo1 = new HashSet<>();
+        Set<Integer> bibIdsToSetQualifierTo2 = new HashSet<>();
+        Set<Integer> bibIdsToResetAndSetQualifierTo3 = new HashSet<>();
+        for (Future future : futures) {
             try {
-                future.get();
-                return future;
+                responseMap = (Map<Integer, Set<Integer>>) future.get();
+                if (!responseMap.isEmpty()) {
+                    bibIdsToResetAndSetQualifierTo1 = responseMap.get(ScsbConstants.MA_QUALIFIER_1);
+                    bibIdsToSetQualifierTo2 = responseMap.get(ScsbConstants.MA_QUALIFIER_2);
+                    bibIdsToResetAndSetQualifierTo3 = responseMap.get(ScsbConstants.MA_QUALIFIER_3);
+                    if (bibIdsToResetAndSetQualifierTo1 != null) {
+                        bibIds.addAll(bibIdsToResetAndSetQualifierTo1);
+                    } else if (bibIdsToSetQualifierTo2 != null) {
+                        bibIds.addAll(bibIdsToSetQualifierTo2);
+                    } else if (bibIdsToResetAndSetQualifierTo3 != null) {
+                        bibIds.addAll(bibIdsToResetAndSetQualifierTo3);
+                    }
+                }
             } catch (Exception e) {
-                throw new IllegalStateException(e);
+                logger.error(ScsbCommonConstants.LOG_ERROR, e);
             }
-        }).collect(Collectors.toList());
-        logger.info("Submit Collection API - Number of Futures Collected for Match Point Checks: {}", collectedFutures.size());
+        }
+        logger.info("Submit Collection API - After Collecting Futures - Number of Bib Ids Collected for MA Qualifier Update: {}", bibIds.size());
+        if (bibIdsToResetAndSetQualifierTo1 != null && !bibIdsToResetAndSetQualifierTo1.isEmpty()) {
+            int countOfUpdatedTo1 = bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(bibIdsToResetAndSetQualifierTo1, ScsbConstants.MA_QUALIFIER_1);
+            logger.info("Submit Collection API - Number of Bib Ids Updated with MA Qualifier - {} : {}", ScsbConstants.MA_QUALIFIER_1, countOfUpdatedTo1);
+        }
+        if (bibIdsToSetQualifierTo2 != null && !bibIdsToSetQualifierTo2.isEmpty()) {
+            int countOfUpdatedTo2 = bibliographicDetailsRepository.updateMaQualifier(bibIdsToSetQualifierTo2, ScsbConstants.MA_QUALIFIER_2);
+            logger.info("Submit Collection API - Number of Bib Ids Updated with MA Qualifier - {} : {}", ScsbConstants.MA_QUALIFIER_2, countOfUpdatedTo2);
+        }
+        if (bibIdsToResetAndSetQualifierTo3 != null && !bibIdsToResetAndSetQualifierTo3.isEmpty()) {
+            int countOfUpdatedTo3 = bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(bibIdsToResetAndSetQualifierTo3, ScsbConstants.MA_QUALIFIER_3);
+            logger.info("Submit Collection API - Number of Bib Ids Updated with MA Qualifier - {} : {}", ScsbConstants.MA_QUALIFIER_3, countOfUpdatedTo3);
+        }
+        if (!bibIds.isEmpty()) {
+            logger.info("Submit Collection API - Solr indexing started for MA Qualifier Update. Total Bib Records : {}", bibIds.size());
+            submitCollectionService.indexData(bibIds);
+        }
     }
 }

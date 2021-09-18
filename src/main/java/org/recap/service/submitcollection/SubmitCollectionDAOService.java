@@ -10,7 +10,6 @@ import org.recap.model.submitcollection.BoundWithBibliographicEntityObject;
 import org.recap.model.submitcollection.NonBoundWithBibliographicEntityObject;
 import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.repository.jpa.ImsLocationDetailsRepository;
-import org.recap.service.AsyncService;
 import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.service.common.RepositoryService;
 import org.recap.service.common.SetupDataService;
@@ -88,9 +87,6 @@ public class SubmitCollectionDAOService {
 
     @Autowired
     private BibJSONUtil bibJSONUtil;
-
-    @Autowired
-    private AsyncService asyncService;
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -1219,77 +1215,11 @@ public class SubmitCollectionDAOService {
         submitCollectionMatchPointsCheckCallable.setFetchedBarcodeItemEntityMap(fetchedBarcodeItemEntityMap);
         submitCollectionMatchPointsCheckCallable.setIncomingBarcodeItemEntityMap(incomingBarcodeItemEntityMap);
         submitCollectionMatchPointsCheckCallable.setCGDProtected(isCGDProtected);
-
+        submitCollectionMatchPointsCheckCallable.setCollectionGroupIdCodeMap(setupDataService.getCollectionGroupIdCodeMap());
         futures.add(executorService.submit(submitCollectionMatchPointsCheckCallable));
-
-        //asyncService.compareMatchPoints(new String(fetchBibliographicEntity.getContent()), new String(incomingBibliographicEntity.getContent()), fetchBibliographicEntity.getMatchingIdentity(), fetchedInstitutionCode, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected);
-
-        /*List<BibliographicEntity> bibliographicEntities = new ArrayList<>();
-        Set<Integer> updatedBibIdList = new HashSet<>();
-        List<BibliographicEntity> updatedBibliographicEntities = new ArrayList<>();
-        if (matchingIdentity != null) {
-            bibliographicEntities = bibliographicDetailsRepository.findByMatchingIdentity(matchingIdentity);
-        }
-        if (bibliographicEntities.isEmpty()) {
-            bibliographicEntities.add(fetchBibliographicEntity);
-        }
-
-        if (bibliographicEntities.size() == 1) {
-            if ((isCGDChanged || !fetchedTitle.equals(incomingTitle)) || (!fetchedLccnValue.equals(incomingLccnValue)) || !submitCollectionHelperService.listEquals(fetchedIsbnNumbers, incomingIsbnNumbers) ||
-                    !submitCollectionHelperService.listEquals(fetchedIssnNumbers, incomingIssnNumbers) || !submitCollectionHelperService.listEquals(fetchedOclcNumbers, incomingOclcNumbers)) {
-                fetchBibliographicEntity.setMaQualifier(Boolean.TRUE);
-                bibliographicDetailsRepository.save(fetchBibliographicEntity);
-            }
-        } else {
-            if ((isCGDChanged || !fetchedTitle.equals(incomingTitle)) || (!fetchedLccnValue.equals(incomingLccnValue)) || !submitCollectionHelperService.listEquals(fetchedIsbnNumbers, incomingIsbnNumbers) ||
-                    !submitCollectionHelperService.listEquals(fetchedIssnNumbers, incomingIssnNumbers) || !submitCollectionHelperService.listEquals(fetchedOclcNumbers, incomingOclcNumbers)) {
-                if (!bibliographicEntities.isEmpty() && bibliographicEntities.size() > 2) {
-                    boolean matchScoreEqual = true;
-                    for (int counter = 0; counter < bibliographicEntities.size() - 1; counter++) {
-                        if ((bibliographicEntities.get(counter).getMatchScore().intValue() != bibliographicEntities.get(counter + 1).getMatchScore().intValue())) {
-                            matchScoreEqual = false;
-                            break;
-                        }
-                    }
-                    if (matchScoreEqual) {
-                        fetchBibliographicEntity.setMatchingIdentity(null);
-                        fetchBibliographicEntity.setMatchScore(null);
-                        fetchBibliographicEntity.setAnamolyFlag(Boolean.FALSE);
-                        fetchBibliographicEntity.setMaQualifier(Boolean.TRUE);
-                        bibliographicDetailsRepository.save(fetchBibliographicEntity);
-                    } else {
-                        updatedBibliographicEntities = setBibliographicEntitiesValue(bibliographicEntities);
-                        repositoryService.getBibliographicDetailsRepository().saveAll(updatedBibliographicEntities);
-                    }
-                } else if (!bibliographicEntities.isEmpty() && bibliographicEntities.size() == 2) {
-                    updatedBibliographicEntities = setBibliographicEntitiesValue(bibliographicEntities);
-                    repositoryService.getBibliographicDetailsRepository().saveAll(updatedBibliographicEntities);
-
-                }
-            }
-            for (BibliographicEntity bibliographicEntity : updatedBibliographicEntities) {
-                if (!bibliographicEntity.getId().equals(fetchBibliographicEntity.getId())) {
-                    updatedBibIdList.add(bibliographicEntity.getId());
-                }
-            }
-        }
-        if (!updatedBibIdList.isEmpty()) {
-            submitCollectionService.indexData(updatedBibIdList);
-        }*/
         return fetchBibliographicEntity;
     }
 
-    private List<BibliographicEntity> setBibliographicEntitiesValue(List<BibliographicEntity> bibliographicEntities) {
-        List<BibliographicEntity> updatedBibliographicEntityList = new ArrayList<>();
-        for (BibliographicEntity bibliographicEntity : bibliographicEntities) {
-            bibliographicEntity.setMatchingIdentity(null);
-            bibliographicEntity.setMatchScore(null);
-            bibliographicEntity.setAnamolyFlag(Boolean.FALSE);
-            bibliographicEntity.setMaQualifier(Boolean.TRUE);
-            updatedBibliographicEntityList.add(bibliographicEntity);
-        }
-        return updatedBibliographicEntityList;
-    }
     private ItemEntity copyItemEntity(ItemEntity fetchItemEntity, ItemEntity itemEntity, List<ItemEntity> itemEntityList) {
         fetchItemEntity.setLastUpdatedBy(itemEntity.getLastUpdatedBy());
         fetchItemEntity.setLastUpdatedDate(itemEntity.getLastUpdatedDate());
