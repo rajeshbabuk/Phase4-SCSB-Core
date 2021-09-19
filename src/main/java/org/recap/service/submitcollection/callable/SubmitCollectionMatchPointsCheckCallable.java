@@ -47,9 +47,10 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
         try {
             Set<Integer> bibIds = new HashSet<>();
             boolean isMatchPointsChanged = commonUtil.checkIfMatchPointsChanged(incomingMarcXml, existingMarcXml, institutionCode);
-            boolean isCgdChangedToShared = !isCGDProtected && commonUtil.isCgdChangedToShared(fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, collectionGroupIdCodeMap);
+            boolean isCgdChangedToShared = !isCGDProtected && commonUtil.isCgdChangedToShared(fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, collectionGroupIdCodeMap, false);
+            boolean isCgdAlreadyShared = !isCGDProtected && commonUtil.isCgdChangedToShared(fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, collectionGroupIdCodeMap, true);
             int maQualifier = 0;
-            if (isMatchPointsChanged && isCgdChangedToShared) {
+            if (isMatchPointsChanged && (isCgdAlreadyShared || isCgdChangedToShared)) {
                 maQualifier = ScsbCommonConstants.MA_QUALIFIER_3;
             } else if (isCgdChangedToShared) {
                 maQualifier = ScsbCommonConstants.MA_QUALIFIER_2;
