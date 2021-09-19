@@ -2,7 +2,7 @@ package org.recap.service.submitcollection.callable;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.recap.ScsbConstants;
+import org.recap.ScsbCommonConstants;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.util.CommonUtil;
@@ -50,14 +50,14 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
             boolean isCgdChangedToShared = !isCGDProtected && commonUtil.isCgdChangedToShared(fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, collectionGroupIdCodeMap);
             int maQualifier = 0;
             if (isMatchPointsChanged && isCgdChangedToShared) {
-                maQualifier = ScsbConstants.MA_QUALIFIER_3;
+                maQualifier = ScsbCommonConstants.MA_QUALIFIER_3;
             } else if (isCgdChangedToShared) {
-                maQualifier = ScsbConstants.MA_QUALIFIER_2;
+                maQualifier = ScsbCommonConstants.MA_QUALIFIER_2;
             } else if (isMatchPointsChanged) {
-                maQualifier = ScsbConstants.MA_QUALIFIER_1;
+                maQualifier = ScsbCommonConstants.MA_QUALIFIER_1;
             }
             if (maQualifier > 0) {
-                bibIds = getBibIdsBasedOnMatchingIdValue(bibIds, maQualifier != ScsbConstants.MA_QUALIFIER_2);
+                bibIds = getBibIdsBasedOnMatchingIdValue(bibIds, maQualifier != ScsbCommonConstants.MA_QUALIFIER_2);
                 putToResponseMap(maQualifier, bibIds, responseMap);
                 log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, maQualifier, bibIds.size(), bibIds);
             }

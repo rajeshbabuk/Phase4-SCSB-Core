@@ -30,6 +30,8 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 @Service
 public class CommonUtil {
@@ -54,6 +56,9 @@ public class CommonUtil {
 
     @Autowired
     ItemChangeLogDetailsRepository itemChangeLogDetailsRepository;
+
+    @Autowired
+    BibliographicDetailsRepository bibliographicDetailsRepository;
 
     @Autowired
     MarcUtil marcUtil;
@@ -450,24 +455,87 @@ public class CommonUtil {
         for (Map.Entry<String, ItemEntity> incomingBarcodeItemEntityMapEntry : incomingBarcodeItemEntityMap.entrySet()) {
             ItemEntity incomingItemEntity = incomingBarcodeItemEntityMapEntry.getValue();
             ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
-            if (fetchedItemEntity != null && fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId())
-                    && fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode()) && !fetchedItemEntity.isDeleted()) {
-                CollectionGroupEntity fetchedCollectionGroupEntity = fetchedItemEntity.getCollectionGroupEntity();
-                CollectionGroupEntity incomingCollectionGroupEntity = incomingItemEntity.getCollectionGroupEntity();
-                Integer fetchedCgdId = null != fetchedCollectionGroupEntity ? fetchedCollectionGroupEntity.getId() : fetchedItemEntity.getCollectionGroupId();
-                Integer incomingCgdId = null != incomingCollectionGroupEntity ? incomingCollectionGroupEntity.getId() : incomingItemEntity.getCollectionGroupId();
-                if (fetchedCgdId != null && incomingCgdId != null) {
-                    if (fetchedCgdId.intValue() != incomingCgdId.intValue()) {
-                        String incomingCgdCode = collectionGroupIdCodeMap.get(incomingItemEntity.getCollectionGroupId());
-                        if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(incomingCgdCode)) {
-                            isCgdChangedToShared = true;
-                            break;
-                        }
+            if (fetchedItemEntity != null && fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId()) && fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode()) && !fetchedItemEntity.isDeleted()) {
+                Integer fetchedCgdId = null != fetchedItemEntity.getCollectionGroupEntity() ? fetchedItemEntity.getCollectionGroupEntity().getId() : fetchedItemEntity.getCollectionGroupId();
+                Integer incomingCgdId = null != incomingItemEntity.getCollectionGroupEntity() ? incomingItemEntity.getCollectionGroupEntity().getId() : incomingItemEntity.getCollectionGroupId();
+                if (fetchedCgdId != null && incomingCgdId != null && fetchedCgdId.intValue() != incomingCgdId.intValue()) {
+                    String incomingCgdCode = collectionGroupIdCodeMap.get(incomingItemEntity.getCollectionGroupId());
+                    if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(incomingCgdCode)) {
+                        isCgdChangedToShared = true;
+                        break;
                     }
                 }
             }
         }
         return isCgdChangedToShared;
+    }
+
+    public Set<Integer> collectFuturesAndUpdateMAQualifier(List<Future> futures) {
+        Set<Integer> bibIds = new HashSet<>();
+        Set<Integer> allBibIdsToResetAndSetQualifierTo1 = new HashSet<>();
+        Set<Integer> allBibIdsToSetQualifierTo2 = new HashSet<>();
+        Set<Integer> allBibIdsToResetAndSetQualifierTo3 = new HashSet<>();
+        for (Future future : futures) {
+            try {
+                Map<Integer, Set<Integer>> responseMap = (Map<Integer, Set<Integer>>) future.get();
+                if (!responseMap.isEmpty()) {
+                    Set<Integer> bibIdsToResetAndSetQualifierTo1 = responseMap.get(ScsbCommonConstants.MA_QUALIFIER_1);
+                    Set<Integer> bibIdsToSetQualifierTo2 = responseMap.get(ScsbCommonConstants.MA_QUALIFIER_2);
+                    Set<Integer> bibIdsToResetAndSetQualifierTo3 = responseMap.get(ScsbCommonConstants.MA_QUALIFIER_3);
+                    if (bibIdsToResetAndSetQualifierTo1 != null) {
+                        allBibIdsToResetAndSetQualifierTo1.addAll(bibIdsToResetAndSetQualifierTo1);
+                        bibIds.addAll(bibIdsToResetAndSetQualifierTo1);
+                    } else if (bibIdsToSetQualifierTo2 != null) {
+                        allBibIdsToSetQualifierTo2.addAll(bibIdsToSetQualifierTo2);
+                        bibIds.addAll(bibIdsToSetQualifierTo2);
+                    } else if (bibIdsToResetAndSetQualifierTo3 != null) {
+                        allBibIdsToResetAndSetQualifierTo3.addAll(bibIdsToResetAndSetQualifierTo3);
+                        bibIds.addAll(bibIdsToResetAndSetQualifierTo3);
+                    }
+                }
+            } catch (Exception e) {
+                logger.error(ScsbCommonConstants.LOG_ERROR, e);
+            }
+        }
+        logger.info("Total Number of Bib Ids Collected for MA Qualifier Update: {}", bibIds.size());
+        updateMAQualifierByBibIdSets(allBibIdsToResetAndSetQualifierTo1, allBibIdsToSetQualifierTo2, allBibIdsToResetAndSetQualifierTo3);
+        return bibIds;
+    }
+
+    private void updateMAQualifierByBibIdSets(Set<Integer> allBibIdsToResetAndSetQualifierTo1, Set<Integer> allBibIdsToSetQualifierTo2, Set<Integer> allBibIdsToResetAndSetQualifierTo3) {
+        Set<Integer> duplicateBibIds = allBibIdsToResetAndSetQualifierTo1.stream().filter(allBibIdsToSetQualifierTo2::contains).collect(Collectors.toSet());
+        if (!duplicateBibIds.isEmpty()) {
+            logger.info("{} Duplicate Bib Ids between MA Qualifier 1 and 2 moved to 3: {}", duplicateBibIds.size(), duplicateBibIds);
+            allBibIdsToResetAndSetQualifierTo1.removeAll(duplicateBibIds);
+            allBibIdsToSetQualifierTo2.removeAll(duplicateBibIds);
+            allBibIdsToResetAndSetQualifierTo3.addAll(duplicateBibIds);
+        }
+
+        duplicateBibIds = allBibIdsToSetQualifierTo2.stream().filter(allBibIdsToResetAndSetQualifierTo3::contains).collect(Collectors.toSet());
+        if (!duplicateBibIds.isEmpty()) {
+            logger.info("{} Duplicate Bib Ids between MA Qualifier 2 and 3 removed from 2: {}", duplicateBibIds.size(), duplicateBibIds);
+            allBibIdsToSetQualifierTo2.removeAll(duplicateBibIds);
+        }
+
+
+        duplicateBibIds = allBibIdsToResetAndSetQualifierTo1.stream().filter(allBibIdsToResetAndSetQualifierTo3::contains).collect(Collectors.toSet());
+        if (!duplicateBibIds.isEmpty()) {
+            logger.info("{} Duplicate Bib Ids between MA Qualifier 1 and 3 removed from 1: {}", duplicateBibIds.size(), duplicateBibIds);
+            allBibIdsToResetAndSetQualifierTo1.removeAll(duplicateBibIds);
+        }
+
+        if (!allBibIdsToResetAndSetQualifierTo1.isEmpty()) {
+            int countOfUpdatedTo1 = bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(allBibIdsToResetAndSetQualifierTo1, ScsbCommonConstants.MA_QUALIFIER_1);
+            logger.info(ScsbConstants.LOG_MA_QUALIFIER_UPDATE, ScsbCommonConstants.MA_QUALIFIER_1, countOfUpdatedTo1);
+        }
+        if (!allBibIdsToSetQualifierTo2.isEmpty()) {
+            int countOfUpdatedTo2 = bibliographicDetailsRepository.updateMaQualifier(allBibIdsToSetQualifierTo2, ScsbCommonConstants.MA_QUALIFIER_2);
+            logger.info(ScsbConstants.LOG_MA_QUALIFIER_UPDATE, ScsbCommonConstants.MA_QUALIFIER_2, countOfUpdatedTo2);
+        }
+        if (!allBibIdsToResetAndSetQualifierTo3.isEmpty()) {
+            int countOfUpdatedTo3 = bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(allBibIdsToResetAndSetQualifierTo3, ScsbCommonConstants.MA_QUALIFIER_3);
+            logger.info(ScsbConstants.LOG_MA_QUALIFIER_UPDATE, ScsbCommonConstants.MA_QUALIFIER_3, countOfUpdatedTo3);
+        }
     }
 
 }

@@ -18,6 +18,7 @@ import org.recap.service.accession.BulkAccessionService;
 import org.recap.service.common.SetupDataService;
 import org.recap.service.submitcollection.SubmitCollectionBatchService;
 import org.recap.service.submitcollection.SubmitCollectionService;
+import org.recap.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class SharedCollectionRestController {
     BulkAccessionService bulkAccessionService;
 
     @Autowired
-    BibliographicDetailsRepository bibliographicDetailsRepository;
+    CommonUtil commonUtil;
 
     @Value("${" + PropertyKeyConstants.ONGOING_ACCESSION_INPUT_LIMIT + "}")
     private Integer inputLimit;
@@ -221,46 +222,7 @@ public class SharedCollectionRestController {
 
     private void collectFuturesAndProcess(List<Future> futures) {
         logger.info("Submit Collection API - Before Collecting Futures - Number of Futures for Match Point Checks: {}", futures.size());
-        Map<Integer, Set<Integer>> responseMap = new HashMap<>();
-        Set<Integer> bibIds = new HashSet<>();
-        Set<Integer> allBibIdsToResetAndSetQualifierTo1 = new HashSet<>();
-        Set<Integer> allBibIdsToSetQualifierTo2 = new HashSet<>();
-        Set<Integer> allBibIdsToResetAndSetQualifierTo3 = new HashSet<>();
-        for (Future future : futures) {
-            try {
-                responseMap = (Map<Integer, Set<Integer>>) future.get();
-                if (!responseMap.isEmpty()) {
-                    Set<Integer> bibIdsToResetAndSetQualifierTo1 = responseMap.get(ScsbConstants.MA_QUALIFIER_1);
-                    Set<Integer> bibIdsToSetQualifierTo2 = responseMap.get(ScsbConstants.MA_QUALIFIER_2);
-                    Set<Integer> bibIdsToResetAndSetQualifierTo3 = responseMap.get(ScsbConstants.MA_QUALIFIER_3);
-                    if (bibIdsToResetAndSetQualifierTo1 != null) {
-                        allBibIdsToResetAndSetQualifierTo1.addAll(bibIdsToResetAndSetQualifierTo1);
-                        bibIds.addAll(bibIdsToResetAndSetQualifierTo1);
-                    } else if (bibIdsToSetQualifierTo2 != null) {
-                        allBibIdsToSetQualifierTo2.addAll(bibIdsToSetQualifierTo2);
-                        bibIds.addAll(bibIdsToSetQualifierTo2);
-                    } else if (bibIdsToResetAndSetQualifierTo3 != null) {
-                        allBibIdsToResetAndSetQualifierTo3.addAll(bibIdsToResetAndSetQualifierTo3);
-                        bibIds.addAll(bibIdsToResetAndSetQualifierTo3);
-                    }
-                }
-            } catch (Exception e) {
-                logger.error(ScsbCommonConstants.LOG_ERROR, e);
-            }
-        }
-        logger.info("Submit Collection API - After Collecting Futures - Number of Bib Ids Collected for MA Qualifier Update: {}", bibIds.size());
-        if (!allBibIdsToResetAndSetQualifierTo1.isEmpty()) {
-            int countOfUpdatedTo1 = bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(allBibIdsToResetAndSetQualifierTo1, ScsbConstants.MA_QUALIFIER_1);
-            logger.info("Submit Collection API - Number of Bib Ids Updated with MA Qualifier - {} : {}", ScsbConstants.MA_QUALIFIER_1, countOfUpdatedTo1);
-        }
-        if (!allBibIdsToSetQualifierTo2.isEmpty()) {
-            int countOfUpdatedTo2 = bibliographicDetailsRepository.updateMaQualifier(allBibIdsToSetQualifierTo2, ScsbConstants.MA_QUALIFIER_2);
-            logger.info("Submit Collection API - Number of Bib Ids Updated with MA Qualifier - {} : {}", ScsbConstants.MA_QUALIFIER_2, countOfUpdatedTo2);
-        }
-        if (!allBibIdsToResetAndSetQualifierTo3.isEmpty()) {
-            int countOfUpdatedTo3 = bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(allBibIdsToResetAndSetQualifierTo3, ScsbConstants.MA_QUALIFIER_3);
-            logger.info("Submit Collection API - Number of Bib Ids Updated with MA Qualifier - {} : {}", ScsbConstants.MA_QUALIFIER_3, countOfUpdatedTo3);
-        }
+        Set<Integer> bibIds = commonUtil.collectFuturesAndUpdateMAQualifier(futures);
         if (!bibIds.isEmpty()) {
             logger.info("Submit Collection API - Solr indexing started for MA Qualifier Update. Total Bib Records : {}", bibIds.size());
             submitCollectionService.indexData(bibIds);
