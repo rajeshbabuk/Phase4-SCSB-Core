@@ -1,5 +1,7 @@
 package org.recap;
 
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by premkb on 19/8/16.
@@ -221,4 +223,7 @@ public final class ScsbConstants {
 
     public static final String YES = "Yes";
     public static final String NO = "No";
-  }
+    public static final String NUMBER_PATTERN="[^0-9]";
+
+    public static final String LOG_MA_QUALIFIER_UPDATE = "Number of Bib Ids Updated with MA Qualifier to {} : {}";
+}

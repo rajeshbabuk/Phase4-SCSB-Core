@@ -5,6 +5,7 @@ import org.marc4j.marc.Record;
 import org.recap.PropertyKeyConstants;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
+import org.recap.model.submitcollection.BibMatchPointInfo;
 import org.recap.model.accession.AccessionRequest;
 import org.recap.model.accession.AccessionResponse;
 import org.recap.model.gfa.ScsbLasItemStatusCheckModel;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -28,6 +30,8 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 @Service
 public class CommonUtil {
@@ -54,6 +58,9 @@ public class CommonUtil {
     ItemChangeLogDetailsRepository itemChangeLogDetailsRepository;
 
     @Autowired
+    BibliographicDetailsRepository bibliographicDetailsRepository;
+
+    @Autowired
     MarcUtil marcUtil;
 
     @Autowired
@@ -62,8 +69,20 @@ public class CommonUtil {
     @Autowired
     private PropertyUtil propertyUtil;
 
+    @Autowired
+    private BibJSONUtil bibJSONUtil;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
     @Value("${" + PropertyKeyConstants.SCSB_SUPPORT_INSTITUTION + "}")
     private String supportInstitution;
+
+    @Value("${" + PropertyKeyConstants.NONHOLDINGID_INSTITUTION + "}")
+    private String nonHoldingIdInstitution;
+
+    @Value("${" + PropertyKeyConstants.SCSB_SOLR_DOC_URL + "}")
+    private String scsbSolrClientUrl;
 
     /**
      * This method builds Holdings Entity from holdings content
@@ -403,4 +422,121 @@ public class CommonUtil {
         String imsItemStatusCodes = propertyUtil.getPropertyByImsLocationAndKey(imsLocationCode, PropertyKeyConstants.IMS.IMS_REQUESTABLE_NOT_RETRIEVABLE_ITEM_STATUS_CODES);
         return StringUtils.isNotBlank(imsItemStatusCodes) && StringUtils.startsWithAny(imsItemStatus, imsItemStatusCodes.split(","));
     }
+
+    public boolean checkIfMatchPointsChanged(String incomingMarcXml, String existingMarcXml, String institutionCode) {
+        return !compareMatchPointsByMarcXml(incomingMarcXml, existingMarcXml, institutionCode);
+    }
+
+    public boolean compareMatchPointsByMarcXml(String incomingMarcXml, String existingMarcXml, String institutionCode) {
+        List<Record> incomingMarcRecords = marcUtil.convertMarcXmlToRecord(incomingMarcXml);
+        List<Record> existingMarcRecords = marcUtil.convertMarcXmlToRecord(existingMarcXml);
+       return compareMatchPoints(incomingMarcRecords.get(0), existingMarcRecords.get(0), institutionCode);
+    }
+
+    public boolean compareMatchPoints(Record incomingMarcRecord, Record existingMarcRecord, String institutionCode) {
+        BibMatchPointInfo incomingBibMatchPointInfo = getBibMatchPointInfoForMarcRecord(incomingMarcRecord, institutionCode);
+        BibMatchPointInfo existingBibMatchPointInfo = getBibMatchPointInfoForMarcRecord(existingMarcRecord, institutionCode);
+        return incomingBibMatchPointInfo.equals(existingBibMatchPointInfo);
+    }
+
+    public BibMatchPointInfo getBibMatchPointInfoForMarcRecord(Record marcRecord, String institutionCode) {
+        BibMatchPointInfo bibMatchPointInfo = new BibMatchPointInfo();
+        bibJSONUtil.setNonHoldingInstitutions(Arrays.asList(nonHoldingIdInstitution.split(",")));
+        bibMatchPointInfo.setTitle(bibJSONUtil.getTitle(marcRecord));
+        bibMatchPointInfo.setLccn(bibJSONUtil.getLCCNValue(marcRecord));
+        bibMatchPointInfo.setIsbn(bibJSONUtil.getISBNNumber(marcRecord));
+        bibMatchPointInfo.setIssn(bibJSONUtil.getISSNNumber(marcRecord));
+        bibMatchPointInfo.setOclc(bibJSONUtil.getOCLCNumbers(marcRecord, institutionCode));
+        return bibMatchPointInfo;
+    }
+
+    public boolean isCgdChangedToShared(Map<String, ItemEntity> fetchedBarcodeItemEntityMap, Map<String, ItemEntity> incomingBarcodeItemEntityMap, Map<Integer, String> collectionGroupIdCodeMap, boolean checkExisting) {
+        boolean isCgdChangedToShared = false;
+        for (Map.Entry<String, ItemEntity> incomingBarcodeItemEntityMapEntry : incomingBarcodeItemEntityMap.entrySet()) {
+            ItemEntity incomingItemEntity = incomingBarcodeItemEntityMapEntry.getValue();
+            ItemEntity fetchedItemEntity = fetchedBarcodeItemEntityMap.get(incomingBarcodeItemEntityMapEntry.getKey());
+            if (fetchedItemEntity != null && fetchedItemEntity.getOwningInstitutionItemId().equalsIgnoreCase(incomingItemEntity.getOwningInstitutionItemId()) && fetchedItemEntity.getBarcode().equals(incomingItemEntity.getBarcode()) && !fetchedItemEntity.isDeleted()) {
+                Integer fetchedCgdId = null != fetchedItemEntity.getCollectionGroupEntity() ? fetchedItemEntity.getCollectionGroupEntity().getId() : fetchedItemEntity.getCollectionGroupId();
+                Integer incomingCgdId = null != incomingItemEntity.getCollectionGroupEntity() ? incomingItemEntity.getCollectionGroupEntity().getId() : incomingItemEntity.getCollectionGroupId();
+                if (fetchedCgdId != null && incomingCgdId != null) {
+                    String fetchedCgdCode = collectionGroupIdCodeMap.get(incomingItemEntity.getCollectionGroupId());
+                    String incomingCgdCode = collectionGroupIdCodeMap.get(incomingItemEntity.getCollectionGroupId());
+                    if ((checkExisting && ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(fetchedCgdCode))
+                            || (!checkExisting && fetchedCgdId.intValue() != incomingCgdId.intValue() && ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(incomingCgdCode))) {
+                        isCgdChangedToShared = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return isCgdChangedToShared;
+    }
+
+    public Set<Integer> collectFuturesAndUpdateMAQualifier(List<Future> futures) {
+        Set<Integer> bibIds = new HashSet<>();
+        Set<Integer> allBibIdsToResetAndSetQualifierTo1 = new HashSet<>();
+        Set<Integer> allBibIdsToSetQualifierTo2 = new HashSet<>();
+        Set<Integer> allBibIdsToResetAndSetQualifierTo3 = new HashSet<>();
+        for (Future future : futures) {
+            try {
+                Map<Integer, Set<Integer>> responseMap = (Map<Integer, Set<Integer>>) future.get();
+                if (!responseMap.isEmpty()) {
+                    Set<Integer> bibIdsToResetAndSetQualifierTo1 = responseMap.get(ScsbCommonConstants.MA_QUALIFIER_1);
+                    Set<Integer> bibIdsToSetQualifierTo2 = responseMap.get(ScsbCommonConstants.MA_QUALIFIER_2);
+                    Set<Integer> bibIdsToResetAndSetQualifierTo3 = responseMap.get(ScsbCommonConstants.MA_QUALIFIER_3);
+                    if (bibIdsToResetAndSetQualifierTo1 != null) {
+                        allBibIdsToResetAndSetQualifierTo1.addAll(bibIdsToResetAndSetQualifierTo1);
+                        bibIds.addAll(bibIdsToResetAndSetQualifierTo1);
+                    } else if (bibIdsToSetQualifierTo2 != null) {
+                        allBibIdsToSetQualifierTo2.addAll(bibIdsToSetQualifierTo2);
+                        bibIds.addAll(bibIdsToSetQualifierTo2);
+                    } else if (bibIdsToResetAndSetQualifierTo3 != null) {
+                        allBibIdsToResetAndSetQualifierTo3.addAll(bibIdsToResetAndSetQualifierTo3);
+                        bibIds.addAll(bibIdsToResetAndSetQualifierTo3);
+                    }
+                }
+            } catch (Exception e) {
+                logger.error(ScsbCommonConstants.LOG_ERROR, e);
+            }
+        }
+        logger.info("Total Number of Bib Ids Collected for MA Qualifier Update: {}", bibIds.size());
+        updateMAQualifierByBibIdSets(allBibIdsToResetAndSetQualifierTo1, allBibIdsToSetQualifierTo2, allBibIdsToResetAndSetQualifierTo3);
+        return bibIds;
+    }
+
+    private void updateMAQualifierByBibIdSets(Set<Integer> allBibIdsToResetAndSetQualifierTo1, Set<Integer> allBibIdsToSetQualifierTo2, Set<Integer> allBibIdsToResetAndSetQualifierTo3) {
+        Set<Integer> duplicateBibIds = allBibIdsToResetAndSetQualifierTo1.stream().filter(allBibIdsToSetQualifierTo2::contains).collect(Collectors.toSet());
+        if (!duplicateBibIds.isEmpty()) {
+            logger.info("{} Duplicate Bib Ids between MA Qualifier 1 and 2 moved to 3: {}", duplicateBibIds.size(), duplicateBibIds);
+            allBibIdsToResetAndSetQualifierTo1.removeAll(duplicateBibIds);
+            allBibIdsToSetQualifierTo2.removeAll(duplicateBibIds);
+            allBibIdsToResetAndSetQualifierTo3.addAll(duplicateBibIds);
+        }
+
+        duplicateBibIds = allBibIdsToSetQualifierTo2.stream().filter(allBibIdsToResetAndSetQualifierTo3::contains).collect(Collectors.toSet());
+        if (!duplicateBibIds.isEmpty()) {
+            logger.info("{} Duplicate Bib Ids between MA Qualifier 2 and 3 removed from 2: {}", duplicateBibIds.size(), duplicateBibIds);
+            allBibIdsToSetQualifierTo2.removeAll(duplicateBibIds);
+        }
+
+        duplicateBibIds = allBibIdsToResetAndSetQualifierTo1.stream().filter(allBibIdsToResetAndSetQualifierTo3::contains).collect(Collectors.toSet());
+        if (!duplicateBibIds.isEmpty()) {
+            logger.info("{} Duplicate Bib Ids between MA Qualifier 1 and 3 removed from 1: {}", duplicateBibIds.size(), duplicateBibIds);
+            allBibIdsToResetAndSetQualifierTo1.removeAll(duplicateBibIds);
+        }
+
+        if (!allBibIdsToResetAndSetQualifierTo1.isEmpty()) {
+            int countOfUpdatedTo1 = bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(allBibIdsToResetAndSetQualifierTo1, ScsbCommonConstants.MA_QUALIFIER_1);
+            logger.info(ScsbConstants.LOG_MA_QUALIFIER_UPDATE, ScsbCommonConstants.MA_QUALIFIER_1, countOfUpdatedTo1);
+        }
+        if (!allBibIdsToSetQualifierTo2.isEmpty()) {
+            int countOfUpdatedTo2 = bibliographicDetailsRepository.updateMaQualifier(allBibIdsToSetQualifierTo2, ScsbCommonConstants.MA_QUALIFIER_2);
+            logger.info(ScsbConstants.LOG_MA_QUALIFIER_UPDATE, ScsbCommonConstants.MA_QUALIFIER_2, countOfUpdatedTo2);
+        }
+        if (!allBibIdsToResetAndSetQualifierTo3.isEmpty()) {
+            int countOfUpdatedTo3 = bibliographicDetailsRepository.resetMatchingColumnsAndUpdateMaQualifier(allBibIdsToResetAndSetQualifierTo3, ScsbCommonConstants.MA_QUALIFIER_3);
+            logger.info(ScsbConstants.LOG_MA_QUALIFIER_UPDATE, ScsbCommonConstants.MA_QUALIFIER_3, countOfUpdatedTo3);
+        }
+    }
+
 }

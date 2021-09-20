@@ -41,6 +41,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -223,14 +226,16 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
         Set<String> updatedBoundWithDummyRecordOwnInstBibIdSet = new HashSet<>();
         List<SubmitCollectionResponse> submitCollectionResponseList = new ArrayList<>();
         submitCollectionResponseList.add(submitCollectionResponse);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
         Mockito.when(setupDataService.getInstitutionCodeIdMap()).thenReturn(map);
-        Mockito.when(submitCollectionBatchService.process(institution, inputRecords, processedBibIdSet, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, "", reportRecordNumberList, true, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, exchange)).thenCallRealMethod();
+        Mockito.when(submitCollectionBatchService.process(institution, inputRecords, processedBibIdSet, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, "", reportRecordNumberList, true, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, exchange, executorService, futures)).thenCallRealMethod();
         Mockito.when(submitCollectionBatchService.getValidationService()).thenReturn(validationService);
         Mockito.when(submitCollectionBatchService.getRepositoryService()).thenReturn(repositoryService);
         Mockito.when(repositoryService.getInstitutionDetailsRepository()).thenReturn(institutionDetailsRepository);
         Mockito.when(institutionDetailsRepository.findByInstitutionCode(Mockito.anyString())).thenReturn(getInstitutionEntity());
         Mockito.when(validationService.validateInstitution(Mockito.anyString())).thenReturn(true);
-        Mockito.when(submitCollectionBatchService.processMarc(Mockito.anyString(),Mockito.anySet(),Mockito.anyMap(),Mockito.anyList(),Mockito.anyList(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any(),Mockito.anySet())).thenCallRealMethod();
+        Mockito.when(submitCollectionBatchService.processMarc(Mockito.anyString(),Mockito.anySet(),Mockito.anyMap(),Mockito.anyList(),Mockito.anyList(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any(),Mockito.anySet(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
         Mockito.when(submitCollectionBatchService.getMarcUtil()).thenReturn(marcUtil);
         Mockito.when(marcUtil.convertAndValidateXml(Mockito.anyString(),Mockito.anyBoolean(),Mockito.anyList())).thenCallRealMethod();
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenCallRealMethod();
@@ -247,7 +252,7 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
         ReflectionTestUtils.setField(submitCollectionBatchService,"marcToBibEntityConverter",marcToBibEntityConverter);
         ReflectionTestUtils.setField(submitCollectionBatchService,"submitCollectionDAOService",submitCollectionDAOService);
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(Mockito.anyList(),Mockito.anyInt(),Mockito.anyMap(),Mockito.anySet(),Mockito.anyList(),Mockito.anyList(),Mockito.anySet())).thenReturn(updatedBibliographicEntityList);
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(Mockito.anyList(),Mockito.anyInt(),Mockito.anyMap(),Mockito.anySet(),Mockito.anyList(),Mockito.anyList(),Mockito.anySet(),Mockito.any(),Mockito.anyList())).thenReturn(updatedBibliographicEntityList);
         Mockito.when(submitCollectionBatchService.getConverter(Mockito.anyString())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionBatchService,"marcToBibEntityConverter",marcToBibEntityConverter);
         Mockito.when(submitCollectionBatchService.getMarcToBibEntityConverter()).thenCallRealMethod();
@@ -265,6 +270,8 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
         String inputRecords = updatedMarcXml;
         String institution = "PUL";
         boolean isCGDProtection = true;
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
         Map map = new HashMap();
         map.put(1,"PUL");
         Map<String,Object> requestParameters = new HashedMap();
@@ -279,7 +286,7 @@ public class SharedCollectionRestControllerUT extends BaseTestCaseUT {
         List<SubmitCollectionResponse> submitCollectionResponseList = new ArrayList<>();
         submitCollectionResponseList.add(submitCollectionResponse);
         Mockito.when(setupDataService.getInstitutionCodeIdMap()).thenReturn(map);
-        Mockito.when(submitCollectionBatchService.process(institution, inputRecords, processedBibIdSet, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, "", reportRecordNumberList, true, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, null)).thenThrow(NullPointerException.class);
+        Mockito.when(submitCollectionBatchService.process(institution, inputRecords, processedBibIdSet, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, "", reportRecordNumberList, true, isCGDProtection, updatedBoundWithDummyRecordOwnInstBibIdSet, null, executorService, futures)).thenThrow(NullPointerException.class);
         ResponseEntity response = sharedCollectionRestController.submitCollection(requestParameters);
         assertEquals(ScsbConstants.SUBMIT_COLLECTION_INTERNAL_ERROR,response.getBody());
     }

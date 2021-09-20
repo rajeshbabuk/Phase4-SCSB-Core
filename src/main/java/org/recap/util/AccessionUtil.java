@@ -31,6 +31,7 @@ import org.recap.repository.jpa.OwnerCodeDetailsRepository;
 import org.recap.service.BibliographicRepositoryDAO;
 import org.recap.service.accession.AccessionValidationService;
 import org.recap.service.accession.DummyDataService;
+import org.recap.service.common.SetupDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +99,9 @@ public class AccessionUtil {
     private String scsbSolrClientUrl;
 
     private RestTemplate restTemplate;
+
+    @Autowired
+    private SetupDataService setupDataService;
 
 
     /**
@@ -408,9 +412,11 @@ public class AccessionUtil {
         BibliographicEntity savedBibliographicEntity=null;
         BibliographicEntity fetchBibliographicEntity = bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibId(bibliographicEntity.getOwningInstitutionId(),bibliographicEntity.getOwningInstitutionBibId());
         if(fetchBibliographicEntity ==null) { // New Bib Record
+            checkAndSetMAQualifier(bibliographicEntity, null);
             savedBibliographicEntity = bibliographicRepositoryDAO.saveOrUpdate(bibliographicEntity);
         }else{ // Existing bib Record
             // Bib
+            checkAndSetMAQualifier(bibliographicEntity, fetchBibliographicEntity);
             fetchBibliographicEntity.setContent(bibliographicEntity.getContent());
             fetchBibliographicEntity.setLastUpdatedBy(bibliographicEntity.getLastUpdatedBy());
             fetchBibliographicEntity.setLastUpdatedDate(bibliographicEntity.getLastUpdatedDate());
@@ -477,6 +483,22 @@ public class AccessionUtil {
             savedBibliographicEntity = saveBibRecord(fetchBibliographicEntity);
         }
         return savedBibliographicEntity;
+    }
+
+    private void checkAndSetMAQualifier(BibliographicEntity bibliographicEntity, BibliographicEntity fetchBibliographicEntity) {
+        if (bibliographicEntity.getItemEntities() != null) {
+            ItemEntity incomingItemEntity = bibliographicEntity.getItemEntities().get(0);
+            String incomingItemCgd = setupDataService.getCollectionGroupIdCodeMap().get(incomingItemEntity.getCollectionGroupId());
+            if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(incomingItemCgd)) {
+                bibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_3);
+            } else {
+                if (null != fetchBibliographicEntity && ScsbCommonConstants.MA_QUALIFIER_3.intValue() != fetchBibliographicEntity.getMaQualifier().intValue()) {
+                    fetchBibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_1);
+                } else {
+                    bibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_1);
+                }
+            }
+        }
     }
 
     public BibliographicEntity saveBibRecord(BibliographicEntity fetchBibliographicEntity) {
@@ -550,6 +572,16 @@ public class AccessionUtil {
                     holdingsEntity.setLastUpdatedBy(ScsbConstants.REACCESSION);
                 }
                 for(BibliographicEntity bibliographicEntity:itemEntity.getBibliographicEntities()) {
+                    String incomingItemCgd = setupDataService.getCollectionGroupIdCodeMap().get(itemEntity.getCollectionGroupId());
+                    if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(incomingItemCgd)) {
+                        bibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_3);
+                    } else {
+                        if (!bibliographicEntity.isDeleted() && ScsbCommonConstants.MA_QUALIFIER_3.intValue() != bibliographicEntity.getMaQualifier().intValue()) {
+                            bibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_1);
+                        } else {
+                            bibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_1);
+                        }
+                    }
                     bibliographicEntity.setDeleted(false);
                     bibliographicEntity.setLastUpdatedDate(currentDateTime);
                     bibliographicEntity.setLastUpdatedBy(ScsbConstants.REACCESSION);

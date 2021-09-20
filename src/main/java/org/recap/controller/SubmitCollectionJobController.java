@@ -7,7 +7,6 @@ import org.apache.camel.PollingConsumer;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.submitcollection.SubmitCollectionPollingS3RouteBuilder;
-import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

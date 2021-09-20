@@ -27,6 +27,8 @@ import org.springframework.util.StopWatch;
 
 import javax.xml.bind.JAXBException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -54,7 +56,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
 
     @Override
     public String processMarc(String inputRecords, Set<Integer> processedBibIds, Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, boolean checkLimit
-            , boolean isCGDProtection, InstitutionEntity institutionEntity, Set<String> updatedDummyRecordOwnInstBibIdSet) {
+            , boolean isCGDProtection, InstitutionEntity institutionEntity, Set<String> updatedDummyRecordOwnInstBibIdSet, ExecutorService executorService, List<Future> futures) {
         logger.info("inside SubmitCollectionBatchService");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -68,7 +70,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
                 validBibliographicEntityList.add(bibliographicEntity);
             }
             logger.info("Total incoming marc records for processing--->{}", recordList.size());
-            processConvertedBibliographicEntityFromIncomingRecords(processedBibIds, submitCollectionReportInfoMap, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, institutionEntity, updatedDummyRecordOwnInstBibIdSet, validBibliographicEntityList);
+            processConvertedBibliographicEntityFromIncomingRecords(processedBibIds, submitCollectionReportInfoMap, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, institutionEntity, updatedDummyRecordOwnInstBibIdSet, validBibliographicEntityList, executorService, futures);
             stopWatch.stop();
             logger.info("Total time take for processMarc--->{}", stopWatch.getTotalTimeSeconds());
             return null;
@@ -77,7 +79,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
         }
     }
 
-    private void processConvertedBibliographicEntityFromIncomingRecords(Set<Integer> processedBibIds, Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, InstitutionEntity institutionEntity, Set<String> updatedDummyRecordOwnInstBibIdSet, List<BibliographicEntity> validBibliographicEntityList) {
+    private void processConvertedBibliographicEntityFromIncomingRecords(Set<Integer> processedBibIds, Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, InstitutionEntity institutionEntity, Set<String> updatedDummyRecordOwnInstBibIdSet, List<BibliographicEntity> validBibliographicEntityList, ExecutorService executorService, List<Future> futures) {
         //TODO need to remove the list - remove the intermediate process
         List<BibliographicEntity> boundwithBibliographicEntityList = new ArrayList<>();
         List<BibliographicEntity> nonBoundWithBibliographicEntityList = new ArrayList<>();
@@ -92,10 +94,10 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
         logger.info("boundWithBibliographicEntityObjectList size--->{}", boundWithBibliographicEntityObjectList.size());
         logger.info("nonBoundWithBibliographicEntityList size--->{}", nonBoundWithBibliographicEntityList.size());
         if (!nonBoundWithBibliographicEntityObjectList.isEmpty()) {
-            processRecordsInBatchesForNonBoundWith(nonBoundWithBibliographicEntityObjectList, institutionEntity.getId(), submitCollectionReportInfoMap, processedBibIds, idMapToRemoveIndexList);
+            processRecordsInBatchesForNonBoundWith(nonBoundWithBibliographicEntityObjectList, institutionEntity.getId(), submitCollectionReportInfoMap, processedBibIds, idMapToRemoveIndexList, executorService, futures);
         }
         if (!boundwithBibliographicEntityList.isEmpty()) {
-            processRecordsInBatchesForBoundWith(boundWithBibliographicEntityObjectList, institutionEntity.getId(), submitCollectionReportInfoMap, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, updatedDummyRecordOwnInstBibIdSet);//updatedDummyRecordOwnInstBibIdSet is required only for boundwith
+            processRecordsInBatchesForBoundWith(boundWithBibliographicEntityObjectList, institutionEntity.getId(), submitCollectionReportInfoMap, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, updatedDummyRecordOwnInstBibIdSet, executorService, futures);//updatedDummyRecordOwnInstBibIdSet is required only for boundwith
         }
     }
 
@@ -141,7 +143,8 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
 
     @Override
     public String processSCSB(String inputRecords, Set<Integer> processedBibIds, Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap,
-                              List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, boolean checkLimit, boolean isCGDProtected, InstitutionEntity institutionEntity, Set<String> updatedDummyRecordOwnInstBibIdSet) {
+                              List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, boolean checkLimit, boolean isCGDProtected, InstitutionEntity institutionEntity, Set<String> updatedDummyRecordOwnInstBibIdSet,
+                              ExecutorService executorService, List<Future> futures) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         String format;
@@ -165,7 +168,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
             validBibliographicEntityList.add(bibliographicEntity);
         }
         logger.info("Total incoming scsb records for processing--->{}", bibRecords.getBibRecordList().size());
-        processConvertedBibliographicEntityFromIncomingRecords(processedBibIds, submitCollectionReportInfoMap, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, institutionEntity, updatedDummyRecordOwnInstBibIdSet, validBibliographicEntityList);
+        processConvertedBibliographicEntityFromIncomingRecords(processedBibIds, submitCollectionReportInfoMap, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, institutionEntity, updatedDummyRecordOwnInstBibIdSet, validBibliographicEntityList, executorService, futures);
         stopWatch.stop();
         logger.info("Total time take for process SCSB--->{}", stopWatch.getTotalTimeSeconds());
         return null;
@@ -244,7 +247,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
     }
 
     private void processRecordsInBatchesForNonBoundWith(List<NonBoundWithBibliographicEntityObject> nonBoundWithBibliographicEntityObjectList, Integer owningInstitutionId, Map<String,
-            List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, Set<Integer> processedBibIds, List<Map<String, String>> idMapToRemoveIndexList) {
+            List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, Set<Integer> processedBibIds, List<Map<String, String>> idMapToRemoveIndexList, ExecutorService executorService, List<Future> futures) {
         Set<String> processedBarcodeSetForDummyRecords = new HashSet<>();
         List<List<NonBoundWithBibliographicEntityObject>> nonBoundWithBibliographicEntityPartitionList = ListUtils.partition(nonBoundWithBibliographicEntityObjectList, partitionSize);
         logger.info("Total non bound-with batch count--->{}", nonBoundWithBibliographicEntityPartitionList.size());
@@ -257,7 +260,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
             logger.info("Processing non bound-with batch no. ---->{}", batchCounter);
             List<BibliographicEntity> updatedBibliographicEntityList = null;
             updatedBibliographicEntityList = getSubmitCollectionDAOService().updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectListToProces
-                    , owningInstitutionId, submitCollectionReportInfoMap, processedBibIds, idMapToRemoveIndexList, processedBarcodeSetForDummyRecords);
+                    , owningInstitutionId, submitCollectionReportInfoMap, processedBibIds, idMapToRemoveIndexList, processedBarcodeSetForDummyRecords, executorService, futures);
             if (updatedBibliographicEntityList != null && !updatedBibliographicEntityList.isEmpty()) {
                 updatedBibliographicEntityToSaveList.addAll(updatedBibliographicEntityList);
             }
@@ -268,7 +271,8 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
     }
 
     private void processRecordsInBatchesForBoundWith(List<BoundWithBibliographicEntityObject> boundWithBibliographicEntityObjectList, Integer owningInstitutionId, Map<String,
-            List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, Set<Integer> processedBibIds, List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, Set<String> updatedDummyRecordOwnInstBibIdSet) {
+            List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap, Set<Integer> processedBibIds, List<Map<String, String>> idMapToRemoveIndexList, List<Map<String, String>> bibIdMapToRemoveIndexList, Set<String> updatedDummyRecordOwnInstBibIdSet,
+                                                     ExecutorService executorService, List<Future> futures) {
 
         Set<String> processedBarcodeSetForDummyRecords = new HashSet<>();
         List<List<BoundWithBibliographicEntityObject>> boundWithBibliographicEntityObjectPartitionList = ListUtils.partition(boundWithBibliographicEntityObjectList, partitionSize);
@@ -281,7 +285,7 @@ public class SubmitCollectionBatchService extends SubmitCollectionService {
             logger.info("boundWithBibliographicEntityObjectToProcess.size---->{}", boundWithBibliographicEntityObjectToProcess.size());
             logger.info("Processing bound-with batch no. ---->{}", batchCounter);
             List<BibliographicEntity> updatedBibliographicEntityList = null;
-            updatedBibliographicEntityList = getSubmitCollectionDAOService().updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectToProcess, owningInstitutionId, submitCollectionReportInfoMap, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, processedBarcodeSetForDummyRecords);
+            updatedBibliographicEntityList = getSubmitCollectionDAOService().updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectToProcess, owningInstitutionId, submitCollectionReportInfoMap, processedBibIds, idMapToRemoveIndexList, bibIdMapToRemoveIndexList, processedBarcodeSetForDummyRecords, executorService, futures);
             if (updatedBibliographicEntityList != null && !updatedBibliographicEntityList.isEmpty()) {
                 updatedBibliographicEntityToSaveList.addAll(updatedBibliographicEntityList);
             }

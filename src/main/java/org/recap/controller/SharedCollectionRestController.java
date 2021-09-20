@@ -12,11 +12,13 @@ import org.recap.model.accession.AccessionResponse;
 import org.recap.model.accession.AccessionSummary;
 import org.recap.model.jpa.AccessionEntity;
 import org.recap.model.submitcollection.SubmitCollectionResponse;
+import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.service.accession.AccessionService;
 import org.recap.service.accession.BulkAccessionService;
 import org.recap.service.common.SetupDataService;
 import org.recap.service.submitcollection.SubmitCollectionBatchService;
 import org.recap.service.submitcollection.SubmitCollectionService;
+import org.recap.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Created by premkb on 21/12/16.
@@ -53,6 +58,9 @@ public class SharedCollectionRestController {
 
     @Autowired
     BulkAccessionService bulkAccessionService;
+
+    @Autowired
+    CommonUtil commonUtil;
 
     @Value("${" + PropertyKeyConstants.ONGOING_ACCESSION_INPUT_LIMIT + "}")
     private Integer inputLimit;
@@ -169,8 +177,11 @@ public class SharedCollectionRestController {
         List<Map<String,String>> bibIdMapToRemoveIndexList = new ArrayList<>();//Added to remove orphan record while unlinking
         Set<String> updatedBoundWithDummyRecordOwnInstBibIdSet = new HashSet<>();
         List<SubmitCollectionResponse> submitCollectionResponseList;
+        ExecutorService executorService = null;
         try {
-            submitCollectionResponseList = submitCollectionBatchService.process(institution,inputRecords,processedBibIdSet,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,"",reportRecordNumberList, true,isCGDProtection,updatedBoundWithDummyRecordOwnInstBibIdSet, null);
+            executorService = Executors.newFixedThreadPool(1);
+            List<Future> futures = new ArrayList<>();
+            submitCollectionResponseList = submitCollectionBatchService.process(institution,inputRecords,processedBibIdSet,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,"",reportRecordNumberList, true,isCGDProtection,updatedBoundWithDummyRecordOwnInstBibIdSet, null, executorService, futures);
             if (!processedBibIdSet.isEmpty()) {
                 logger.info("Calling indexing service to update data");
                 submitCollectionService.indexData(processedBibIdSet);
@@ -188,10 +199,15 @@ public class SharedCollectionRestController {
                 }).start();
             }
             submitCollectionBatchService.generateSubmitCollectionReportFile(reportRecordNumberList);
+            collectFuturesAndProcess(futures);
+            executorService.shutdown();
             responseEntity = new ResponseEntity(submitCollectionResponseList,getHttpHeaders(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error(ScsbCommonConstants.LOG_ERROR,e);
             responseEntity = new ResponseEntity(ScsbConstants.SUBMIT_COLLECTION_INTERNAL_ERROR,getHttpHeaders(), HttpStatus.OK);
+            if (executorService != null) {
+                executorService.shutdown();
+            }
         }
         stopWatch.stop();
         logger.info("Total time taken to process submit collection through rest api--->{} sec",stopWatch.getTotalTimeSeconds());
@@ -202,5 +218,14 @@ public class SharedCollectionRestController {
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add(ScsbCommonConstants.RESPONSE_DATE, new Date().toString());
         return responseHeaders;
+    }
+
+    private void collectFuturesAndProcess(List<Future> futures) {
+        logger.info("Submit Collection API - Before Collecting Futures - Number of Futures for Match Point Checks: {}", futures.size());
+        Set<Integer> bibIds = commonUtil.collectFuturesAndUpdateMAQualifier(futures);
+        if (!bibIds.isEmpty()) {
+            logger.info("Submit Collection API - Solr indexing started for MA Qualifier Update. Total Bib Records : {}", bibIds.size());
+            submitCollectionService.indexData(bibIds);
+        }
     }
 }

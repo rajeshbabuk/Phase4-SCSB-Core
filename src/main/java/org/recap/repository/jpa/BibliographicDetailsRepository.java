@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by pvsubrah on 6/10/16.
@@ -78,6 +79,27 @@ public interface BibliographicDetailsRepository extends BaseRepository<Bibliogra
      * @return the bibliographic entity
      */
     BibliographicEntity findByOwningInstitutionIdAndOwningInstitutionBibIdAndIsDeletedFalse(Integer owningInstitutionId, String owningInstitutionBibId);
+
+    /**
+     * Find by matchingIdentity list.
+     *
+     * @param matchingIdentity the matching Identifier
+     * @return the list
+     */
+    List<BibliographicEntity> findByMatchingIdentity(String matchingIdentity);
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = "UPDATE `BIBLIOGRAPHIC_T` SET `MA_QUALIFIER`=:maQualifier WHERE `BIBLIOGRAPHIC_ID` in (:bibliographicIds)",nativeQuery = true)
+    int updateMaQualifier(@Param("bibliographicIds") Set<Integer> bibIds, @Param("maQualifier") Integer maQualifier);
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = "UPDATE `BIBLIOGRAPHIC_T` SET `MATCHING_IDENTITY`=null, `MATCH_SCORE`=0, `ANAMOLY_FLAG`=0, `MA_QUALIFIER`=:maQualifier WHERE `BIBLIOGRAPHIC_ID` in (:bibliographicIds)",nativeQuery = true)
+    int resetMatchingColumnsAndUpdateMaQualifier(@Param("bibliographicIds") Set<Integer> bibIds,  @Param("maQualifier") Integer maQualifier);
+
+    @Query(value = "SELECT BIBLIOGRAPHIC_ID, MATCH_SCORE FROM BIBLIOGRAPHIC_T WHERE MATCHING_IDENTITY = :matchingIdentity", nativeQuery = true)
+    Set<Integer> findIdByMatchingIdentity(@Param("matchingIdentity") String matchingIdentity);
 
 
 }

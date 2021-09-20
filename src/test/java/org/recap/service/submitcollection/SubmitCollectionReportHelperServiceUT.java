@@ -83,32 +83,6 @@ public class SubmitCollectionReportHelperServiceUT extends BaseTestCaseUT {
     }
 
     @Test
-    public  void setSubmitCollectionReportInfoForMatchPointChange(){
-        List<String> fetchedIsbnNumbers=new ArrayList<>();
-        fetchedIsbnNumbers.add("isbn");
-        List<String> fetchedIssnNumbers=new ArrayList<>();
-        fetchedIssnNumbers.add("issn");
-        List<String> fetchedOclcNumbers=new ArrayList<>();
-        fetchedOclcNumbers.add("oclc");
-        List<String> incomingIsbnNumbers=new ArrayList<>();
-        incomingIsbnNumbers.add("isbn");
-        List<String> incomingIssnNumbers=new ArrayList<>();
-        incomingIssnNumbers.add("issn");
-        List<String> incomingOclcNumbers=new ArrayList<>();
-        incomingOclcNumbers.add("oclc");
-        Map<String,List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap=new HashMap<>();
-        List<SubmitCollectionReportInfo> submitCollectionReportInfos=new ArrayList<>();
-        submitCollectionReportInfos.add(submitCollectionReportInfo);
-        submitCollectionReportInfoMap.put(ScsbConstants.SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST,submitCollectionReportInfos);
-        List<ItemEntity> incomingItemEntities=new ArrayList<>();
-        incomingItemEntities.add(incomingItemEntity);
-        Mockito.when(incomingItemEntity.getBarcode()).thenReturn("123456");
-        Mockito.when(incomingBibliographicEntity.getItemEntities()).thenReturn(incomingItemEntities);
-        Mockito.when(incomingBibliographicEntity.getOwningInstitutionBibId()).thenReturn("1");
-        submitCollectionReportHelperService.setSubmitCollectionReportInfoForMatchPointChange(fetchedBibliographicEntity,incomingBibliographicEntity,"fetchedTitle",fetchedIsbnNumbers,fetchedIssnNumbers,fetchedOclcNumbers,"fetchedLccn","incomingTitle",incomingIsbnNumbers,incomingIssnNumbers,incomingOclcNumbers,"incomingLccn",submitCollectionReportInfoMap);
-    }
-
-    @Test
     public  void setSubmitCollectionExceptionReportInfo(){
         List<ItemEntity> itemEntityList = new ArrayList<>();
         itemEntityList.add(getItemEntity("123456"));
