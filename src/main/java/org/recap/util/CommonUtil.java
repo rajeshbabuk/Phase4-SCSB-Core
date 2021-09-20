@@ -519,7 +519,6 @@ public class CommonUtil {
             allBibIdsToSetQualifierTo2.removeAll(duplicateBibIds);
         }
 
-
         duplicateBibIds = allBibIdsToResetAndSetQualifierTo1.stream().filter(allBibIdsToResetAndSetQualifierTo3::contains).collect(Collectors.toSet());
         if (!duplicateBibIds.isEmpty()) {
             logger.info("{} Duplicate Bib Ids between MA Qualifier 1 and 3 removed from 1: {}", duplicateBibIds.size(), duplicateBibIds);

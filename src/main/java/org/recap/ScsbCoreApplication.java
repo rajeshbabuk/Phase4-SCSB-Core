@@ -15,7 +15,6 @@ import org.springframework.web.client.RestTemplate;
  */
 @PropertySource("classpath:application.properties")
 @SpringBootApplication
-@EnableAsync
 public class ScsbCoreApplication {
 
 	/**

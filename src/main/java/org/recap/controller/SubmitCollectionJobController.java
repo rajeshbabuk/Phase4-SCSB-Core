@@ -7,12 +7,10 @@ import org.apache.camel.PollingConsumer;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
 import org.recap.camel.submitcollection.SubmitCollectionPollingS3RouteBuilder;
-import org.recap.repository.jpa.InstitutionDetailsRepository;
 import org.recap.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,7 +43,7 @@ public class SubmitCollectionJobController {
      * @return
      * @throws Exception
      */
-    @GetMapping(value = "/startSubmitCollection")
+    @PostMapping(value = "/startSubmitCollection")
     public String startSubmitCollection() throws Exception{
         List<String> allInstitutionCodesExceptSupportInstitution = commonUtil.findAllInstitutionCodesExceptSupportInstitution();
         Optional<String> institution = allInstitutionCodesExceptSupportInstitution.stream().findFirst();

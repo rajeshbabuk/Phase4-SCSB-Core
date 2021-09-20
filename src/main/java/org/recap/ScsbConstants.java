@@ -116,7 +116,6 @@ public final class ScsbConstants {
     public static final String SUBMIT_COLLECTION_FAILURE_LIST = "submitCollectionFailureList";
     public static final String SUBMIT_COLLECTION_REJECTION_LIST = "submitCollectionRejectionList";
     public static final String SUBMIT_COLLECTION_EXCEPTION_LIST = "submitCollectionExceptionList";
-    public static final String SUBMIT_COLLECTION_MATCH_POINT_CHANGE_LIST = "submitCollectionMatchPointChangeList";
     public static final String SUBMIT_COLLECTION_EXCEPTION_RECORD = "Exception record - Item is unavailable in scsb to update";
     public static final String SUBMIT_COLLECTION_DEACCESSION_EXCEPTION_RECORD = "Exception record - Item not updated, it is a deaccessioned item";
     public static final String SUBMIT_COLLECTION_REJECTION_RECORD = "Rejection record - Only use restriction and cgd not updated because the item is in use";
@@ -225,7 +224,6 @@ public final class ScsbConstants {
     public static final String YES = "Yes";
     public static final String NO = "No";
     public static final String NUMBER_PATTERN="[^0-9]";
-    public static final String MATCH_POINT_CHANGE_RECORD = "Match Point Change Record";
 
     public static final String LOG_MA_QUALIFIER_UPDATE = "Number of Bib Ids Updated with MA Qualifier to {} : {}";
 }
