@@ -315,10 +315,10 @@ public class SubmitCollectionProcessorUT extends BaseTestCaseUT {
         List<BibliographicEntity> bibliographicEntityList=new ArrayList<>();
         bibliographicEntityList.add(incomingBibliographicEntity);
         Mockito.when(institutionEntity.getId()).thenReturn(2);
-        Mockito.when(submitCollectionDAOService.updateDummyRecordForNonBoundWith(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.any(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateDummyRecordForNonBoundWith(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.any(),Mockito.any(),Mockito.anyList(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
         Mockito.when(submitCollectionDAOService.getBarcodeSetFromItemEntityList(Mockito.anyList())).thenCallRealMethod();
         Mockito.when(submitCollectionDAOService.getBarcodeItemEntityMap(Mockito.anyList())).thenCallRealMethod();
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(Mockito.anyList(),Mockito.anyInt(),Mockito.anyMap(),Mockito.anySet(),Mockito.anyList(),Mockito.anySet())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(Mockito.anyList(),Mockito.anyInt(),Mockito.anyMap(),Mockito.anySet(),Mockito.anyList(),Mockito.anySet(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
         Mockito.when(submitCollectionDAOService.getBarcodeSetFromNonBoundWithBibliographicEntity(Mockito.anyList())).thenCallRealMethod();
         Mockito.when(submitCollectionDAOService.getBarcodeItemEntityMapFromNonBoundWithBibliographicEntityList(Mockito.anyList())).thenCallRealMethod();
         Mockito.when(submitCollectionDAOService.getItemEntityListUsingBarcodeList(Mockito.anyList(),Mockito.anyInt())).thenCallRealMethod();
@@ -337,7 +337,7 @@ public class SubmitCollectionProcessorUT extends BaseTestCaseUT {
         Mockito.when(validationService.validateInstitution(Mockito.anyString())).thenReturn(true);
         Mockito.when(institutionDetailsRepository.findByInstitutionCode(Mockito.anyString())).thenReturn(institutionEntity);
         Mockito.when(exchange.getIn()).thenReturn(message);
-        Mockito.when(submitCollectionBatchService.processMarc(Mockito.anyString(),Mockito.anySet(),Mockito.anyMap(),Mockito.anyList(),Mockito.anyList(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any(),Mockito.anySet())).thenCallRealMethod();
+        Mockito.when(submitCollectionBatchService.processMarc(Mockito.anyString(),Mockito.anySet(),Mockito.anyMap(),Mockito.anyList(),Mockito.anyList(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.any(),Mockito.anySet(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
         Mockito.when(message.getBody(String.class)).thenReturn(updatedMarcXml);
         Mockito.when(message.getHeader(ScsbConstants.CAMEL_FILE_NAME_ONLY)).thenReturn("xmlFileName");
         Mockito.when(awsS3Client.doesObjectExist(Mockito.anyString(),Mockito.anyString())).thenReturn(true);
@@ -347,7 +347,7 @@ public class SubmitCollectionProcessorUT extends BaseTestCaseUT {
         Mockito.when(submitCollectionBatchService.getConverter(Mockito.anyString())).thenCallRealMethod();
         Mockito.when(submitCollectionBatchService.getRepositoryService()).thenReturn(repositoryService);
         Mockito.when(repositoryService.getInstitutionDetailsRepository()).thenReturn(institutionDetailsRepository);
-        Mockito.when(submitCollectionBatchService.process(Mockito.anyString(),Mockito.anyString(),Mockito.anySet(),Mockito.anyList(),Mockito.anyList(),Mockito.anyString(),Mockito.anyList(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.anySet(),Mockito.any())).thenCallRealMethod();
+        Mockito.when(submitCollectionBatchService.process(Mockito.anyString(),Mockito.anyString(),Mockito.anySet(),Mockito.anyList(),Mockito.anyList(),Mockito.anyString(),Mockito.anyList(),Mockito.anyBoolean(),Mockito.anyBoolean(),Mockito.anySet(),Mockito.any(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
         submitCollectionProcessor.processInput(exchange);
     }
 

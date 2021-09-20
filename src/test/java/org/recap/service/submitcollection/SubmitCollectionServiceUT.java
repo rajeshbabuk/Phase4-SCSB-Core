@@ -41,6 +41,9 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.junit.Assert.*;
 
@@ -836,7 +839,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -861,7 +864,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         ReportEntity savedReportEntity=new ReportEntity();
         savedReportEntity.setId(1);
         Mockito.when(reportDetailRepository.save(Mockito.any())).thenReturn(savedReportEntity);
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null, executorService, futures);
         assertEquals(ScsbConstants.SUBMIT_COLLECTION_SUCCESS_RECORD,submitCollectionResponseList.get(0).getMessage());
         String updatedBibMarcXML = new String(savedBibliographicEntity.getContent(), StandardCharsets.UTF_8);
         List<Record> bibRecordList = readMarcXml(updatedBibMarcXML);
@@ -924,7 +929,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenReturn(savedBibliographicEntity);
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean(),Mockito.any(),Mockito.anyList())).thenReturn(savedBibliographicEntity);
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -946,7 +951,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         ReportEntity savedReportEntity=new ReportEntity();
         savedReportEntity.setId(1);
         Mockito.when(reportDetailRepository.save(Mockito.any())).thenReturn(savedReportEntity);
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null, executorService, futures);
         assertNotNull(submitCollectionResponseList);
 
     }
@@ -977,7 +984,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -1000,7 +1007,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         savedReportEntity.setId(1);
         Mockito.when(reportDetailRepository.save(Mockito.any())).thenReturn(savedReportEntity);
         Mockito.doCallRealMethod().when(submitCollectionReportHelperService).setSubmitCollectionFailureReportForUnexpectedException(Mockito.any(),Mockito.anyList(),Mockito.anyString(),Mockito.any());
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null, executorService, futures);
         assertEquals("Failed record - Item not updated - "+"Error while parsing xml for a barcode in submit collection",submitCollectionResponseList.get(0).getMessage());
     }
 
@@ -1028,7 +1037,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -1051,7 +1060,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         savedReportEntity.setId(1);
         Mockito.when(reportDetailRepository.save(Mockito.any())).thenReturn(savedReportEntity);
         Mockito.doCallRealMethod().when(submitCollectionReportHelperService).setSubmitCollectionFailureReportForUnexpectedException(Mockito.any(),Mockito.anyList(),Mockito.anyString(),Mockito.any());
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null, executorService, futures);
         assertEquals("Failed record - Item not updated - ",submitCollectionResponseList.get(0).getMessage());
     }
 
@@ -1079,7 +1090,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenThrow(NullPointerException.class);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -1102,7 +1113,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         savedReportEntity.setId(1);
         Mockito.when(reportDetailRepository.save(Mockito.any())).thenReturn(savedReportEntity);
         Mockito.doCallRealMethod().when(submitCollectionReportHelperService).setSubmitCollectionFailureReportForUnexpectedException(Mockito.any(),Mockito.anyList(),Mockito.anyString(),Mockito.any());
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null, executorService, futures);
         assertEquals("Failed record - Item not updated - null",submitCollectionResponseList.get(0).getMessage());
     }
 
@@ -1139,7 +1152,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(marcToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -1162,7 +1175,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         savedReportEntity.setId(1);
         Mockito.when(reportDetailRepository.save(Mockito.any())).thenReturn(savedReportEntity);
         ReflectionTestUtils.setField(submitCollectionDAOService,"bibliographicDetailsRepository",bibliographicDetailsRepository);
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex), Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null, executorService, futures);
         assertEquals("Success record-Record continue to be incomplete because use restriction is unavailable in the input xml",submitCollectionResponseList.get(0).getMessage());
     }
 
@@ -1178,7 +1193,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(institutionDetailsRepository.findByInstitutionCode(Mockito.anyString())).thenReturn(getInstitutionEntity());
         ReflectionTestUtils.setField(repositoryService,"institutionDetailsRepository",institutionDetailsRepository);
         Mockito.when(repositoryService.getInstitutionDetailsRepository()).thenCallRealMethod();
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, exchange);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, exchange, executorService, futures);
         assertEquals(ScsbConstants.SUBMIT_COLLECTION_REJECTION_RECORD,submitCollectionResponseList.get(0).getMessage());
     }
 
@@ -1195,7 +1212,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         ReflectionTestUtils.setField(repositoryService,"institutionDetailsRepository",institutionDetailsRepository);
         Mockito.when(repositoryService.getInstitutionDetailsRepository()).thenCallRealMethod();
         Mockito.doThrow(NullPointerException.class).when(submitCollectionReportHelperService).setSubmitCollectionReportInfoForInvalidXml(Mockito.anyString(),Mockito.anyList(),Mockito.anyString());
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null, executorService, futures);
         assertEquals(ScsbConstants.SUBMIT_COLLECTION_INTERNAL_ERROR,submitCollectionResponseList.get(0).getMessage());
     }
 
@@ -1205,7 +1224,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Map<String,String> idMapToRemoveIndex = new HashMap<>();
         Map<String,String> bibIdMapToRemoveIndex = new HashMap<>();
         List<Integer> reportRecordNumList = new ArrayList<>();
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("PUL",updatedMarcForPUL,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null, executorService, futures);
         assertEquals("Please provide valid institution code",submitCollectionResponseList.get(0).getMessage());
     }
 
@@ -1235,7 +1256,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(scsbToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenCallRealMethod();
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean(),Mockito.any(),Mockito.anyList())).thenCallRealMethod();
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -1261,7 +1282,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         savedReportEntity.setId(1);
         Mockito.when(reportDetailRepository.save(Mockito.any())).thenReturn(savedReportEntity);
         Mockito.when(commonUtil.extractBibRecords(Mockito.any())).thenCallRealMethod();
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("NYPL",updatedContentForNYPL1,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("NYPL",updatedContentForNYPL1,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null, executorService, futures);
        // assertEquals(ScsbConstants.SUBMIT_COLLECTION_SUCCESS_RECORD,submitCollectionResponseList.get(0).getMessage());
     }
     @Test
@@ -1290,7 +1313,7 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(savedBibliographicEntity.getItemEntities());
         Mockito.when(scsbToBibEntityConverter.convert(Mockito.any(),Mockito.any())).thenReturn(responseMap);
         ReflectionTestUtils.setField(submitCollectionDAOService,"repositoryService",repositoryService);
-        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean())).thenReturn(savedBibliographicEntity);
+        Mockito.when(submitCollectionDAOService.updateBibliographicEntity(Mockito.any(),Mockito.anyMap(),Mockito.anyList(),Mockito.anySet(),Mockito.anyBoolean(),Mockito.any(),Mockito.anyList())).thenReturn(savedBibliographicEntity);
         ReflectionTestUtils.setField(submitCollectionDAOService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionReportHelperService,"nonHoldingIdInstitution",nonHoldingIdInstitution);
         ReflectionTestUtils.setField(submitCollectionDAOService,"setupDataService",setupDataService);
@@ -1313,7 +1336,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         savedReportEntity.setId(1);
         Mockito.when(reportDetailRepository.save(Mockito.any())).thenReturn(savedReportEntity);
         Mockito.when(commonUtil.extractBibRecords(Mockito.any())).thenCallRealMethod();
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("NYPL",updatedContentForNYPL1,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("NYPL",updatedContentForNYPL1,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, null, executorService, futures);
         assertNotNull(submitCollectionResponseList);
     }
 
@@ -1334,7 +1359,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         List<BibRecord> bibRecordList=new ArrayList<>();
         bibRecordList.add(bibRecord);
         Mockito.when(bibRecords.getBibRecordList()).thenReturn(bibRecordList);
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("NYPL",updatedContentForNYPL1,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, exchange);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("NYPL",updatedContentForNYPL1,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, exchange, executorService, futures);
         assertTrue(submitCollectionResponseList.get(0).getMessage().contains(ScsbConstants.SUBMIT_COLLECTION_LIMIT_EXCEED_MESSAGE));
     }
 
@@ -1352,7 +1379,9 @@ public class SubmitCollectionServiceUT extends BaseTestCaseUT {
         ReflectionTestUtils.setField(marcUtil,"inputLimit",0);
         ReflectionTestUtils.setField(submitCollectionService,"inputLimit",0);
         Mockito.when(commonUtil.extractBibRecords(Mockito.any())).thenThrow(JAXBException.class);
-        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("NYPL",updatedContentForNYPL1,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, exchange);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<SubmitCollectionResponse>  submitCollectionResponseList = submitCollectionService.process("NYPL",updatedContentForNYPL1,processedBibIds,Arrays.asList(idMapToRemoveIndex),Arrays.asList(bibIdMapToRemoveIndex), ScsbConstants.REST,reportRecordNumList, true,false,null, exchange, executorService, futures);
         assertEquals(ScsbConstants.INVALID_SCSB_XML_FORMAT_MESSAGE,submitCollectionResponseList.get(0).getMessage());
     }
     @Test

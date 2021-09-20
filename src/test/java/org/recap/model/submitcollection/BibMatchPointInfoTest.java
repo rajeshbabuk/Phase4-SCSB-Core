@@ -6,7 +6,6 @@ import org.mockito.Mock;
 import org.recap.BaseTestCase;
 import org.recap.util.CommonUtil;
 import org.recap.util.MarcUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,10 +17,10 @@ import static org.junit.Assert.*;
  */
 public class BibMatchPointInfoTest extends BaseTestCase {
 
-    @Autowired
+    @Mock
     private CommonUtil commonUtil;
 
-    @Autowired
+    @Mock
     private MarcUtil marcUtil;
 
     private String marcXML = "<collection xmlns=\"http://www.loc.gov/MARC21/slim\">\n" +
@@ -107,7 +106,7 @@ public class BibMatchPointInfoTest extends BaseTestCase {
 
     @Test
     public void testBibMatchInfoFromMarcRecord() {
-        BibMatchPointInfo bibMatchPointInfo = commonUtil.getBibMatchPointInfoForMarcRecord(getMarcRecord());
+        BibMatchPointInfo bibMatchPointInfo = commonUtil.getBibMatchPointInfoForMarcRecord(getMarcRecord(), null);
         assertNotNull(bibMatchPointInfo);
         assertNotNull(bibMatchPointInfo.getTitle());
     }
@@ -119,9 +118,9 @@ public class BibMatchPointInfoTest extends BaseTestCase {
 
     @Test
     public void testMatchPoints() {
-        BibMatchPointInfo bibMatchPointInfo1 = commonUtil.getBibMatchPointInfoForMarcRecord(getMarcRecord());
+        BibMatchPointInfo bibMatchPointInfo1 = commonUtil.getBibMatchPointInfoForMarcRecord(getMarcRecord(), null);
         bibMatchPointInfo1.setTitle("Title Changed");
-        BibMatchPointInfo bibMatchPointInfo2 = commonUtil.getBibMatchPointInfoForMarcRecord(getMarcRecord());
+        BibMatchPointInfo bibMatchPointInfo2 = commonUtil.getBibMatchPointInfoForMarcRecord(getMarcRecord(), null);
 
         assertTrue(bibMatchPointInfo1.equals(bibMatchPointInfo2));
     }

@@ -42,6 +42,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -165,7 +168,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity1,getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, false);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity1,getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, false, executorService, futures);
         assertNull(bibliographicEntity);
     }
 
@@ -188,8 +193,10 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(incomingBibliographicEntity.getContent()).thenReturn("bibMarcContent".getBytes());List<Record> fetchedRecords=new ArrayList<>();
         List<Record> fetchedRecords1=new ArrayList<>();
         fetchedRecords1.add(record);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords1);
-        BibliographicEntity bibliographicEntity1=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, false);
+        BibliographicEntity bibliographicEntity1=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, false, executorService, futures);
         assertNull(bibliographicEntity1);
     }
 
@@ -216,7 +223,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        BibliographicEntity bibliographicEntity1=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSetForDummyRecords,false);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity1=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSetForDummyRecords,false, executorService, futures);
         assertNull(bibliographicEntity1);
     }
 
@@ -243,7 +252,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity1,getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords,false);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity1,getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords,false, executorService, futures);
         assertNull(bibliographicEntity);
     }
 
@@ -267,7 +278,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity1,getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords,false);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(bibliographicEntity1,getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords,false, executorService, futures);
         assertNull(bibliographicEntity);
     }
 
@@ -292,7 +305,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(getBibliographicEntity("64343"),getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords,false);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(getBibliographicEntity("64343"),getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords,false, executorService, futures);
         assertNotNull(bibliographicEntity);
     }
 
@@ -303,7 +318,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<ItemEntity> itemEntity = getBibliographicEntity("1577261074").getItemEntities();
         Mockito.when(repositoryService.getItemDetailsRepository()).thenReturn(itemDetailsRepository);
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(itemEntity);
-        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(getBibliographicEntity("64343"),getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords,false);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(getBibliographicEntity("64343"),getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords,false, executorService, futures);
         assertNull(bibliographicEntity);
     }
 
@@ -313,7 +330,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Set<String> processedBarcodeSetForDummyRecords = new HashSet<>();
         Mockito.when(repositoryService.getItemDetailsRepository()).thenReturn(itemDetailsRepository);
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(null);
-        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(getBibliographicEntity("64343"),getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, false);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(getBibliographicEntity("64343"),getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, false, executorService, futures);
         assertNotNull(bibliographicEntity);
     }
 
@@ -330,7 +349,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(itemDetailsRepository.findByBarcodeInAndOwningInstitutionId(Mockito.anyList(),Mockito.anyInt())).thenReturn(itemEntity);
         Mockito.when(bibliographicDetailsRepository.saveAndFlush(Mockito.any())).thenReturn(getBibliographicEntity("64343"));
         Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(savedBibliographicEntity);
-        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(getBibliographicEntity("64343"),getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, false);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity=submitCollectionDAOService.updateBibliographicEntity(getBibliographicEntity("64343"),getSubmitCollectionReportInfoMap("1"),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, false, executorService, futures);
         assertNotNull(bibliographicEntity);
     }
 
@@ -353,7 +374,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities);
     }
 
@@ -378,7 +401,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities);
     }
 
@@ -407,7 +432,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,processedBibIds,idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,processedBibIds,idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities);
     }
 
@@ -452,7 +479,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities);
     }
 
@@ -470,7 +499,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(submitCollectionValidationService.isExistingBoundWithItem(itemEntity.get(0))).thenReturn(true);
         Mockito.doCallRealMethod().when(submitCollectionReportHelperService).setSubmitCollectionReportInfo(Mockito.anyList(),Mockito.anyString(),Mockito.anyString(),Mockito.anyString(),Mockito.anyString());
         Mockito.when(submitCollectionHelperService.getBibliographicIdsInString(Mockito.any())).thenCallRealMethod();
-        List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities);
     }
     @Test
@@ -488,7 +519,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(repositoryService.getItemDetailsRepository()).thenReturn(itemDetailsRepository);
         Mockito.when(repositoryService.getItemDetailsRepository().findByBarcodeInAndOwningInstitutionId(Arrays.asList("123456"),1)).thenReturn(itemEntity);
         Mockito.when(submitCollectionValidationService.isExistingBoundWithItem(itemEntity.get(0))).thenReturn(false);
-        List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities =submitCollectionDAOService.updateBibliographicEntityInBatchForNonBoundWith(nonBoundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities);
     }
 
@@ -515,7 +548,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         fetchedOwnInstBibIdBibliographicEntityMap.put("34558",getBibliographicEntity("1577261074"));
         Mockito.when(submitCollectionValidationService.getOwnInstBibIdBibliographicEntityMap(Mockito.anyList())).thenReturn(fetchedOwnInstBibIdBibliographicEntityMap);
         Mockito.doCallRealMethod().when(submitCollectionValidationService).verifyAndSetMisMatchBoundWithOwnInstBibIdIfAny(Mockito.anyList(),Mockito.anyList(),Mockito.anyList(),Mockito.anyList());
-        List<BibliographicEntity> bibliographicEntities = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities);
 
     }
@@ -547,7 +582,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        List<BibliographicEntity> bibliographicEntities = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities);
     }
 
@@ -593,7 +630,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities1);
     }
 
@@ -637,7 +676,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities1);
     }
 
@@ -682,7 +723,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(itemStatusIdCodeMap.get(0)).thenReturn("Unavailable");
         Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(savedBibliographicEntity);
         Mockito.when(savedBibliographicEntity.getId()).thenReturn(1);
-        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities1);
     }
 
@@ -721,7 +764,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(bibliographicDetailsRepository.findByOwningInstitutionIdAndOwningInstitutionBibId(Mockito.anyInt(),Mockito.anyString())).thenReturn(getBibliographicEntity("1577261074"));
         Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(savedBibliographicEntity);
         Mockito.when(savedBibliographicEntity.getId()).thenReturn(1);
-        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities1);
     }
 
@@ -746,7 +791,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(repositoryService.getItemDetailsRepository()).thenReturn(itemDetailsRepository);
         Mockito.when(repositoryService.getItemDetailsRepository().findByBarcodeInAndOwningInstitutionId(itemBarcodeList,1)).thenReturn(itemEntity);
         Mockito.when(submitCollectionValidationService.validateIncomingItemHavingBibCountLesserThanExistingItem(Mockito.anyMap(),Mockito.anyList(),Mockito.anyList(),Mockito.anyList(),Mockito.any())).thenReturn(true);
-        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities1);
     }
 
@@ -779,7 +826,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,getIntegers(),idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities1);
     }
 
@@ -815,7 +864,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords1=new ArrayList<>();
         fetchedRecords1.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords1);
-        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,processedBibIds,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,1,submitCollectionReportInfoMap,processedBibIds,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities1);
     }
 
@@ -853,7 +904,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,3,submitCollectionReportInfoMap,processedBibIds,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        List<BibliographicEntity> bibliographicEntities1 = submitCollectionDAOService.updateBibliographicEntityInBatchForBoundWith(boundWithBibliographicEntityObjectList,3,submitCollectionReportInfoMap,processedBibIds,idMapToRemoveIndexList,bibIdMapToRemoveIndexList,processedBarcodeSetForDummyRecords, executorService, futures);
         assertNotNull(bibliographicEntities1);
     }
 
@@ -887,7 +940,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<ItemEntity> itemEntities = new ArrayList<>();
         itemEntities.add(new ItemEntity());
         Mockito.when(submitCollectionReportHelperService.getItemBasedOnOwningInstitutionItemIdAndOwningInstitutionId(bibliographicEntity.getItemEntities())).thenReturn(itemEntities);
-        BibliographicEntity bibliographicEntity1 = submitCollectionDAOService.updateDummyRecord(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity1 = submitCollectionDAOService.updateDummyRecord(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity, executorService, futures);
         assertNotNull(bibliographicEntity1);
     }
 
@@ -916,7 +971,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        BibliographicEntity bibliographicEntity1 = submitCollectionDAOService.updateDummyRecord(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity1 = submitCollectionDAOService.updateDummyRecord(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity, executorService, futures);
         assertNotNull(bibliographicEntity1);
     }
 
@@ -932,7 +989,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         BibliographicEntity fetchBibliographicEntity = getBibliographicEntity("1577261074");
         List<ItemEntity> itemEntities = getBibliographicEntity("1577261074").getItemEntities();
         Mockito.when(submitCollectionReportHelperService.getItemBasedOnOwningInstitutionItemIdAndOwningInstitutionId(bibliographicEntity.getItemEntities())).thenReturn(itemEntities);
-        BibliographicEntity bibliographicEntity1 = submitCollectionDAOService.updateDummyRecord(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity1 = submitCollectionDAOService.updateDummyRecord(bibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity, executorService, futures);
         assertNotNull(bibliographicEntity1);
     }
     @Test
@@ -950,25 +1009,31 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         Mockito.when(bibliographicDetailsRepository.saveAndFlush(incomingBibliographicEntity)).thenReturn(incomingBibliographicEntity);
         Mockito.when(submitCollectionReportHelperService.getItemBasedOnOwningInstitutionItemIdAndOwningInstitutionId(incomingBibliographicEntity.getItemEntities())).thenReturn(Collections.EMPTY_LIST);
         Mockito.when(bibliographicRepositoryDAO.saveOrUpdate(Mockito.any())).thenReturn(savedBibliographicEntity);
-        submitCollectionDAOService.updateDummyRecordForNonBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        submitCollectionDAOService.updateDummyRecordForNonBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList, executorService, futures);
     }
     @Test
     public void updateDummyRecordForNonBoundWithoutCollectionGroupId(){
         BibliographicEntity incomingBibliographicEntity = getBibliographicEntity("1577261074");
         incomingBibliographicEntity.getItemEntities().get(0).setCollectionGroupId(null);
         Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = getSubmitCollectionReportInfoMap("1");
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
         List<Map<String, String>> idMapToRemoveIndexList = new ArrayList<>();
         Set<String> processedBarcodeSet = new HashSet<>();
         BibliographicEntity savedBibliographicEntity = getBibliographicEntity("1577261074");
         BibliographicEntity fetchBibliographicEntity = getBibliographicEntity("1577261074");
         List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
         Mockito.when(submitCollectionReportHelperService.getItemBasedOnOwningInstitutionItemIdAndOwningInstitutionId(incomingBibliographicEntity.getItemEntities())).thenReturn(Collections.EMPTY_LIST);
-        submitCollectionDAOService.updateDummyRecordForNonBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList);
+        submitCollectionDAOService.updateDummyRecordForNonBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList,executorService,futures);
     }
     @Test
     public void updateDummyRecordForNonBoundWithfetchedItemBasedOnOwningInstitutionItemId(){
         BibliographicEntity incomingBibliographicEntity = getBibliographicEntity("1577261074");
         Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap = getSubmitCollectionReportInfoMap("1");
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
         List<Map<String, String>> idMapToRemoveIndexList = new ArrayList<>();
         Set<String> processedBarcodeSet = new HashSet<>();
         BibliographicEntity savedBibliographicEntity = getBibliographicEntity("1577261074");
@@ -976,7 +1041,7 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
         List<ItemEntity> fetchedItemBasedOnOwningInstitutionItemId = getBibliographicEntity("1577261074").getItemEntities();
         Mockito.when(submitCollectionReportHelperService.getItemBasedOnOwningInstitutionItemIdAndOwningInstitutionId(incomingBibliographicEntity.getItemEntities())).thenReturn(fetchedItemBasedOnOwningInstitutionItemId);
-        submitCollectionDAOService.updateDummyRecordForNonBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList);
+        submitCollectionDAOService.updateDummyRecordForNonBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList,executorService,futures);
     }
 
     @Test
@@ -1001,7 +1066,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<Record> fetchedRecords=new ArrayList<>();
         fetchedRecords.add(record);
         Mockito.when(marcUtil.convertMarcXmlToRecord(Mockito.anyString())).thenReturn(fetchedRecords);
-        BibliographicEntity bibliographicEntity = submitCollectionDAOService.updateDummyRecordForBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList,deleteDummyRecord,processedBibIds);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity = submitCollectionDAOService.updateDummyRecordForBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList,deleteDummyRecord,processedBibIds, executorService, futures);
         assertNotNull(bibliographicEntity);
     }
 
@@ -1025,7 +1092,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         List<ItemEntity> itemEntities=new ArrayList<>();
         itemEntities.add(incomingItemEntity);
         Mockito.when(submitCollectionReportHelperService.getItemBasedOnOwningInstitutionItemIdAndOwningInstitutionId(Mockito.anyList())).thenReturn(itemEntities);
-        BibliographicEntity bibliographicEntity = submitCollectionDAOService.updateDummyRecordForBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList,deleteDummyRecord,processedBibIds);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity = submitCollectionDAOService.updateDummyRecordForBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList,deleteDummyRecord,processedBibIds, executorService, futures);
         assertNotNull(bibliographicEntity);
     }
     @Test
@@ -1042,7 +1111,9 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         boolean deleteDummyRecord = true;
         Set<Integer> processedBibIds = new HashSet<>();
         processedBibIds.add(123456);
-        BibliographicEntity bibliographicEntity = submitCollectionDAOService.updateDummyRecordForBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList,deleteDummyRecord,processedBibIds);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        List<Future> futures = new ArrayList<>();
+        BibliographicEntity bibliographicEntity = submitCollectionDAOService.updateDummyRecordForBoundWith(incomingBibliographicEntity,submitCollectionReportInfoMap,idMapToRemoveIndexList,processedBarcodeSet,savedBibliographicEntity,fetchBibliographicEntity,itemChangeLogEntityList,deleteDummyRecord,processedBibIds, executorService, futures);
         assertNotNull(bibliographicEntity);
     }
     private BoundWithBibliographicEntityObject getBoundWithBibliographicEntityObject(){
