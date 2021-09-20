@@ -346,6 +346,16 @@ public class SubmitCollectionDAOService {
                                 //to maintain the original created date and created by for the holdings entity
                                 incomingBibliographicEntity.getHoldingsEntities().get(0).setCreatedDate(existingItemEntity.getHoldingsEntities().get(0).getCreatedDate());
                                 incomingBibliographicEntity.getHoldingsEntities().get(0).setCreatedBy(existingItemEntity.getHoldingsEntities().get(0).getCreatedBy());
+
+                                if (incomingBibliographicEntity.getItemEntities() != null) {
+                                    String incomingCgd = setupDataService.getCollectionGroupIdCodeMap().get(incomingBibliographicEntity.getItemEntities().get(0).getCollectionGroupId());
+                                    if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(incomingCgd)) {
+                                        incomingBibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_3);
+                                    } else {
+                                        incomingBibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_1);
+                                    }
+                                }
+
                                 BibliographicEntity savedBibliographicEntity = bibliographicRepositoryDAO.saveOrUpdate(incomingBibliographicEntity);//Saving here to get the bibliographic id
                                 entityManager.refresh(savedBibliographicEntity);
                                 processedBibIds.add(savedBibliographicEntity.getId());
