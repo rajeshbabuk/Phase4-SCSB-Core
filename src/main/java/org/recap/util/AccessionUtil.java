@@ -572,6 +572,16 @@ public class AccessionUtil {
                     holdingsEntity.setLastUpdatedBy(ScsbConstants.REACCESSION);
                 }
                 for(BibliographicEntity bibliographicEntity:itemEntity.getBibliographicEntities()) {
+                    String incomingItemCgd = setupDataService.getCollectionGroupIdCodeMap().get(itemEntity.getCollectionGroupId());
+                    if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(incomingItemCgd)) {
+                        bibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_3);
+                    } else {
+                        if (!bibliographicEntity.isDeleted() && ScsbCommonConstants.MA_QUALIFIER_3.intValue() != bibliographicEntity.getMaQualifier().intValue()) {
+                            bibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_1);
+                        } else {
+                            bibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_1);
+                        }
+                    }
                     bibliographicEntity.setDeleted(false);
                     bibliographicEntity.setLastUpdatedDate(currentDateTime);
                     bibliographicEntity.setLastUpdatedBy(ScsbConstants.REACCESSION);
