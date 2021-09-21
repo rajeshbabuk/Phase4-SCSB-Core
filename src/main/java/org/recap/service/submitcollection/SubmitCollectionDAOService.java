@@ -1226,6 +1226,7 @@ public class SubmitCollectionDAOService {
         submitCollectionMatchPointsCheckCallable.setIncomingBarcodeItemEntityMap(incomingBarcodeItemEntityMap);
         submitCollectionMatchPointsCheckCallable.setCGDProtected(isCGDProtected);
         submitCollectionMatchPointsCheckCallable.setCollectionGroupIdCodeMap(setupDataService.getCollectionGroupIdCodeMap());
+        submitCollectionMatchPointsCheckCallable.setItemStatusIdCodeMap(setupDataService.getItemStatusIdCodeMap());
         futures.add(executorService.submit(submitCollectionMatchPointsCheckCallable));
         return fetchBibliographicEntity;
     }
