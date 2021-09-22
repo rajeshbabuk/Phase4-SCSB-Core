@@ -783,9 +783,7 @@ public class SubmitCollectionDAOService {
         List<ItemEntity> incomingItemEntityList = new ArrayList<>(incomingBibliographicEntity.getItemEntities());
         Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
-        if (ScsbCommonConstants.COMPLETE_STATUS.equalsIgnoreCase(fetchBibliographicEntity.getCatalogingStatus())) {
-            updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected, executorService, futures);
-        }
+        updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected, executorService, futures);
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -886,9 +884,7 @@ public class SubmitCollectionDAOService {
         List<ItemEntity> incomingItemEntityList = new ArrayList<>(incomingBibliographicEntity.getItemEntities());
         Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
-        if (ScsbCommonConstants.COMPLETE_STATUS.equalsIgnoreCase(fetchBibliographicEntity.getCatalogingStatus())) {
-            updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected, executorService, futures);
-        }
+        updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected, executorService, futures);
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -988,9 +984,7 @@ public class SubmitCollectionDAOService {
         List<ItemEntity> incomingItemEntityList = new ArrayList<>(bibliographicEntity.getItemEntities());
         Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
-        if (ScsbCommonConstants.COMPLETE_STATUS.equalsIgnoreCase(fetchBibliographicEntity.getCatalogingStatus())) {
-            updateMatchingRecords(fetchBibliographicEntity, bibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected, executorService, futures);
-        }
+        updateMatchingRecords(fetchBibliographicEntity, bibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected, executorService, futures);
         copyBibliographicEntity(fetchBibliographicEntity, bibliographicEntity);
         fetchBibliographicEntity.setDeleted(false);
         Map<String,HoldingsEntity> fetchedOwningInstHoldingIdHoldingsEntityMap = getOwningInstHoldingIdHoldingsEntityMap(fetchBibliographicEntity.getHoldingsEntities());
@@ -1242,19 +1236,21 @@ public class SubmitCollectionDAOService {
 
     private BibliographicEntity updateMatchingRecords(BibliographicEntity fetchBibliographicEntity, BibliographicEntity incomingBibliographicEntity, Map<String, List<SubmitCollectionReportInfo>> submitCollectionReportInfoMap,
                                                       Map<String, ItemEntity> fetchedBarcodeItemEntityMap, Map<String, ItemEntity> incomingBarcodeItemEntityMap, boolean isCGDProtected, ExecutorService executorService, List<Future> futures) {
-        String fetchedInstitutionCode = null != fetchBibliographicEntity.getInstitutionEntity() ? fetchBibliographicEntity.getInstitutionEntity().getInstitutionCode() : ScsbCommonConstants.NA;
-        SubmitCollectionMatchPointsCheckCallable submitCollectionMatchPointsCheckCallable = applicationContext.getBean(SubmitCollectionMatchPointsCheckCallable.class);
-        submitCollectionMatchPointsCheckCallable.setFetchedBibId(fetchBibliographicEntity.getId());
-        submitCollectionMatchPointsCheckCallable.setExistingMarcXml(new String(fetchBibliographicEntity.getContent()));
-        submitCollectionMatchPointsCheckCallable.setIncomingMarcXml(new String(incomingBibliographicEntity.getContent()));
-        submitCollectionMatchPointsCheckCallable.setMatchingIdentifier(fetchBibliographicEntity.getMatchingIdentity());
-        submitCollectionMatchPointsCheckCallable.setInstitutionCode(fetchedInstitutionCode);
-        submitCollectionMatchPointsCheckCallable.setFetchedBarcodeItemEntityMap(fetchedBarcodeItemEntityMap);
-        submitCollectionMatchPointsCheckCallable.setIncomingBarcodeItemEntityMap(incomingBarcodeItemEntityMap);
-        submitCollectionMatchPointsCheckCallable.setCGDProtected(isCGDProtected);
-        submitCollectionMatchPointsCheckCallable.setCollectionGroupIdCodeMap(setupDataService.getCollectionGroupIdCodeMap());
-        submitCollectionMatchPointsCheckCallable.setItemStatusIdCodeMap(setupDataService.getItemStatusIdCodeMap());
-        futures.add(executorService.submit(submitCollectionMatchPointsCheckCallable));
+        if (ScsbCommonConstants.COMPLETE_STATUS.equalsIgnoreCase(fetchBibliographicEntity.getCatalogingStatus())) {
+            String fetchedInstitutionCode = null != fetchBibliographicEntity.getInstitutionEntity() ? fetchBibliographicEntity.getInstitutionEntity().getInstitutionCode() : ScsbCommonConstants.NA;
+            SubmitCollectionMatchPointsCheckCallable submitCollectionMatchPointsCheckCallable = applicationContext.getBean(SubmitCollectionMatchPointsCheckCallable.class);
+            submitCollectionMatchPointsCheckCallable.setFetchedBibId(fetchBibliographicEntity.getId());
+            submitCollectionMatchPointsCheckCallable.setExistingMarcXml(new String(fetchBibliographicEntity.getContent()));
+            submitCollectionMatchPointsCheckCallable.setIncomingMarcXml(new String(incomingBibliographicEntity.getContent()));
+            submitCollectionMatchPointsCheckCallable.setMatchingIdentifier(fetchBibliographicEntity.getMatchingIdentity());
+            submitCollectionMatchPointsCheckCallable.setInstitutionCode(fetchedInstitutionCode);
+            submitCollectionMatchPointsCheckCallable.setFetchedBarcodeItemEntityMap(fetchedBarcodeItemEntityMap);
+            submitCollectionMatchPointsCheckCallable.setIncomingBarcodeItemEntityMap(incomingBarcodeItemEntityMap);
+            submitCollectionMatchPointsCheckCallable.setCGDProtected(isCGDProtected);
+            submitCollectionMatchPointsCheckCallable.setCollectionGroupIdCodeMap(setupDataService.getCollectionGroupIdCodeMap());
+            submitCollectionMatchPointsCheckCallable.setItemStatusIdCodeMap(setupDataService.getItemStatusIdCodeMap());
+            futures.add(executorService.submit(submitCollectionMatchPointsCheckCallable));
+        }
         return fetchBibliographicEntity;
     }
 
