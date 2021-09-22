@@ -347,13 +347,9 @@ public class SubmitCollectionDAOService {
                                 incomingBibliographicEntity.getHoldingsEntities().get(0).setCreatedDate(existingItemEntity.getHoldingsEntities().get(0).getCreatedDate());
                                 incomingBibliographicEntity.getHoldingsEntities().get(0).setCreatedBy(existingItemEntity.getHoldingsEntities().get(0).getCreatedBy());
 
-                                if (incomingBibliographicEntity.getItemEntities() != null) {
+                                if (incomingBibliographicEntity.getItemEntities() != null) { // when there are new bound-with bibs added to items
                                     String incomingCgd = setupDataService.getCollectionGroupIdCodeMap().get(incomingBibliographicEntity.getItemEntities().get(0).getCollectionGroupId());
-                                    if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(incomingCgd)) {
-                                        incomingBibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_3);
-                                    } else {
-                                        incomingBibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_1);
-                                    }
+                                    setMAQualifierToBibByCGD(incomingBibliographicEntity, incomingCgd);
                                 }
 
                                 BibliographicEntity savedBibliographicEntity = bibliographicRepositoryDAO.saveOrUpdate(incomingBibliographicEntity);//Saving here to get the bibliographic id
@@ -370,6 +366,14 @@ public class SubmitCollectionDAOService {
                         boundWithBibliographicEntityObject.getBarcode(),submitCollectionReportInfoMap,isAvailableItem);
                 itemChangeLogEntityList.add(prepareItemChangeLogEntity(ScsbConstants.SUBMIT_COLLECTION, message,itemId));
             }
+        }
+    }
+
+    private void setMAQualifierToBibByCGD(BibliographicEntity bibliographicEntity, String cgdCode) {
+        if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(cgdCode)) {
+            bibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_3);
+        } else {
+            bibliographicEntity.setMaQualifier(ScsbCommonConstants.MA_QUALIFIER_1);
         }
     }
 
@@ -779,7 +783,9 @@ public class SubmitCollectionDAOService {
         List<ItemEntity> incomingItemEntityList = new ArrayList<>(incomingBibliographicEntity.getItemEntities());
         Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
-        updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected, executorService, futures);
+        if (ScsbCommonConstants.COMPLETE_STATUS.equalsIgnoreCase(fetchBibliographicEntity.getCatalogingStatus())) {
+            updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected, executorService, futures);
+        }
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -880,7 +886,9 @@ public class SubmitCollectionDAOService {
         List<ItemEntity> incomingItemEntityList = new ArrayList<>(incomingBibliographicEntity.getItemEntities());
         Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
-        updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap,isCGDProtected, executorService, futures);
+        if (ScsbCommonConstants.COMPLETE_STATUS.equalsIgnoreCase(fetchBibliographicEntity.getCatalogingStatus())) {
+            updateMatchingRecords(fetchBibliographicEntity, incomingBibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected, executorService, futures);
+        }
         copyBibliographicEntity(fetchBibliographicEntity, incomingBibliographicEntity);
         List<HoldingsEntity> fetchedHoldingsEntityList = fetchBibliographicEntity.getHoldingsEntities();
         List<HoldingsEntity> incomingHoldingsEntityList = new ArrayList<>(incomingBibliographicEntity.getHoldingsEntities());
@@ -980,7 +988,9 @@ public class SubmitCollectionDAOService {
         List<ItemEntity> incomingItemEntityList = new ArrayList<>(bibliographicEntity.getItemEntities());
         Map<String,ItemEntity> fetchedBarcodeItemEntityMap = getBarcodeItemEntityMap(fetchedItemEntityList);
         Map<String,ItemEntity> incomingBarcodeItemEntityMap = getBarcodeItemEntityMap(incomingItemEntityList);
-        updateMatchingRecords(fetchBibliographicEntity, bibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected, executorService, futures);
+        if (ScsbCommonConstants.COMPLETE_STATUS.equalsIgnoreCase(fetchBibliographicEntity.getCatalogingStatus())) {
+            updateMatchingRecords(fetchBibliographicEntity, bibliographicEntity, submitCollectionReportInfoMap, fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, isCGDProtected, executorService, futures);
+        }
         copyBibliographicEntity(fetchBibliographicEntity, bibliographicEntity);
         fetchBibliographicEntity.setDeleted(false);
         Map<String,HoldingsEntity> fetchedOwningInstHoldingIdHoldingsEntityMap = getOwningInstHoldingIdHoldingsEntityMap(fetchBibliographicEntity.getHoldingsEntities());
@@ -1074,6 +1084,9 @@ public class SubmitCollectionDAOService {
     }
 
     private BibliographicEntity updateCatalogingStatusForBib(BibliographicEntity fetchBibliographicEntity) {
+        if (ScsbCommonConstants.INCOMPLETE_STATUS.equalsIgnoreCase(fetchBibliographicEntity.getCatalogingStatus()) && isHasCgdShared(fetchBibliographicEntity)) {
+            setMAQualifierToBibByCGD(fetchBibliographicEntity, ScsbCommonConstants.SHARED_CGD);
+        }
         fetchBibliographicEntity.setCatalogingStatus(ScsbCommonConstants.INCOMPLETE_STATUS);
         for(ItemEntity itemEntity:fetchBibliographicEntity.getItemEntities()){
             if(itemEntity.getCatalogingStatus().equals(ScsbCommonConstants.COMPLETE_STATUS)){
@@ -1082,6 +1095,20 @@ public class SubmitCollectionDAOService {
             }
         }
         return fetchBibliographicEntity;
+    }
+
+    private boolean isHasCgdShared(BibliographicEntity fetchBibliographicEntity) {
+        boolean hasCgdShared = false;
+        if (fetchBibliographicEntity.getItemEntities() != null) {
+            Map<Integer, String> collectionGroupIdCodeMap = setupDataService.getCollectionGroupIdCodeMap();
+            for (ItemEntity itemEntity : fetchBibliographicEntity.getItemEntities()) {
+                if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(collectionGroupIdCodeMap.get(itemEntity.getCollectionGroupId()))) {
+                    hasCgdShared = true;
+                    break;
+                }
+            }
+        }
+        return hasCgdShared;
     }
 
     private void manageHoldingWithItem(HoldingsEntity incomingHoldingsEntity, HoldingsEntity fetchedHoldingsEntity) {
