@@ -49,7 +49,7 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
         try {
             boolean isMatchPointsChanged = commonUtil.checkIfMatchPointsChanged(incomingMarcXml, existingMarcXml, institutionCode);
             boolean isCgdChangedToShared = !isCGDProtected && commonUtil.isCgdChangedToShared(fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, collectionGroupIdCodeMap, itemStatusIdCodeMap, false);
-            boolean isCgdAlreadyShared = commonUtil.isCgdChangedToShared(fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, collectionGroupIdCodeMap, itemStatusIdCodeMap, true);
+            boolean isCgdAlreadyShared = commonUtil.isCgdAlreadyShared(fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, collectionGroupIdCodeMap, itemStatusIdCodeMap);
             int maQualifier = 0;
             if (isMatchPointsChanged && (isCgdAlreadyShared || isCgdChangedToShared)) {
                 maQualifier = ScsbCommonConstants.MA_QUALIFIER_3;
@@ -74,29 +74,14 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
             if (maQualifier == ScsbCommonConstants.MA_QUALIFIER_3) {
                 Set<Integer> sharedBibIds = new HashSet<>();
                 Set<Integer> nonSharedBibIds = new HashSet<>();
-                List<Object[]> bibIdAndCgdIdByMatchingIdentityObjectList = bibliographicDetailsRepository.findBibIdAndCgdIdByMatchingIdentity(matchingIdentifier);
-                if (!bibIdAndCgdIdByMatchingIdentityObjectList.isEmpty()) {
-                    for (Object[] bibIdAndCgdIdObj : bibIdAndCgdIdByMatchingIdentityObjectList) {
-                        Integer bibId = Integer.parseInt(bibIdAndCgdIdObj[0].toString());
-                        if (bibIdAndCgdIdObj.length > 1) {
-                            Integer collectionGroupId = Integer.parseInt(bibIdAndCgdIdObj[1].toString());
-                            String collectionGroupCode = collectionGroupIdCodeMap.get(collectionGroupId);
-                            if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(collectionGroupCode)) {
-                                sharedBibIds.add(bibId);
-                            } else {
-                                nonSharedBibIds.add(bibId);
-                            }
-                        } else {
-                            nonSharedBibIds.add(bibId);
-                        }
-                    }
-                    if (!sharedBibIds.isEmpty()) {
-                        putToResponseMap(ScsbCommonConstants.MA_QUALIFIER_3, sharedBibIds, responseMap);
-                        log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, maQualifier, sharedBibIds.size(), sharedBibIds);
-                    } else if (!nonSharedBibIds.isEmpty()) {
-                        putToResponseMap(ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds, responseMap);
-                        log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds.size(), nonSharedBibIds);
-                    }
+                commonUtil.collectSharedAndNonSharedBibIdsForMatchingId(sharedBibIds, nonSharedBibIds, matchingIdentifier, collectionGroupIdCodeMap);
+                if (!sharedBibIds.isEmpty()) {
+                    putToResponseMap(ScsbCommonConstants.MA_QUALIFIER_3, sharedBibIds, responseMap);
+                    log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, maQualifier, sharedBibIds.size(), sharedBibIds);
+                }
+                if (!nonSharedBibIds.isEmpty()) {
+                    putToResponseMap(ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds, responseMap);
+                    log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds.size(), nonSharedBibIds);
                 }
             } else {
                 bibIds = bibliographicDetailsRepository.findIdByMatchingIdentity(matchingIdentifier);
