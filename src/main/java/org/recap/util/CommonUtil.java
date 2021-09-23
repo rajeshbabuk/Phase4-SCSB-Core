@@ -489,10 +489,12 @@ public class CommonUtil {
                     if (bibIdsToResetAndSetQualifierTo1 != null) {
                         allBibIdsToResetAndSetQualifierTo1.addAll(bibIdsToResetAndSetQualifierTo1);
                         bibIds.addAll(bibIdsToResetAndSetQualifierTo1);
-                    } else if (bibIdsToSetQualifierTo2 != null) {
+                    }
+                    if (bibIdsToSetQualifierTo2 != null) {
                         allBibIdsToSetQualifierTo2.addAll(bibIdsToSetQualifierTo2);
                         bibIds.addAll(bibIdsToSetQualifierTo2);
-                    } else if (bibIdsToResetAndSetQualifierTo3 != null) {
+                    }
+                    if (bibIdsToResetAndSetQualifierTo3 != null) {
                         allBibIdsToResetAndSetQualifierTo3.addAll(bibIdsToResetAndSetQualifierTo3);
                         bibIds.addAll(bibIdsToResetAndSetQualifierTo3);
                     }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,7 +47,6 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
     public Map<Integer, Set<Integer>> call() throws Exception {
         Map<Integer, Set<Integer>> responseMap = new HashMap<>();
         try {
-            Set<Integer> bibIds = new HashSet<>();
             boolean isMatchPointsChanged = commonUtil.checkIfMatchPointsChanged(incomingMarcXml, existingMarcXml, institutionCode);
             boolean isCgdChangedToShared = !isCGDProtected && commonUtil.isCgdChangedToShared(fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, collectionGroupIdCodeMap, itemStatusIdCodeMap, false);
             boolean isCgdAlreadyShared = commonUtil.isCgdChangedToShared(fetchedBarcodeItemEntityMap, incomingBarcodeItemEntityMap, collectionGroupIdCodeMap, itemStatusIdCodeMap, true);
@@ -59,9 +59,7 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
                 maQualifier = ScsbCommonConstants.MA_QUALIFIER_1;
             }
             if (maQualifier > 0) {
-                bibIds = getBibIdsBasedOnMatchingIdValue(bibIds, maQualifier != ScsbCommonConstants.MA_QUALIFIER_2);
-                putToResponseMap(maQualifier, bibIds, responseMap);
-                log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, maQualifier, bibIds.size(), bibIds);
+                getAndPutBibIdsBasedOnMatchingIdValue(maQualifier, responseMap);
             }
         } catch (Exception e) {
             log.info("Exception while processing SC Match Points Check in thread for Fetched Bib Id: {} - {}", fetchedBibId, e.getMessage());
@@ -70,13 +68,46 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
         return responseMap;
     }
 
-    private Set<Integer> getBibIdsBasedOnMatchingIdValue(Set<Integer> bibIds, boolean getMatchedBibs) {
-        if (matchingIdentifier != null && getMatchedBibs) {
-            bibIds = bibliographicDetailsRepository.findIdByMatchingIdentity(matchingIdentifier);
+    private void getAndPutBibIdsBasedOnMatchingIdValue(int maQualifier, Map<Integer, Set<Integer>> responseMap) {
+        Set<Integer> bibIds = new HashSet<>();
+        if (matchingIdentifier != null && maQualifier != ScsbCommonConstants.MA_QUALIFIER_2) {
+            if (maQualifier == ScsbCommonConstants.MA_QUALIFIER_3) {
+                Set<Integer> sharedBibIds = new HashSet<>();
+                Set<Integer> nonSharedBibIds = new HashSet<>();
+                List<Object[]> bibIdAndCgdIdByMatchingIdentityObjectList = bibliographicDetailsRepository.findBibIdAndCgdIdByMatchingIdentity(matchingIdentifier);
+                if (!bibIdAndCgdIdByMatchingIdentityObjectList.isEmpty()) {
+                    for (Object[] bibIdAndCgdIdObj : bibIdAndCgdIdByMatchingIdentityObjectList) {
+                        Integer bibId = Integer.parseInt(bibIdAndCgdIdObj[0].toString());
+                        if (bibIdAndCgdIdObj.length > 1) {
+                            Integer collectionGroupId = Integer.parseInt(bibIdAndCgdIdObj[1].toString());
+                            String collectionGroupCode = collectionGroupIdCodeMap.get(collectionGroupId);
+                            if (ScsbCommonConstants.SHARED_CGD.equalsIgnoreCase(collectionGroupCode)) {
+                                sharedBibIds.add(bibId);
+                            } else {
+                                nonSharedBibIds.add(bibId);
+                            }
+                        } else {
+                            nonSharedBibIds.add(bibId);
+                        }
+                    }
+                    if (!sharedBibIds.isEmpty()) {
+                        putToResponseMap(ScsbCommonConstants.MA_QUALIFIER_3, sharedBibIds, responseMap);
+                        log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, maQualifier, sharedBibIds.size(), sharedBibIds);
+                    } else if (!nonSharedBibIds.isEmpty()) {
+                        putToResponseMap(ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds, responseMap);
+                        log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds.size(), nonSharedBibIds);
+                    }
+                }
+            } else {
+                bibIds = bibliographicDetailsRepository.findIdByMatchingIdentity(matchingIdentifier);
+                putToResponseMap(maQualifier, bibIds, responseMap);
+                log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, maQualifier, bibIds.size(), bibIds);
+            }
         } else {
             bibIds.add(fetchedBibId);
+            putToResponseMap(maQualifier, bibIds, responseMap);
+            log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, maQualifier, bibIds.size(), bibIds);
         }
-        return bibIds;
     }
 
     private void putToResponseMap(Integer maQualifier, Set<Integer> bibIds, Map<Integer, Set<Integer>> responseMap) {
