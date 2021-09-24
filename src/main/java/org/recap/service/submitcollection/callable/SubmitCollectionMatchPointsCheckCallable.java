@@ -2,7 +2,9 @@ package org.recap.service.submitcollection.callable;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.recap.ScsbCommonConstants;
+import org.recap.ScsbConstants;
 import org.recap.model.jpa.ItemEntity;
 import org.recap.repository.jpa.BibliographicDetailsRepository;
 import org.recap.util.CommonUtil;
@@ -10,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,6 +34,7 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
     private BibliographicDetailsRepository bibliographicDetailsRepository;
 
     Integer fetchedBibId;
+    Integer fetchedBibMAQualifier;
     String incomingMarcXml;
     String existingMarcXml;
     String matchingIdentifier;
@@ -70,29 +72,50 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
 
     private void getAndPutBibIdsBasedOnMatchingIdValue(int maQualifier, Map<Integer, Set<Integer>> responseMap) {
         Set<Integer> bibIds = new HashSet<>();
-        if (matchingIdentifier != null && maQualifier != ScsbCommonConstants.MA_QUALIFIER_2) {
-            if (maQualifier == ScsbCommonConstants.MA_QUALIFIER_3) {
-                Set<Integer> sharedBibIds = new HashSet<>();
-                Set<Integer> nonSharedBibIds = new HashSet<>();
-                commonUtil.collectSharedAndNonSharedBibIdsForMatchingId(sharedBibIds, nonSharedBibIds, matchingIdentifier, collectionGroupIdCodeMap);
-                if (!sharedBibIds.isEmpty()) {
-                    putToResponseMap(ScsbCommonConstants.MA_QUALIFIER_3, sharedBibIds, responseMap);
-                    log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, maQualifier, sharedBibIds.size(), sharedBibIds);
-                }
-                if (!nonSharedBibIds.isEmpty()) {
-                    putToResponseMap(ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds, responseMap);
-                    log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds.size(), nonSharedBibIds);
-                }
-            } else {
-                bibIds = bibliographicDetailsRepository.findIdByMatchingIdentity(matchingIdentifier);
-                putToResponseMap(maQualifier, bibIds, responseMap);
-                log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, maQualifier, bibIds.size(), bibIds);
-            }
+        if (StringUtils.isBlank(matchingIdentifier)) {
+            setFetchedBibIdOnlyToMap(maQualifier, responseMap, bibIds);
         } else {
-            bibIds.add(fetchedBibId);
-            putToResponseMap(maQualifier, bibIds, responseMap);
-            log.info("Matching Id - {}, Update MA Qualifier to {}, Collected {} Bib Ids: {}", matchingIdentifier, maQualifier, bibIds.size(), bibIds);
+            setBibIdsByMatchingIdToMap(maQualifier, responseMap, bibIds);
         }
+    }
+
+    private void setBibIdsByMatchingIdToMap(int maQualifier, Map<Integer, Set<Integer>> responseMap, Set<Integer> bibIds) {
+        maQualifier = checkExistingBibMAQualifier(fetchedBibMAQualifier, maQualifier, bibIds);
+        if (maQualifier == ScsbCommonConstants.MA_QUALIFIER_1) {
+            bibIds = bibliographicDetailsRepository.findIdByMatchingIdentity(matchingIdentifier);
+            putToResponseMap(maQualifier, bibIds, responseMap);
+            log.info(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, maQualifier, bibIds.size(), bibIds);
+        } else if (maQualifier == ScsbCommonConstants.MA_QUALIFIER_2) {
+            setFetchedBibIdOnlyToMap(maQualifier, responseMap, bibIds);
+        } else if (maQualifier == ScsbCommonConstants.MA_QUALIFIER_3) {
+            Set<Integer> sharedBibIds = new HashSet<>();
+            Set<Integer> nonSharedBibIds = new HashSet<>();
+            commonUtil.collectSharedAndNonSharedBibIdsForMatchingId(sharedBibIds, nonSharedBibIds, matchingIdentifier, collectionGroupIdCodeMap);
+            if (!sharedBibIds.isEmpty()) {
+                putToResponseMap(ScsbCommonConstants.MA_QUALIFIER_3, sharedBibIds, responseMap);
+                log.info(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, maQualifier, sharedBibIds.size(), sharedBibIds);
+            }
+            if (!nonSharedBibIds.isEmpty()) {
+                putToResponseMap(ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds, responseMap);
+                log.info(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds.size(), nonSharedBibIds);
+            }
+        }
+    }
+
+    private Integer checkExistingBibMAQualifier(int fetchedBibMAQualifier, int currentMaQualifier, Set<Integer> bibIds) {
+        if (fetchedBibMAQualifier > 0 && currentMaQualifier > 0 && fetchedBibMAQualifier != currentMaQualifier) {
+            log.info("Matching Id - {}, MA Qualifier Existing - {}, Current - {}, Changed To - {} for {} Bib Ids: {}", matchingIdentifier, fetchedBibMAQualifier, currentMaQualifier, ScsbCommonConstants.MA_QUALIFIER_3, bibIds.size(), bibIds);
+            return ScsbCommonConstants.MA_QUALIFIER_3;
+        } else {
+            return currentMaQualifier;
+        }
+    }
+
+    private void setFetchedBibIdOnlyToMap(int maQualifier, Map<Integer, Set<Integer>> responseMap, Set<Integer> bibIds) {
+        bibIds.add(fetchedBibId);
+        maQualifier = checkExistingBibMAQualifier(fetchedBibMAQualifier, maQualifier, bibIds);
+        putToResponseMap(maQualifier, bibIds, responseMap);
+        log.info(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, maQualifier, bibIds.size(), bibIds);
     }
 
     private void putToResponseMap(Integer maQualifier, Set<Integer> bibIds, Map<Integer, Set<Integer>> responseMap) {
