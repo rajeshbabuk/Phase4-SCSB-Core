@@ -1247,6 +1247,7 @@ public class SubmitCollectionDAOService {
             String fetchedInstitutionCode = null != fetchBibliographicEntity.getInstitutionEntity() ? fetchBibliographicEntity.getInstitutionEntity().getInstitutionCode() : ScsbCommonConstants.NA;
             SubmitCollectionMatchPointsCheckCallable submitCollectionMatchPointsCheckCallable = applicationContext.getBean(SubmitCollectionMatchPointsCheckCallable.class);
             submitCollectionMatchPointsCheckCallable.setFetchedBibId(fetchBibliographicEntity.getId());
+            submitCollectionMatchPointsCheckCallable.setFetchedBibMAQualifier(fetchBibliographicEntity.getMaQualifier());
             submitCollectionMatchPointsCheckCallable.setExistingMarcXml(new String(fetchBibliographicEntity.getContent()));
             submitCollectionMatchPointsCheckCallable.setIncomingMarcXml(new String(incomingBibliographicEntity.getContent()));
             submitCollectionMatchPointsCheckCallable.setMatchingIdentifier(fetchBibliographicEntity.getMatchingIdentity());
