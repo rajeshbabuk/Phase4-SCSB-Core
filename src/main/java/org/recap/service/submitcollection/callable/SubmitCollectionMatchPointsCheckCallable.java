@@ -84,7 +84,7 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
         if (maQualifier == ScsbCommonConstants.MA_QUALIFIER_1) {
             bibIds = bibliographicDetailsRepository.findIdByMatchingIdentity(matchingIdentifier);
             putToResponseMap(maQualifier, bibIds, responseMap);
-            log.info(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, maQualifier, bibIds.size(), bibIds);
+            log.debug(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, maQualifier, bibIds.size(), bibIds);
         } else if (maQualifier == ScsbCommonConstants.MA_QUALIFIER_2) {
             setFetchedBibIdOnlyToMap(maQualifier, responseMap, bibIds);
         } else if (maQualifier == ScsbCommonConstants.MA_QUALIFIER_3) {
@@ -93,18 +93,18 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
             commonUtil.collectSharedAndNonSharedBibIdsForMatchingId(sharedBibIds, nonSharedBibIds, matchingIdentifier, collectionGroupIdCodeMap);
             if (!sharedBibIds.isEmpty()) {
                 putToResponseMap(ScsbCommonConstants.MA_QUALIFIER_3, sharedBibIds, responseMap);
-                log.info(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, maQualifier, sharedBibIds.size(), sharedBibIds);
+                log.debug(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, maQualifier, sharedBibIds.size(), sharedBibIds);
             }
             if (!nonSharedBibIds.isEmpty()) {
                 putToResponseMap(ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds, responseMap);
-                log.info(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds.size(), nonSharedBibIds);
+                log.debug(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, ScsbCommonConstants.MA_QUALIFIER_1, nonSharedBibIds.size(), nonSharedBibIds);
             }
         }
     }
 
     private Integer checkExistingBibMAQualifier(int fetchedBibMAQualifier, int currentMaQualifier, Set<Integer> bibIds) {
         if (fetchedBibMAQualifier > 0 && currentMaQualifier > 0 && fetchedBibMAQualifier != currentMaQualifier) {
-            log.info("Matching Id - {}, MA Qualifier Existing - {}, Current - {}, Changed To - {} for {} Bib Ids: {}", matchingIdentifier, fetchedBibMAQualifier, currentMaQualifier, ScsbCommonConstants.MA_QUALIFIER_3, bibIds.size(), bibIds);
+            log.debug("Matching Id - {}, MA Qualifier Existing - {}, Current - {}, Changed To - {} for {} Bib Ids: {}", matchingIdentifier, fetchedBibMAQualifier, currentMaQualifier, ScsbCommonConstants.MA_QUALIFIER_3, bibIds.size(), bibIds);
             return ScsbCommonConstants.MA_QUALIFIER_3;
         } else {
             return currentMaQualifier;
@@ -115,7 +115,7 @@ public class SubmitCollectionMatchPointsCheckCallable implements Callable<Map<In
         bibIds.add(fetchedBibId);
         maQualifier = checkExistingBibMAQualifier(fetchedBibMAQualifier, maQualifier, bibIds);
         putToResponseMap(maQualifier, bibIds, responseMap);
-        log.info(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, maQualifier, bibIds.size(), bibIds);
+        log.debug(ScsbConstants.LOG_MATCH_ID_QUALIFIER_UPDATE, matchingIdentifier, maQualifier, bibIds.size(), bibIds);
     }
 
     private void putToResponseMap(Integer maQualifier, Set<Integer> bibIds, Map<Integer, Set<Integer>> responseMap) {
