@@ -2,6 +2,7 @@ package org.recap.controllerit;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.recap.BaseTestCase;
 import org.recap.ScsbCommonConstants;
 import org.recap.spring.SwaggerAPIProvider;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 /**
  * Created by chenchulakshmig on 6/14/16.
  */
-
+@Ignore
 public class BaseControllerUT extends BaseTestCase {
     protected MockMvc mockMvc;
     protected HttpMessageConverter mappingJackson2HttpMessageConverter;
