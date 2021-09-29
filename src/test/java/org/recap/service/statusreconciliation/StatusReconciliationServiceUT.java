@@ -27,9 +27,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -113,6 +111,60 @@ public class StatusReconciliationServiceUT {
         requestItemEntityList.add(requestItemEntity);
         List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList=mockStatusReconciliationService.itemStatusComparison(itemEntityChunkList,statusReconciliationErrorCSVRecordList,0);
         assertNotNull(statusReconciliationCSVRecordList);
+    }
+
+    @Test
+    public void processMismatchStatus(){
+        RequestStatusEntity requestStatusEntity = getRequestStatusEntity();
+        List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList = new ArrayList<>();
+        List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
+        List<RequestStatusEntity> requestStatusEntityList = new ArrayList<>();
+        requestStatusEntityList.add(requestStatusEntity);
+        String lasStatus = "IN";
+        ItemEntity itemEntity = getItemEntity();
+        boolean isUnknownCode = false;
+        boolean refileRequired = true;
+        int refileCount = 1;
+        Mockito.when(requestItemStatusDetailsRepository.findByRequestStatusCodeIn(any())).thenReturn(requestStatusEntityList);
+        Mockito.when(requestItemDetailsRepository.getRequestItemEntitiesBasedOnDayLimit(any(), any(), any())).thenReturn(Arrays.asList(1));
+        Mockito.when(requestItemDetailsRepository.findByIdIn(any())).thenReturn(Arrays.asList(getRequestItemEntity()));
+        Mockito.when(requestItemStatusDetailsRepository.findByRequestStatusCode(ScsbCommonConstants.REQUEST_STATUS_REFILED)).thenReturn(getRequestStatusEntity());
+        ReflectionTestUtils.setField(statusReconciliationService,"statusReconciliationRefileMaxCapLimit",10);
+        ReflectionTestUtils.invokeMethod(statusReconciliationService,"processMismatchStatus",statusReconciliationCSVRecordList,itemChangeLogEntityList,lasStatus,itemEntity,isUnknownCode,refileRequired,refileCount);
+    }
+    @Test
+    public void processMismatchStatusException(){
+        RequestStatusEntity requestStatusEntity = getRequestStatusEntity();
+        List<StatusReconciliationCSVRecord> statusReconciliationCSVRecordList = new ArrayList<>();
+        List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
+        List<RequestStatusEntity> requestStatusEntityList = new ArrayList<>();
+        requestStatusEntityList.add(requestStatusEntity);
+        String lasStatus = "IN";
+        ItemEntity itemEntity = getItemEntity();
+        boolean isUnknownCode = false;
+        boolean refileRequired = true;
+        int refileCount = 1;
+        Mockito.when(requestItemStatusDetailsRepository.findByRequestStatusCodeIn(any())).thenReturn(requestStatusEntityList);
+        Mockito.when(requestItemDetailsRepository.getRequestItemEntitiesBasedOnDayLimit(any(), any(), any())).thenReturn(Arrays.asList(1));
+        Mockito.when(requestItemDetailsRepository.findByIdIn(any())).thenReturn(Collections.EMPTY_LIST);
+        Mockito.when(requestItemStatusDetailsRepository.findByRequestStatusCode(ScsbCommonConstants.REQUEST_STATUS_REFILED)).thenReturn(getRequestStatusEntity());
+        ReflectionTestUtils.setField(statusReconciliationService,"statusReconciliationRefileMaxCapLimit",10);
+        ReflectionTestUtils.invokeMethod(statusReconciliationService,"processMismatchStatus",statusReconciliationCSVRecordList,itemChangeLogEntityList,lasStatus,itemEntity,isUnknownCode,refileRequired,refileCount);
+    }
+
+    private RequestItemEntity getRequestItemEntity() {
+        RequestItemEntity requestItemEntity = new RequestItemEntity();
+        requestItemEntity.setId(1);
+        requestItemEntity.setRequestStatusEntity(getRequestStatusEntity());
+        return requestItemEntity;
+    }
+
+    private RequestStatusEntity getRequestStatusEntity() {
+        RequestStatusEntity requestStatusEntity = new RequestStatusEntity();
+        requestStatusEntity.setId(1);
+        requestStatusEntity.setRequestStatusCode("CANCELED");
+        requestStatusEntity.setRequestStatusDescription("CANCELED");
+        return requestStatusEntity;
     }
 
     @Test
