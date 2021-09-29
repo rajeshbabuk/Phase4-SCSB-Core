@@ -147,7 +147,6 @@ public class StatusReconciliationServiceUT {
         Mockito.when(requestItemStatusDetailsRepository.findByRequestStatusCodeIn(any())).thenReturn(requestStatusEntityList);
         Mockito.when(requestItemDetailsRepository.getRequestItemEntitiesBasedOnDayLimit(any(), any(), any())).thenReturn(Arrays.asList(1));
         Mockito.when(requestItemDetailsRepository.findByIdIn(any())).thenReturn(Collections.EMPTY_LIST);
-        Mockito.when(requestItemStatusDetailsRepository.findByRequestStatusCode(ScsbCommonConstants.REQUEST_STATUS_REFILED)).thenReturn(getRequestStatusEntity());
         ReflectionTestUtils.setField(statusReconciliationService,"statusReconciliationRefileMaxCapLimit",10);
         ReflectionTestUtils.invokeMethod(statusReconciliationService,"processMismatchStatus",statusReconciliationCSVRecordList,itemChangeLogEntityList,lasStatus,itemEntity,isUnknownCode,refileRequired,refileCount);
     }
