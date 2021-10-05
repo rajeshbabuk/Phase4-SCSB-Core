@@ -7,6 +7,7 @@ import org.marc4j.marc.Record;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.recap.BaseTestCaseUT;
 import org.recap.ScsbCommonConstants;
 import org.recap.ScsbConstants;
@@ -57,6 +58,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
 
     @InjectMocks
+    @Spy
     SubmitCollectionDAOService submitCollectionDAOService;
 
     @Mock
@@ -1159,6 +1161,51 @@ public class SubmitCollectionDAOServiceUT extends BaseTestCaseUT {
         cgdUpdatedItemEntityList.add(getBibliographicEntity("1").getItemEntities().get(0));
         Map<String, String> cgdUpdatedItemMessageMap = new HashMap<>();
         ReflectionTestUtils.invokeMethod(submitCollectionDAOService,"prepareItemChangeLogEntitiesForCgdUpdates",cgdUpdatedItemEntityList,cgdUpdatedItemMessageMap);
+    }
+
+    @Test
+    public void isNonCompleteBib(){
+        BibliographicEntity bibliographicEntity = getBibliographicEntity("1");
+        bibliographicEntity.setCatalogingStatus(ScsbCommonConstants.COMPLETE_STATUS);
+        ReflectionTestUtils.invokeMethod(submitCollectionDAOService,"isNonCompleteBib",bibliographicEntity);
+    }
+
+    @Test
+    public void isHasCgdShared(){
+        BibliographicEntity bibliographicEntity = getBibliographicEntity("1");
+        bibliographicEntity.getItemEntities().get(0).setCollectionGroupId(1);
+        Map<Integer, String> collectionGroupIdCodeMap = new HashMap<>();
+        collectionGroupIdCodeMap.put(1,ScsbCommonConstants.SHARED_CGD);
+        Mockito.when(setupDataService.getCollectionGroupIdCodeMap()).thenReturn(collectionGroupIdCodeMap);
+        ReflectionTestUtils.invokeMethod(submitCollectionDAOService,"isHasCgdShared",bibliographicEntity);
+    }
+
+
+    @Test
+    public void updateCatalogingStatusForItem(){
+        BibliographicEntity bibliographicEntity = getBibliographicEntity("1");
+        bibliographicEntity.getItemEntities().get(0).setUseRestrictions("test");
+        bibliographicEntity.getItemEntities().get(0).setCollectionGroupId(1);
+        ReflectionTestUtils.invokeMethod(submitCollectionDAOService,"updateCatalogingStatusForItem",bibliographicEntity);
+    }
+
+    @Test
+    public void updateCatalogingStatusForBib(){
+        BibliographicEntity bibliographicEntity = getBibliographicEntity("1");
+        bibliographicEntity.setCatalogingStatus(ScsbCommonConstants.INCOMPLETE_STATUS);
+        bibliographicEntity.getItemEntities().get(0).setCollectionGroupId(1);
+        Map<Integer, String> collectionGroupIdCodeMap = new HashMap<>();
+        collectionGroupIdCodeMap.put(1,ScsbCommonConstants.SHARED_CGD);
+        Mockito.when(setupDataService.getCollectionGroupIdCodeMap()).thenReturn(collectionGroupIdCodeMap);
+        ReflectionTestUtils.invokeMethod(submitCollectionDAOService,"updateCatalogingStatusForBib",bibliographicEntity);
+    }
+
+    @Test
+    public void saveItemChangeLogEntityList(){
+        List<ItemChangeLogEntity> itemChangeLogEntityList = new ArrayList<>();
+        itemChangeLogEntityList.add(getItemChangeLogEntity());
+        Mockito.when(repositoryService.getItemChangeLogDetailsRepository()).thenReturn(itemChangeLogDetailsRepository);
+        ReflectionTestUtils.invokeMethod(submitCollectionDAOService,"saveItemChangeLogEntityList",itemChangeLogEntityList);
     }
 
     @Test
