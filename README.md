@@ -13,7 +13,7 @@ SCSB-CORE is a microservice application that provides the core functionalities f
 
 1.**Cloud Config Server**
 
-Dspring.cloud.config.uri=http://phase4-scsb-config-server:8888
+Dspring.cloud.config.uri=http://phase4-scsb-config-server:<port>
 
 ## Build
 
@@ -31,4 +31,4 @@ Naviagte Inside project folder where Dockerfile is present and Execute the below
 
 User the below command to Run the Docker
 
-**sudo docker run --name phase4-scsb-core -v /data:/recap-vol -p 9097:9097  --label collect_logs_with_filebeat="true" --label decode_log_event_to_json_object="true" -e "ENV= -XX:+HeapDumpOnOutOfMemoryError  -XX:HeapDumpPath=/recap-vol/scsb-core/heapdump/ -Dorg.apache.activemq.SERIALIZABLE_PACKAGES="*"  -Dspring.cloud.config.uri=http://phase4-scsb-config-server:8888 "  --network=scsb  -d phase4-scsb-core**
+**sudo docker run --name phase4-scsb-core -v <mountvolume> -p <port>:<port>  --label collect_logs_with_filebeat="true" --label decode_log_event_to_json_object="true" -e "ENV= -XX:+HeapDumpOnOutOfMemoryError  -XX:HeapDumpPath=<volume> -Dorg.apache.activemq.SERIALIZABLE_PACKAGES="*"  -Dspring.cloud.config.uri=http://phase4-scsb-config-server:<port> "  --network=scsb  -d phase4-scsb-core**
